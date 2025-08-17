@@ -32,6 +32,11 @@ export const getRandomPlaceholderImage = (width: number, height: number) => {
 export const getSafeImageUrl = (url: string | null | undefined, width: number, height: number, fallbackType: keyof typeof fallbackImages = 'thumbnail') => {
   if (!url) return fallbackImages[fallbackType]
   
+  // Eğer relative path ise (uploads/...), backend URL'ini ekle
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:3005${url}`
+  }
+  
   try {
     // URL geçerli mi kontrol et
     new URL(url)

@@ -8,9 +8,14 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { VideosModule } from './modules/videos/videos.module';
+import { SeriesModule } from './modules/series/series.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { AdminModule } from './modules/admin/admin.module';
+
+// Gateways
+import { AdminGateway } from './gateways/admin.gateway';
 
 // Config
 import { DatabaseConfig } from './config/database.config';
@@ -21,6 +26,13 @@ import { DatabaseConfig } from './config/database.config';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      load: [
+        () => ({
+          JWT_SECRET: process.env.JWT_SECRET || 'filmxane_super_secret_key_2024',
+          JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
+          CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:3002',
+        }),
+      ],
     }),
 
     // Database
@@ -43,9 +55,14 @@ import { DatabaseConfig } from './config/database.config';
     AuthModule,
     UsersModule,
     VideosModule,
+    SeriesModule,
+    CategoriesModule,
     SubscriptionsModule,
     PaymentsModule,
     AdminModule,
+    
+    // Gateways
+    AdminGateway,
   ],
 })
 export class AppModule {}

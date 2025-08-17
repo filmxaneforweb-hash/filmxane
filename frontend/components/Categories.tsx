@@ -1,82 +1,110 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Film, Heart, Zap, Map, Smile, Ghost, Microscope, BookOpen } from 'lucide-react'
-
-interface Category {
-  id: string
-  name: string
-  description: string
-  icon: React.ComponentType<any>
-  videoCount: number
-  color: string
-}
+import { ChevronLeft, ChevronRight, Film, Heart, Zap, Map, Ghost, Microscope, BookOpen } from 'lucide-react'
 
 export function Categories() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  const categories: Category[] = [
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' })
+    }
+  }
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' })
+    }
+  }
+
+  const handleCategoryClick = (categoryId: string) => {
+    setSelectedCategory(categoryId)
+    
+    // Route to appropriate page based on category
+    switch (categoryId) {
+      case 'movies':
+        window.location.href = '/movies'
+        break
+      case 'series':
+        window.location.href = '/series'
+        break
+      case 'action':
+        window.location.href = '/movies'
+        break
+      case 'drama':
+        window.location.href = '/movies'
+        break
+      case 'horror':
+        window.location.href = '/movies'
+        break
+      case 'documentaries':
+        window.location.href = '/series'
+        break
+      default:
+        window.location.href = '/videos'
+    }
+  }
+
+  const handleExploreAll = () => {
+    window.location.href = '/videos'
+  }
+
+  const categories = [
     {
-      id: '1',
-      name: 'Drama',
-      description: 'Fîlmên dramatîk û hêstbizin',
+      id: 'movies',
+      name: 'Fîlm',
       icon: Film,
-      videoCount: 45,
-      color: 'from-blue-500 to-cyan-500'
+      videoCount: 156,
+      color: 'from-blue-500 to-blue-600'
     },
     {
-      id: '2',
-      name: 'Komedy',
-      description: 'Fîlmên komedî û xweşbêj',
-      icon: Smile,
-      videoCount: 32,
-      color: 'from-yellow-500 to-orange-500'
+      id: 'series',
+      name: 'Rêzefîlm',
+      icon: Film,
+      videoCount: 89,
+      color: 'from-purple-500 to-purple-600'
     },
     {
-      id: '3',
+      id: 'action',
       name: 'Aksiyon',
-      description: 'Fîlmên aksiyon û tirsnak',
       icon: Zap,
-      videoCount: 28,
-      color: 'from-red-500 to-pink-500'
+      videoCount: 45,
+      color: 'from-red-500 to-orange-500'
     },
     {
-      id: '4',
-      name: 'Serkeftin',
-      description: 'Fîlmên serkeftin û macera',
-      icon: Map,
-      videoCount: 19,
-      color: 'from-green-500 to-emerald-500'
-    },
-    {
-      id: '5',
-      name: 'Hêstbizin',
-      description: 'Fîlmên hêstbizin û evîn',
+      id: 'drama',
+      name: 'Drama',
       icon: Heart,
-      videoCount: 23,
+      videoCount: 67,
       color: 'from-pink-500 to-rose-500'
     },
     {
-      id: '6',
+      id: 'horror',
       name: 'Tirs',
-      description: 'Fîlmên tirs û suspense',
       icon: Ghost,
-      videoCount: 15,
-      color: 'from-purple-500 to-indigo-500'
+      videoCount: 23,
+      color: 'from-gray-500 to-black'
     },
     {
-      id: '7',
-      name: 'Zanistî',
-      description: 'Fîlmên zanistî û teknolojî',
+      id: 'documentaries',
+      name: 'Belgeyên',
       icon: Microscope,
-      videoCount: 12,
-      color: 'from-cyan-500 to-blue-500'
+      videoCount: 34,
+      color: 'from-green-500 to-emerald-500'
     },
     {
-      id: '8',
-      name: 'Dîrokî',
-      description: 'Fîlmên dîrokî û kevneşopî',
+      id: 'adventure',
+      name: 'Serpêhatî',
+      icon: Map,
+      videoCount: 28,
+      color: 'from-amber-500 to-orange-500'
+    },
+    {
+      id: 'educational',
+      name: 'Perwerdehî',
       icon: BookOpen,
       videoCount: 18,
       color: 'from-amber-500 to-yellow-500'
@@ -117,6 +145,7 @@ export function Categories() {
           {/* Modern navigation arrows */}
           <div className="flex items-center gap-3">
             <motion.button 
+              onClick={scrollLeft}
               className="p-3 bg-slate-800/40 backdrop-blur-sm hover:bg-slate-700/60 text-slate-300 hover:text-white rounded-xl transition-all duration-300 border border-slate-600/30 hover:border-slate-500/50 shadow-lg"
               whileHover={{ scale: 1.05, x: -2 }}
               whileTap={{ scale: 0.95 }}
@@ -124,6 +153,7 @@ export function Categories() {
               <ChevronLeft className="w-5 h-5" />
             </motion.button>
             <motion.button 
+              onClick={scrollRight}
               className="p-3 bg-slate-800/40 backdrop-blur-sm hover:bg-slate-700/60 text-slate-300 hover:text-white rounded-xl transition-all duration-300 border border-slate-600/30 hover:border-slate-500/50 shadow-lg"
               whileHover={{ scale: 1.05, x: 2 }}
               whileTap={{ scale: 0.95 }}
@@ -134,7 +164,10 @@ export function Categories() {
         </motion.div>
         
         {/* Modern category grid with enhanced cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-4">
+        <div 
+          ref={scrollContainerRef}
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-4 overflow-x-auto"
+        >
           {categories.map((category, index) => {
             const IconComponent = category.icon
             return (
@@ -146,7 +179,7 @@ export function Categories() {
                 className="group"
               >
                 <motion.button
-                  onClick={() => setSelectedCategory(category.id)}
+                  onClick={() => handleCategoryClick(category.id)}
                   className={`relative w-full p-6 rounded-2xl transition-all duration-300 text-center overflow-hidden ${
                     selectedCategory === category.id
                       ? 'bg-gradient-to-br from-red-500 to-red-600 text-white transform scale-105 shadow-2xl shadow-red-500/25'
@@ -177,24 +210,14 @@ export function Categories() {
                   </motion.div>
                   
                   {/* Content */}
-                  <h3 className="font-bold text-sm mb-2 group-hover:text-white transition-colors duration-300">
-                    {category.name}
-                  </h3>
-                  <p className="text-xs opacity-75 mb-3 line-clamp-2 leading-relaxed">
-                    {category.description}
-                  </p>
-                  
-                  {/* Video count badge */}
-                  <motion.span 
-                    className={`inline-block text-xs px-3 py-1.5 rounded-full font-semibold ${
-                      selectedCategory === category.id
-                        ? 'bg-white/20 text-white'
-                        : 'bg-slate-700/50 text-slate-300 group-hover:bg-slate-600/50'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    {category.videoCount} video
-                  </motion.span>
+                  <div className="relative z-10">
+                    <h3 className="font-semibold text-sm mb-2 capitalize">
+                      {category.name}
+                    </h3>
+                    <p className="text-xs opacity-80">
+                      {category.videoCount} video
+                    </p>
+                  </div>
                 </motion.button>
               </motion.div>
             )
@@ -206,14 +229,15 @@ export function Categories() {
           className="flex justify-center mt-12"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
+          transition={{ delay: 1.0 }}
         >
           <motion.button
-            className="px-10 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-2xl transition-all duration-300 font-semibold text-lg shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40"
+            onClick={handleExploreAll}
+            className="px-10 py-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl transition-all duration-300 font-semibold shadow-xl hover:shadow-2xl hover:shadow-red-500/25"
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
-            Hemû Kategorîyên Keşf Et →
+            Hemû Kategorî Bibîne →
           </motion.button>
         </motion.div>
       </div>

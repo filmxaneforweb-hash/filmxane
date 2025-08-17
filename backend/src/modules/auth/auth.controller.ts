@@ -17,6 +17,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { AdminLoginDto } from './dto/admin-login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('auth')
@@ -39,6 +40,15 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'ئیمەیڵ یان وشەی نهێنی هەڵەیە' })
   async login(@Body() loginDto: LoginDto) {
     return await this.authService.login(loginDto);
+  }
+
+  @Post('admin/login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Admin login' })
+  @ApiResponse({ status: 200, description: 'Admin logged in successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  async adminLogin(@Body() adminLoginDto: AdminLoginDto) {
+    return await this.authService.adminLogin(adminLoginDto.email, adminLoginDto.password);
   }
 
   @Post('forgot-password')
@@ -81,6 +91,17 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'تۆکێن بەسەرچووە' })
   async refreshToken(@Req() req) {
     return await this.authService.refreshToken(req.user.id);
+  }
+
+  @Get('test')
+  @ApiOperation({ summary: 'Test endpoint' })
+  @ApiResponse({ status: 200, description: 'Auth endpoint working' })
+  async test() {
+    return { 
+      message: 'Auth endpoint working',
+      timestamp: new Date().toISOString(),
+      jwtSecret: process.env.JWT_SECRET ? 'PRESENT' : 'MISSING'
+    };
   }
 
   @Get('me')

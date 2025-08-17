@@ -8,10 +8,10 @@ interface Video {
   id: string
   title: string
   description: string
-  thumbnailUrl: string | null
+  thumbnail: string
   duration?: number
   rating?: number
-  viewCount?: number
+  views?: number
   progress?: number
 }
 
@@ -120,10 +120,10 @@ export function VideoRow({
                 id={video.id}
                 title={video.title}
                 description={video.description}
-                thumbnailUrl={video.thumbnailUrl}
+                thumbnail={video.thumbnail}
                 duration={video.duration}
                 rating={video.rating}
-                viewCount={video.viewCount}
+                views={video.views}
               />
               
               {/* Enhanced Progress Bar with modern design */}

@@ -2,147 +2,80 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Crown, Check, Star, Zap, Shield, Download, Users } from 'lucide-react'
-
-interface Feature {
-  type: string
-  value: boolean | number | string
-  description: string
-  displayName: string
-  icon?: React.ComponentType<any>
-}
-
-interface Plan {
-  id: string
-  name: string
-  price: number
-  period: 'monthly' | 'yearly'
-  features: Feature[]
-  popular?: boolean
-  color: string
-}
+import { Crown, Star, Zap, Users, Shield, Download, Check, ChevronRight } from 'lucide-react'
 
 export function SubscriptionPlans() {
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'yearly'>('monthly')
 
-  const plans: Plan[] = [
+  const handleSubscribe = (planId: string, planName: string) => {
+    // TODO: Implement actual subscription logic
+    console.log(`Subscribing to ${planName} (${planId}) - ${selectedPeriod}`)
+    
+    // Show success message or redirect to payment
+    alert(`Tevlî ${planName} bû! Ji kerema xwe pereyan bidin.`)
+  }
+
+  const handleContactSupport = () => {
+    // TODO: Implement contact support functionality
+    console.log('Contacting support...')
+    alert('Ji kerema xwe bi me re têkilî daynin: support@filmxane.com')
+  }
+
+  const plans = [
     {
       id: 'basic',
-      name: 'Plana Bingehîn',
-      price: selectedPeriod === 'monthly' ? 29 : 290,
-      period: selectedPeriod,
-      color: 'from-slate-500 to-gray-600',
+      name: 'Bingehîn',
+      price: selectedPeriod === 'monthly' ? '29.99' : '299.99',
+      originalPrice: selectedPeriod === 'monthly' ? '39.99' : '399.99',
+      description: 'Ji bo kullanıcıyên yekane',
       features: [
-        {
-          type: 'video_quality',
-          value: '720p',
-          description: 'Kalîteya 720p',
-          displayName: 'Kalîteya Vîdyoyê',
-          icon: Zap
-        },
-        {
-          type: 'profiles',
-          value: 2,
-          description: '2 profîl',
-          displayName: 'Profîlên',
-          icon: Users
-        },
-        {
-          type: 'ad_free',
-          value: true,
-          description: 'Tu reklam tune',
-          displayName: 'Bê Reklam',
-          icon: Shield
-        }
-      ]
+        'HD kalîteya vîdyo',
+        '2 cîhazên eynî dem',
+        'Naveroka standard',
+        'Altyazîya kurdî',
+        'Bê reklam'
+      ],
+      popular: false
     },
     {
       id: 'standard',
-      name: 'Plana Standard',
-      price: selectedPeriod === 'monthly' ? 49 : 490,
-      period: selectedPeriod,
-      color: 'from-red-500 to-pink-500',
+      name: 'Standard',
+      price: selectedPeriod === 'monthly' ? '49.99' : '499.99',
+      originalPrice: selectedPeriod === 'monthly' ? '59.99' : '599.99',
+      description: 'Ji bo malbata te',
       features: [
-        {
-          type: 'video_quality',
-          value: '1080p',
-          description: 'Kalîteya 1080p',
-          displayName: 'Kalîteya Vîdyoyê',
-          icon: Zap
-        },
-        {
-          type: 'profiles',
-          value: 4,
-          description: '4 profîl',
-          displayName: 'Profîlên',
-          icon: Users
-        },
-        {
-          type: 'ad_free',
-          value: true,
-          description: 'Tu reklam tune',
-          displayName: 'Bê Reklam',
-          icon: Shield
-        },
-        {
-          type: 'download',
-          value: true,
-          description: 'Daxistin ji bo nexşe',
-          displayName: 'Daxistin',
-          icon: Download
-        }
+        'Full HD kalîteya vîdyo',
+        '4 cîhazên eynî dem',
+        'Naveroka premium',
+        'Altyazîya çend zimanan',
+        'Daxistina offline',
+        'Bê reklam'
       ],
       popular: true
     },
     {
       id: 'premium',
-      name: 'Plana Premium',
-      price: selectedPeriod === 'monthly' ? 79 : 790,
-      period: selectedPeriod,
-      color: 'from-purple-500 to-indigo-500',
+      name: 'Premium',
+      price: selectedPeriod === 'monthly' ? '79.99' : '799.99',
+      originalPrice: selectedPeriod === 'monthly' ? '89.99' : '899.99',
+      description: 'Ji bo kullanıcıyên profesyonel',
       features: [
-        {
-          type: 'video_quality',
-          value: '4K+HDR',
-          description: 'Kalîteya 4K + HDR',
-          displayName: 'Kalîteya Vîdyoyê',
-          icon: Zap
-        },
-        {
-          type: 'profiles',
-          value: 6,
-          description: '6 profîl',
-          displayName: 'Profîlên',
-          icon: Users
-        },
-        {
-          type: 'ad_free',
-          value: true,
-          description: 'Tu reklam tune',
-          displayName: 'Bê Reklam',
-          icon: Shield
-        },
-        {
-          type: 'download',
-          value: true,
-          description: 'Daxistin ji bo nexşe',
-          displayName: 'Daxistin',
-          icon: Download
-        },
-        {
-          type: 'exclusive_content',
-          value: true,
-          description: 'Destpêgihêştina aksesûran',
-          displayName: 'Naveroka Taybet',
-          icon: Crown
-        }
-      ]
+        '4K + HDR kalîteya vîdyo',
+        '6 cîhazên eynî dem',
+        'Naveroka eksklusîf',
+        'Altyazîya hemû zimanan',
+        'Daxistina offline',
+        'Dolby Atmos',
+        'Bê reklam'
+      ],
+      popular: false
     }
   ]
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-900 via-black to-slate-900">
+    <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="px-8 max-w-7xl mx-auto">
+        {/* Modern section header with enhanced styling */}
         <motion.div 
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
@@ -249,53 +182,45 @@ export function SubscriptionPlans() {
                         {selectedPeriod === 'monthly' ? 'Lîre/meh' : 'Lîre/sal'}
                       </span>
                     </div>
+                    {plan.originalPrice !== plan.price && (
+                      <div className="text-slate-500 line-through text-lg">
+                        {plan.originalPrice} Lîre
+                      </div>
+                    )}
+                    <p className="text-slate-400 text-sm">{plan.description}</p>
                   </div>
 
-                  {/* Enhanced features list */}
-                  <ul className="space-y-4 mb-10">
-                    {plan.features.map((feature, featureIndex) => {
-                      const FeatureIcon = feature.icon || Check
-                      return (
-                        <motion.li 
-                          key={featureIndex} 
-                          className="flex items-center text-slate-300 text-sm"
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.8 + index * 0.2 + featureIndex * 0.1 }}
-                        >
-                          <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                            <FeatureIcon className="w-4 h-4 text-green-400" />
-                          </div>
-                          <span className="flex-1 font-medium">{feature.displayName}</span>
-                          <div className="text-xs text-slate-500 ml-3 font-semibold">
-                            {typeof feature.value === 'boolean' && (
-                              <span className={feature.value ? 'text-green-400' : 'text-red-400'}>
-                                {feature.value ? '✓' : '✗'}
-                              </span>
-                            )}
-                            {typeof feature.value === 'number' && (
-                              <span className="text-blue-400">{feature.value}</span>
-                            )}
-                            {typeof feature.value === 'string' && (
-                              <span className="text-purple-400">{feature.value}</span>
-                            )}
-                          </div>
-                        </motion.li>
-                      )
-                    })}
-                  </ul>
+                  {/* Features list */}
+                  <div className="space-y-4 mb-8">
+                    {plan.features.map((feature, featureIndex) => (
+                      <motion.div
+                        key={featureIndex}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.8 + index * 0.2 + featureIndex * 0.1 }}
+                        className="flex items-center gap-3"
+                      >
+                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Check className="w-3 h-3 text-white" />
+                        </div>
+                        <span className="text-slate-300 text-sm">{feature}</span>
+                      </motion.div>
+                    ))}
+                  </div>
 
-                  {/* Enhanced CTA button */}
+                  {/* Subscribe button */}
                   <motion.button
-                    className={`w-full py-4 px-6 rounded-2xl font-bold transition-all duration-300 text-lg shadow-lg ${
+                    onClick={() => handleSubscribe(plan.id, plan.name)}
+                    className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
                       isPopular
-                        ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-red-500/25 hover:shadow-red-500/40'
-                        : 'bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white hover:shadow-slate-500/25'
+                        ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl'
+                        : 'bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 hover:border-slate-500'
                     }`}
-                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    Plana Hilbijêre
+                    <span>Abone Bibe</span>
+                    <ChevronRight className="w-4 h-4" />
                   </motion.button>
                 </motion.div>
               </motion.div>
@@ -303,23 +228,27 @@ export function SubscriptionPlans() {
           })}
         </div>
 
-        {/* Modern "Need Help?" section */}
+        {/* Need Help Section */}
         <motion.div 
           className="text-center mt-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
         >
-          <p className="text-slate-400 text-lg mb-6">
-            Pirsgirêkek heye? Em alîkarîya te dikin
-          </p>
-          <motion.button
-            className="px-8 py-3 bg-slate-800/40 backdrop-blur-sm text-slate-300 hover:text-white rounded-xl transition-all duration-300 border border-slate-600/30 hover:border-slate-500/50 hover:bg-slate-700/40 font-medium"
-            whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            Alîkarîya Me → 
-          </motion.button>
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-8 border border-slate-600/30 max-w-2xl mx-auto">
+            <h3 className="text-2xl font-bold text-white mb-4">Alîkariya te heye?</h3>
+            <p className="text-slate-400 mb-6">
+              Eger pirsgirêkek hebe an jî alîkariya te hewce be, bi me re têkilî daynin.
+            </p>
+            <motion.button
+              onClick={handleContactSupport}
+              className="bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 border border-slate-600 hover:border-slate-500"
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Alîkariya Bixwaze
+            </motion.button>
+          </div>
         </motion.div>
       </div>
     </section>

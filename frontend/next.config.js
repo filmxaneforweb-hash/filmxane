@@ -51,7 +51,8 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+    // If not provided externally, leave empty or point to backend 3004 so api.ts auto-detection/fallback works
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3004/api',
   },
   // Performance optimizations for Next.js 15
   compress: true,

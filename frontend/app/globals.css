@@ -14,6 +14,53 @@
   display: none;
 }
 
+/* Modal positioning fixes */
+.modal-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.modal-content {
+  margin: auto;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+/* Ensure modals are properly centered */
+.fixed.inset-0 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fix for modal positioning */
+.fixed.inset-0 > div {
+  margin: auto;
+  transform: none !important;
+}
+
+/* Custom scrollbar for modals */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #6B7280;
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
 @layer base {
   /* Remove scroll-behavior from html to fix Next.js warning */
   /* Use data-scroll-behavior="smooth" in layout.tsx instead */

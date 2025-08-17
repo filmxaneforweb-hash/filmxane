@@ -11,10 +11,12 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
     return {
       type: 'sqlite',
       database: join(__dirname, '../../..', 'filmxane.db'),
-      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+      entities: [
+        __dirname + '/../entities/*.entity{.ts,.js}',
+      ],
       migrations: [__dirname + '/../migrations/*{.ts,.js}'],
-      synchronize: this.configService.get('NODE_ENV') === 'development',
-      logging: this.configService.get('NODE_ENV') === 'development',
+      synchronize: true, // Tabloları otomatik oluştur
+      logging: true, // Her zaman logging açık
     };
   }
 }

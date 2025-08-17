@@ -1,181 +1,181 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
-import { Video, VideoStatus } from '../../entities/video.entity';
-import { Category } from '../../entities/category.entity';
-import { Favorite } from '../../entities/favorite.entity';
+import { Video } from '../../entities/video.entity';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
+import * as fs from 'fs';
+import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import { VideoType, VideoStatus } from '../../entities/video.entity';
 
 @Injectable()
 export class VideosService {
   constructor(
     @InjectRepository(Video)
-    private readonly videoRepository: Repository<Video>,
-    @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>,
-    @InjectRepository(Favorite)
-    private readonly favoriteRepository: Repository<Favorite>,
+    private videosRepository: Repository<Video>,
   ) {}
 
-  async findAll(query: any = {}): Promise<Video[]> {
-    const queryBuilder = this.videoRepository
-      .createQueryBuilder('video')
-      .leftJoinAndSelect('video.categories', 'categories')
-      .leftJoinAndSelect('video.uploadedBy', 'uploadedBy')
-      .where('video.status = :status', { status: VideoStatus.PUBLISHED });
-
-    if (query.category) {
-      queryBuilder.andWhere('categories.id = :categoryId', { categoryId: query.category });
+  async create(createVideoDto: CreateVideoDto, videoFile: Express.Multer.File, thumbnailFile?: Express.Multer.File): Promise<Video> {
+    const video = new Video();
+    
+    // Generate unique filename
+    const videoId = uuidv4();
+    const videoExtension = path.extname(videoFile.originalname);
+    const videoFilename = `${videoId}${videoExtension}`;
+    
+    // Save video file
+    const videoPath = path.join(process.cwd(), 'uploads', 'videos', videoFilename);
+    const videoDir = path.dirname(videoPath);
+    
+    if (!fs.existsSync(videoDir)) {
+      fs.mkdirSync(videoDir, { recursive: true });
     }
-
-    if (query.search) {
-      queryBuilder.andWhere(
-        '(video.title ILIKE :search OR video.description ILIKE :search)',
-        { search: `%${query.search}%` }
-      );
+    
+    fs.writeFileSync(videoPath, videoFile.buffer);
+    
+    // Save thumbnail if provided
+    let thumbnailPath = null;
+    if (thumbnailFile) {
+      const thumbnailExtension = path.extname(thumbnailFile.originalname);
+      const thumbnailFilename = `${videoId}_thumb${thumbnailExtension}`;
+      thumbnailPath = path.join(process.cwd(), 'uploads', 'thumbnails', thumbnailFilename);
+      const thumbnailDir = path.dirname(thumbnailPath);
+      
+      if (!fs.existsSync(thumbnailDir)) {
+        fs.mkdirSync(thumbnailDir, { recursive: true });
+      }
+      
+      fs.writeFileSync(thumbnailPath, thumbnailFile.buffer);
+      thumbnailPath = `/uploads/thumbnails/${thumbnailFilename}`;
     }
-
-    if (query.type) {
-      queryBuilder.andWhere('video.type = :type', { type: query.type });
-    }
-
-    return await queryBuilder
-      .orderBy('video.createdAt', 'DESC')
-      .getMany();
+    
+    // Set video properties
+    video.title = createVideoDto.title;
+    video.description = createVideoDto.description;
+    video.genre = JSON.stringify(createVideoDto.genre); // Array'i JSON string olarak sakla
+    video.year = createVideoDto.year;
+    video.rating = createVideoDto.rating || 0;
+    video.duration = createVideoDto.duration;
+    video.views = 0;
+    video.isFeatured = createVideoDto.isFeatured || false;
+    video.isNew = createVideoDto.isNew || false;
+    video.type = createVideoDto.type; // 'movie' or 'series'
+    video.videoPath = `/uploads/videos/${videoFilename}`;
+    video.videoUrl = `/uploads/videos/${videoFilename}`; // Frontend için URL
+    video.thumbnailPath = thumbnailPath;
+    video.thumbnailUrl = thumbnailPath; // Frontend için URL
+    video.episodeNumber = createVideoDto.episodeNumber;
+    video.seasonNumber = createVideoDto.seasonNumber;
+    video.seriesId = createVideoDto.seriesId;
+    
+    return this.videosRepository.save(video);
   }
 
-  async findById(id: string): Promise<Video> {
-    const video = await this.videoRepository.findOne({
-      where: { id },
-      relations: ['categories', 'uploadedBy', 'favorites'],
+  async findAll(): Promise<Video[]> {
+    return this.videosRepository.find({
+      where: { status: VideoStatus.PUBLISHED },
+      order: { createdAt: 'DESC' }
     });
-
-    if (!video) {
-      throw new NotFoundException('ڤیدیۆ نەدۆزرایەوە');
-    }
-
-    return video;
   }
 
-  async create(createVideoDto: CreateVideoDto, userId: string): Promise<Video> {
-    // Tags'i JSON string'e çevir
-    const { tags, ...videoData } = createVideoDto;
-    const processedTags = tags ? JSON.stringify(tags) : '[]';
-
-    const video = this.videoRepository.create({
-      ...videoData,
-      tags: processedTags,
-      uploadedById: userId, // uploadedBy yerine uploadedById kullan
-    });
-
-    if (createVideoDto.categoryIds) {
-      const categories = await this.categoryRepository.findByIds(createVideoDto.categoryIds);
-      video.categories = categories;
-    }
-
-    return await this.videoRepository.save(video);
+  async findOne(id: string): Promise<Video> {
+    return this.videosRepository.findOne({ where: { id } });
   }
 
   async update(id: string, updateVideoDto: UpdateVideoDto): Promise<Video> {
-    const video = await this.findById(id);
-    
-    // Tags'i JSON string'e çevir
-    const { tags, ...videoData } = updateVideoDto;
-    if (tags) {
-      video.tags = JSON.stringify(tags);
+    // Genre alanını JSON string olarak dönüştür
+    const updateData: any = { ...updateVideoDto };
+    if (updateData.genre) {
+      updateData.genre = JSON.stringify(updateData.genre);
     }
     
-    Object.assign(video, videoData);
-
-    if (updateVideoDto.categoryIds) {
-      const categories = await this.categoryRepository.findByIds(updateVideoDto.categoryIds);
-      video.categories = categories;
-    }
-
-    return await this.videoRepository.save(video);
+    await this.videosRepository.update(id, updateData);
+    return this.findOne(id);
   }
 
-  async delete(id: string): Promise<void> {
-    const video = await this.findById(id);
-    await this.videoRepository.remove(video);
-  }
-
-  async toggleFavorite(videoId: string, userId: string): Promise<{ isFavorite: boolean }> {
-    const existingFavorite = await this.favoriteRepository.findOne({
-      where: { videoId, userId },
-    });
-
-    if (existingFavorite) {
-      await this.favoriteRepository.remove(existingFavorite);
-      return { isFavorite: false };
-    } else {
-      const favorite = this.favoriteRepository.create({
-        videoId,
-        userId,
-      });
-      await this.favoriteRepository.save(favorite);
-      return { isFavorite: true };
+  async remove(id: string): Promise<void> {
+    const video = await this.findOne(id);
+    if (video) {
+      // Delete video file
+      if (video.videoPath) {
+        const videoPath = path.join(process.cwd(), video.videoPath);
+        if (fs.existsSync(videoPath)) {
+          fs.unlinkSync(videoPath);
+        }
+      }
+      
+      // Delete thumbnail file
+      if (video.thumbnailPath) {
+        const thumbnailPath = path.join(process.cwd(), video.thumbnailPath);
+        if (fs.existsSync(thumbnailPath)) {
+          fs.unlinkSync(thumbnailPath);
+        }
+      }
+      
+      await this.videosRepository.remove(video);
     }
   }
 
-  async getFavorites(userId: string): Promise<Video[]> {
-    return await this.videoRepository
-      .createQueryBuilder('video')
-      .leftJoinAndSelect('video.favorites', 'favorites')
-      .leftJoinAndSelect('video.categories', 'categories')
-      .where('favorites.userId = :userId', { userId })
-      .andWhere('video.status = :status', { status: VideoStatus.PUBLISHED })
-      .orderBy('favorites.createdAt', 'DESC')
-      .getMany();
-  }
-
-  async incrementViewCount(id: string): Promise<void> {
-    await this.videoRepository.increment({ id }, 'viewCount', 1);
-  }
-
-  async getFeatured(): Promise<Video[]> {
-    return await this.videoRepository.find({
-      where: { isFeatured: true, status: VideoStatus.PUBLISHED },
-      relations: ['categories'],
-      order: { createdAt: 'DESC' },
-      take: 10,
+  async findByType(type: VideoType): Promise<Video[]> {
+    return this.videosRepository.find({ 
+      where: { 
+        type,
+        status: VideoStatus.PUBLISHED
+      },
+      order: { createdAt: 'DESC' }
     });
   }
 
-  async getTrending(): Promise<Video[]> {
-    return await this.videoRepository.find({
-      where: { isTrending: true, status: VideoStatus.PUBLISHED },
-      relations: ['categories'],
-      order: { viewCount: 'DESC' },
-      take: 10,
+  async findFeatured(): Promise<Video[]> {
+    return this.videosRepository.find({ 
+      where: { 
+        isFeatured: true,
+        status: VideoStatus.PUBLISHED
+      },
+      order: { createdAt: 'DESC' }
     });
   }
 
-  async getStats(): Promise<{
-    totalVideos: number;
-    publishedVideos: number;
-    totalViews: number;
-    totalFavorites: number;
-  }> {
-    const totalVideos = await this.videoRepository.count();
-    const publishedVideos = await this.videoRepository.count({
-      where: { status: VideoStatus.PUBLISHED },
+  async findNew(): Promise<Video[]> {
+    return this.videosRepository.find({ 
+      where: { 
+        isNew: true,
+        status: VideoStatus.PUBLISHED
+      },
+      order: { createdAt: 'DESC' }
     });
+  }
 
-    const viewStats = await this.videoRepository
-      .createQueryBuilder('video')
-      .select('SUM(video.viewCount)', 'totalViews')
-      .getRawOne();
+  async incrementViews(id: string): Promise<void> {
+    await this.videosRepository.increment({ id }, 'views', 1);
+  }
 
-    const favoriteStats = await this.favoriteRepository.count();
-
-    return {
-      totalVideos,
-      publishedVideos,
-      totalViews: parseInt(viewStats.totalViews) || 0,
-      totalFavorites: favoriteStats,
-    };
+  async fixVideoUrls(): Promise<{ updated: number; total: number }> {
+    const videos = await this.videosRepository.find();
+    let updatedCount = 0;
+    
+    for (const video of videos) {
+      let needsUpdate = false;
+      
+      // videoUrl güncelle
+      if (!video.videoUrl && video.videoPath) {
+        video.videoUrl = video.videoPath;
+        needsUpdate = true;
+      }
+      
+      // thumbnailUrl güncelle
+      if (!video.thumbnailUrl && video.thumbnailPath) {
+        video.thumbnailUrl = video.thumbnailPath;
+        needsUpdate = true;
+      }
+      
+      if (needsUpdate) {
+        await this.videosRepository.save(video);
+        updatedCount++;
+      }
+    }
+    
+    return { updated: updatedCount, total: videos.length };
   }
 }

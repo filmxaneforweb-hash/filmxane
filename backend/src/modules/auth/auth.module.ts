@@ -16,12 +16,16 @@ import { User } from '../../entities/user.entity';
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
-        signOptions: {
-          expiresIn: configService.get('JWT_EXPIRES_IN', '7d'),
-        },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const secret = configService.get('JWT_SECRET') || 'filmxane_super_secret_key_2024';
+        console.log('🔐 JWT Module configured with secret:', secret ? 'PRESENT' : 'MISSING');
+        return {
+          secret,
+          signOptions: {
+            expiresIn: configService.get('JWT_EXPIRES_IN', '7d'),
+          },
+        };
+      },
       inject: [ConfigService],
     }),
   ],

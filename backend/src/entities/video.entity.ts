@@ -45,6 +45,9 @@ export class Video {
   @Column({ type: 'text' })
   description: string;
 
+  @Column({ type: 'text', nullable: true })
+  genre: string; // Veritabanında text olarak saklanacak, JSON string
+
   @Column({
     type: 'varchar',
     default: VideoType.MOVIE,
@@ -59,6 +62,9 @@ export class Video {
 
   @Column({ nullable: true })
   duration?: number; // seconds
+
+  @Column({ nullable: true })
+  year?: number;
 
   @Column({ nullable: true })
   releaseYear?: number;
@@ -83,6 +89,9 @@ export class Video {
 
   @Column({ default: 0 })
   viewCount: number;
+
+  @Column({ default: 0 })
+  views: number;
 
   @Column({ default: 0 })
   likeCount: number;
@@ -120,11 +129,14 @@ export class Video {
   totalEpisodes?: number;
 
   @Column({ nullable: true })
+  seriesId?: string;
+
+  @Column({ nullable: true })
   totalSeasons?: number;
 
   // Metadata
-  @Column({ type: 'simple-json', nullable: true })
-  metadata?: Record<string, any>;
+  @Column({ type: 'text', nullable: true })
+  metadata?: string; // Veritabanında text olarak saklanacak, JSON string
 
   @Column({ type: 'text', default: '[]' })
   tags: string; // JSON string olarak saklanacak
@@ -133,7 +145,13 @@ export class Video {
   isFeatured: boolean;
 
   @Column({ default: false })
-  isTrending: boolean;
+  isNew: boolean;
+
+  @Column({ nullable: true })
+  videoPath?: string;
+
+  @Column({ nullable: true })
+  thumbnailPath?: string;
 
   @Column({ nullable: true })
   publishedAt?: Date;
@@ -182,6 +200,32 @@ export class Video {
   get averageRating(): number {
     const totalVotes = this.likeCount + this.dislikeCount;
     return totalVotes > 0 ? (this.likeCount / totalVotes) * 5 : 0;
+  }
+
+  // Genre için getter ve setter
+  get parsedGenre(): string[] {
+    try {
+      return JSON.parse(this.genre || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  set parsedGenre(genre: string[]) {
+    this.genre = JSON.stringify(genre);
+  }
+
+  // Metadata için getter ve setter
+  get parsedMetadata(): Record<string, any> {
+    try {
+      return JSON.parse(this.metadata || '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  set parsedMetadata(metadata: Record<string, any>) {
+    this.metadata = JSON.stringify(metadata);
   }
 
   // Tags için getter ve setter

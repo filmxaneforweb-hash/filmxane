@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Play, Heart, Clock, MoreVertical } from 'lucide-react'
 import Image from 'next/image'
@@ -10,10 +11,12 @@ interface VideoCardProps {
   id: string
   title: string
   description: string
-  thumbnailUrl: string | null
+  thumbnail?: string
+  thumbnailUrl?: string
+  thumbnailPath?: string
   duration?: number
   rating?: number
-  viewCount?: number
+  views?: number
   isFavorite?: boolean
   onFavoriteToggle?: () => void
 }
@@ -22,13 +25,17 @@ export function VideoCard({
   id,
   title,
   description,
+  thumbnail,
   thumbnailUrl,
+  thumbnailPath,
   duration,
   rating,
-  viewCount,
+  views,
   isFavorite = false,
   onFavoriteToggle,
 }: VideoCardProps) {
+  const [localIsFavorite, setLocalIsFavorite] = useState(isFavorite)
+
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
@@ -48,6 +55,25 @@ export function VideoCard({
     return count.toString()
   }
 
+  const handleFavoriteToggle = () => {
+    if (onFavoriteToggle) {
+      onFavoriteToggle()
+    } else {
+      // Local state management if no external handler
+      setLocalIsFavorite(!localIsFavorite)
+      console.log(`${localIsFavorite ? 'Removing' : 'Adding'} ${title} to favorites`)
+      alert(`${localIsFavorite ? 'Ji favorî hate rakirin' : 'Li favorî hate zêdekirin'}: ${title}`)
+    }
+  }
+
+  const handleMoreOptions = () => {
+    // TODO: Implement more options menu
+    console.log('More options for:', title)
+    alert(`Vebijêrkên zêdetir ji bo: ${title}`)
+  }
+
+  const currentFavoriteState = onFavoriteToggle ? isFavorite : localIsFavorite
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -59,7 +85,7 @@ export function VideoCard({
       {/* Thumbnail - Netflix style */}
       <div className="relative aspect-video overflow-hidden">
         <Image
-          src={getSafeImageUrl(thumbnailUrl, 300, 200, 'thumbnail')}
+          src={getSafeImageUrl(thumbnail || thumbnailUrl || thumbnailPath, 300, 200, 'thumbnail')}
           alt={title}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -88,54 +114,52 @@ export function VideoCard({
         )}
 
         {/* Favorite button */}
-        {onFavoriteToggle && (
-          <button
-            onClick={onFavoriteToggle}
-            className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 backdrop-blur-sm hover:scale-110"
-          >
-            <Heart
-              className={`w-4 h-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`}
-            />
-          </button>
-        )}
+        <button
+          onClick={handleFavoriteToggle}
+          className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 backdrop-blur-sm hover:scale-110"
+        >
+          <Heart
+            className={`w-4 h-4 ${currentFavoriteState ? 'fill-red-500 text-red-500' : ''}`}
+          />
+        </button>
 
         {/* More options button */}
-        <button className="absolute top-2 left-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 backdrop-blur-sm hover:scale-110 opacity-0 group-hover:opacity-100">
+        <button
+          onClick={handleMoreOptions}
+          className="absolute top-2 left-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 backdrop-blur-sm hover:scale-110 opacity-0 group-hover:opacity-100"
+        >
           <MoreVertical className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Content - Modern minimal style */}
+      {/* Content */}
       <div className="p-4">
-        <Link href={`/videos/${id}`}>
-          <h3 className="font-medium text-sm mb-2 line-clamp-1 group-hover:text-white transition-colors duration-300 text-slate-200">
-            {title}
-          </h3>
-        </Link>
+        <h3 className="font-semibold text-white mb-2 line-clamp-2 group-hover:text-red-400 transition-colors duration-200">
+          {title}
+        </h3>
         
-        <p className="text-slate-400 text-xs mb-3 line-clamp-2 leading-relaxed">
+        <p className="text-slate-400 text-sm mb-3 line-clamp-2 leading-relaxed">
           {description}
         </p>
 
-        {/* Modern minimal meta info */}
-        <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-3">
+        {/* Meta info */}
+        <div className="flex items-center justify-between text-xs text-slate-500">
+          <div className="flex items-center gap-2">
             {rating && (
-              <div className="flex items-center gap-1.5">
-                <span className="text-amber-400">★</span>
-                <span className="font-medium text-slate-300">{rating.toFixed(1)}</span>
+              <div className="flex items-center gap-1">
+                <span className="text-yellow-400">★</span>
+                <span>{rating}</span>
               </div>
             )}
-            <span className="font-medium text-slate-400">{formatViewCount(viewCount)} temaşevan</span>
+            {views && (
+              <div className="flex items-center gap-1">
+                <span>👁</span>
+                <span>{formatViewCount(views)}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
-
-      {/* Hover effect border */}
-      <div className="absolute inset-0 border-2 border-transparent group-hover:border-red-500 rounded-md transition-all duration-300 opacity-0 group-hover:opacity-100" />
-      
-      {/* Netflix style shadow on hover */}
-      <div className="absolute inset-0 rounded-md shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
     </motion.div>
   )
 }

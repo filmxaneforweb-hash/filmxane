@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { VideoCard } from './VideoCard'
 import { getSafeImageUrl, getResponsiveGridClass } from '@/lib/utils'
+import { useContent } from '@/contexts/ContentContext'
 
 interface Video {
   id: string
@@ -22,104 +23,31 @@ interface Video {
 }
 
 export function FeaturedVideos() {
-  const [videos, setVideos] = useState<Video[]>([])
-  const [loading, setLoading] = useState(true)
+  const { movies, series, isLoading } = useContent()
+  const [currentIndex, setCurrentIndex] = useState(0)
 
-  useEffect(() => {
-    // TODO: API'den featured videos'ları çek
-    // Şimdilik mock data kullanıyoruz
-    const mockVideos: Video[] = [
-      {
-        id: '1',
-        title: 'Destpêkeke Ciwan',
-        description: 'Fîlmeke ciwan û balkêş',
-        thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
-        duration: 7200, // 2 saat
-        category: 'Drama',
-        viewCount: 1250,
-        rating: 4.5,
-        uploadedBy: {
-          firstName: 'Ehmed',
-          lastName: 'Mihemed'
-        }
-      },
-      {
-        id: '2',
-        title: 'Çîrokeke Têkildar',
-        description: 'Çîrokeke têkildar û balkêş',
-        thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
-        duration: 5400, // 1.5 saat
-        category: 'Komedy',
-        viewCount: 890,
-        rating: 4.2,
-        uploadedBy: {
-          firstName: 'Fatime',
-          lastName: 'Elî'
-        }
-      },
-      {
-        id: '3',
-        title: 'Serkeftin',
-        description: 'Fîlmeke serkeftin û balkêş',
-        thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
-        duration: 6300, // 1.75 saat
-        category: 'Aksiyon',
-        viewCount: 2100,
-        rating: 4.7,
-        uploadedBy: {
-          firstName: 'Kurdî',
-          lastName: 'Film'
-        }
-      },
-      {
-        id: '4',
-        title: 'Hêstbizin',
-        description: 'Fîlmeke hêstbizin û balkêş',
-        thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
-        duration: 4800, // 1.33 saat
-        category: 'Romantîk',
-        viewCount: 1560,
-        rating: 4.3,
-        uploadedBy: {
-          firstName: 'Zîn',
-          lastName: 'Kurd'
-        }
-      },
-      {
-        id: '5',
-        title: 'Tirs',
-        description: 'Fîlmeke tirs û balkêş',
-        thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
-        duration: 5400, // 1.5 saat
-        category: 'Horror',
-        viewCount: 980,
-        rating: 4.6,
-        uploadedBy: {
-          firstName: 'Tirs',
-          lastName: 'Film'
-        }
-      },
-      {
-        id: '6',
-        title: 'Komedy',
-        description: 'Fîlmeke komedî û balkêş',
-        thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
-        duration: 4500, // 1.25 saat
-        category: 'Komedy',
-        viewCount: 3200,
-        rating: 4.1,
-        uploadedBy: {
-          firstName: 'Komedy',
-          lastName: 'Kurd'
-        }
-      }
-    ]
-    
-    setVideos(mockVideos)
-    setLoading(false)
-  }, [])
+  // Combine movies and series, filter featured content
+  const featuredContent = [...(movies || []), ...(series || [])]
+    .filter(content => content.isFeatured)
+    .slice(0, 10)
 
-  if (loading) {
+  // Convert to Video interface format
+  const videos: Video[] = featuredContent.map(content => ({
+    id: content.id,
+    title: content.title,
+    description: content.description || '',
+    thumbnail: getSafeImageUrl(content.thumbnail, 300, 200, 'thumbnail'),
+    duration: 'duration' in content ? content.duration : 0,
+    category: content.genre?.[0] || 'Unknown',
+    viewCount: content.views || 0,
+    rating: 'rating' in content ? content.rating : 0,
+    uploadedBy: {
+      firstName: content.director || 'Unknown',
+      lastName: 'Director'
+    }
+  }))
+
+  if (isLoading) {
     return (
       <section className="py-8 bg-black">
         <div className="px-8">
@@ -179,10 +107,10 @@ export function FeaturedVideos() {
                 id={video.id}
                 title={video.title}
                 description={video.description}
-                thumbnailUrl={video.thumbnail}
+                thumbnail={video.thumbnail}
                 duration={video.duration}
                 rating={video.rating}
-                viewCount={video.viewCount}
+                views={video.views}
               />
             </motion.div>
           ))}

@@ -119,3 +119,9 @@ uploads/
 
 # PM2
 .pm2/
+
+# PostgreSQL installers
+postgresql*.exe
+
+# Root level node_modules (but keep package.json files)
+node_modules/

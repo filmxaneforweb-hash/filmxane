@@ -107,7 +107,7 @@ export function ContinueWatching() {
                 id={video.id}
                 title={video.title}
                 description={video.description}
-                thumbnailUrl={video.thumbnail}
+                thumbnail={video.thumbnail}
                 duration={video.duration}
                 rating={video.rating}
                 viewCount={video.viewCount}

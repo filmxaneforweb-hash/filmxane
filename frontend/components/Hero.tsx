@@ -127,14 +127,21 @@ export function Hero({ featuredVideo }: HeroProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
-            <Link href="/videos">
+            {/* Watch Button - Dynamic routing based on featured video */}
+            <Link href={featuredVideo ? 
+              (featuredVideo.type === 'movie' ? '/movies' : '/series') : 
+              '/videos'
+            }>
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 className="group relative bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white flex items-center gap-3 px-8 py-4 rounded-xl font-semibold transition-all duration-300 shadow-2xl shadow-red-500/25 hover:shadow-red-500/40"
               >
                 <Play className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="currentColor" />
-                Temaşe Et
+                {featuredVideo ? 
+                  (featuredVideo.type === 'movie' ? 'Fîlmên Bibîne' : 'Rêzefîlmên Bibîne') : 
+                  'Fîlmên Bibîne'
+                }
                 <motion.div
                   className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.2) 0%, transparent 100%)' }}
@@ -142,14 +149,21 @@ export function Hero({ featuredVideo }: HeroProps) {
               </motion.button>
             </Link>
             
-            <Link href="/about">
+            {/* Info Button - Dynamic routing */}
+            <Link href={featuredVideo ? 
+              (featuredVideo.type === 'movie' ? '/movies' : '/series') : 
+              '/about'
+            }>
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 className="bg-slate-800/40 backdrop-blur-sm text-white hover:bg-slate-700/60 flex items-center gap-3 px-8 py-4 rounded-xl font-semibold transition-all duration-300 border border-slate-600/50 hover:border-slate-500/70 shadow-xl"
               >
                 <Info className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                Zêdetir Bizane
+                {featuredVideo ? 
+                  (featuredVideo.type === 'movie' ? 'Fîlmên Zêdetir' : 'Rêzefîlmên Zêdetir') : 
+                  'Derbarê Me'
+                }
               </motion.button>
             </Link>
           </motion.div>

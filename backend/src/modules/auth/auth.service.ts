@@ -16,14 +16,29 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-  ) {}
+  ) {
+    // Verify JWT service is properly injected
+    if (!this.jwtService) {
+      throw new Error('JWT Service not properly injected');
+    }
+  }
 
   async register(registerDto: RegisterDto): Promise<{ user: User; token: string }> {
     const { email, password, firstName, lastName } = registerDto;
 
+    console.log('🚀 Register attempt:', { 
+      email, 
+      firstName, 
+      lastName, 
+      passwordLength: password?.length 
+    });
+
     // Check if user already exists
     const existingUser = await this.userRepository.findOne({ where: { email } });
+    console.log('👤 Existing user check:', existingUser ? 'FOUND' : 'NOT_FOUND');
+    
     if (existingUser) {
+      console.log('❌ User already exists with email:', email);
       throw new ConflictException('ئیمەیڵ پێشتر بەکارهاتووە');
     }
 
@@ -41,24 +56,50 @@ export class AuthService {
     });
 
     const savedUser = await this.userRepository.save(user);
+    console.log('✅ User saved successfully:', { 
+      id: savedUser.id, 
+      email: savedUser.email, 
+      role: savedUser.role 
+    });
 
     // Generate JWT token
+    console.log('🎫 Generating JWT token for new user:', savedUser.id);
     const token = this.generateToken(savedUser);
+    console.log('🎫 Token generated:', token ? 'SUCCESS' : 'FAILED', 'Length:', token?.length);
 
     return { user: savedUser, token };
   }
 
   async login(loginDto: LoginDto): Promise<{ user: User; token: string }> {
     const { email, password } = loginDto;
+    
+    console.log('🔐 Login attempt:', { email, passwordLength: password?.length });
 
     // Find user
     const user = await this.userRepository.findOne({ where: { email } });
+    console.log('👤 User found:', user ? { 
+      id: user.id, 
+      email: user.email, 
+      status: user.status,
+      passwordHash: user.password?.substring(0, 20) + '...',
+      passwordLength: user.password?.length
+    } : 'NOT_FOUND');
+    
     if (!user) {
+      console.log('❌ User not found for email:', email);
       throw new UnauthorizedException('ئیمەیڵ یان وشەی نهێنی هەڵەیە');
     }
 
     // Check password
+    console.log('🔑 Password check:', { 
+      providedPassword: password, 
+      hashedPassword: user.password?.substring(0, 20) + '...',
+      passwordLength: user.password?.length 
+    });
+    
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('✅ Password valid:', isPasswordValid);
+    
     if (!isPasswordValid) {
       throw new UnauthorizedException('ئیمەیڵ یان وشەی نهێنی هەڵەیە');
     }
@@ -73,7 +114,9 @@ export class AuthService {
     await this.userRepository.save(user);
 
     // Generate JWT token
+    console.log('🎫 Generating JWT token for user:', user.id);
     const token = this.generateToken(user);
+    console.log('🎫 Token generated:', token ? 'SUCCESS' : 'FAILED', 'Length:', token?.length);
 
     return { user, token };
   }
@@ -164,6 +207,51 @@ export class AuthService {
     };
 
     return this.jwtService.sign(payload);
+  }
+
+  async adminLogin(email: string, password: string): Promise<{ user: User; token: string }> {
+    console.log('🔐 Admin login attempt:', { email, passwordLength: password?.length });
+
+    // Find admin user
+    const user = await this.userRepository.findOne({ 
+      where: { 
+        email,
+        role: UserRole.ADMIN 
+      } 
+    });
+    
+    console.log('👤 Admin user found:', user ? { 
+      id: user.id, 
+      email: user.email, 
+      role: user.role,
+      status: user.status
+    } : 'NOT_FOUND');
+    
+    if (!user) {
+      console.log('❌ Admin user not found for email:', email);
+      throw new UnauthorizedException('ئیمەیڵ یان وشەی نهێنی هەڵەیە');
+    }
+
+    // Check if user is active
+    if (user.status !== UserStatus.ACTIVE) {
+      console.log('❌ Admin user is not active:', user.status);
+      throw new UnauthorizedException('هەژمار نەچالاکە');
+    }
+
+    // Check password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('🔑 Admin password check:', { isValid: isPasswordValid });
+    
+    if (!isPasswordValid) {
+      console.log('❌ Invalid password for admin:', email);
+      throw new UnauthorizedException('ئیمەیڵ یان وشەی نهێنی هەڵەیە');
+    }
+
+    // Generate JWT token
+    const token = this.generateToken(user);
+    console.log('🎫 Admin token generated:', token ? 'SUCCESS' : 'FAILED');
+
+    return { user, token };
   }
 
   async createAdminUser(email: string, password: string, firstName: string, lastName: string): Promise<User> {
