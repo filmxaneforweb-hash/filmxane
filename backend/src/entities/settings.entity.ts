@@ -8,70 +8,36 @@ export class SystemSettings {
   @Column({ default: 'Filmxane' })
   siteName: string;
 
-  @Column({ default: 'Kurdish Video Platform' })
+  @Column({ default: 'Platforma fîlm û rêzefîlman' })
   siteDescription: string;
 
   @Column({ default: false })
   maintenanceMode: boolean;
 
   @Column({ default: true })
-  allowRegistrations: boolean;
+  allowRegistration: boolean;
 
-  @Column({ default: '100MB' })
-  maxUploadSize: string;
+  @Column({ default: true })
+  allowComments: boolean;
 
-  @Column({ type: 'text', default: '["MP4", "AVI", "MOV", "MKV"]' })
-  supportedVideoFormats: string; // JSON string olarak saklanacak
+  @Column({ default: 100 })
+  maxUploadSize: number;
 
-  @Column({ type: 'text', default: '["JPG", "PNG", "GIF"]' })
-  supportedImageFormats: string; // JSON string olarak saklanacak
+  @Column({ type: 'simple-array', default: 'mp4,avi,mov,mkv' })
+  allowedFileTypes: string[];
 
-  @Column({ default: 'ku' })
-  defaultLanguage: string;
+  @Column({ default: true })
+  emailNotifications: boolean;
 
-  @Column({ default: 'Asia/Baghdad' })
-  timezone: string;
+  @Column({ default: true })
+  pushNotifications: boolean;
 
-  @Column({ default: '1.0.0' })
-  version: string;
-
-  @Column({ nullable: true })
-  serverTime: string;
-
-  @Column({ nullable: true })
-  uptime: string;
-
-  @Column({ nullable: true })
-  lastBackup: string;
+  @Column({ default: 'auto' })
+  theme: string;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  // Getter ve setter metodları
-  get parsedVideoFormats(): string[] {
-    try {
-      return JSON.parse(this.supportedVideoFormats || '[]');
-    } catch {
-      return ['MP4', 'AVI', 'MOV', 'MKV'];
-    }
-  }
-
-  set parsedVideoFormats(formats: string[]) {
-    this.supportedVideoFormats = JSON.stringify(formats);
-  }
-
-  get parsedImageFormats(): string[] {
-    try {
-      return JSON.parse(this.supportedImageFormats || '[]');
-    } catch {
-      return ['JPG', 'PNG', 'GIF'];
-    }
-  }
-
-  set parsedImageFormats(formats: string[]) {
-    this.supportedImageFormats = JSON.stringify(formats);
-  }
 }

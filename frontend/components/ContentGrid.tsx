@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Play, Heart, Clock, Star } from 'lucide-react'
 import Link from 'next/link'
 import { Movie, Series } from '@/lib/api'
-import { getSafeImageUrl } from '@/lib/utils'
+import { getSafeImageUrl, getRandomPlaceholderImage } from '@/lib/utils'
 
 interface ContentGridProps {
   title: string
@@ -111,9 +111,14 @@ export function ContentGrid({
                       {/* Thumbnail */}
                       <div className="relative aspect-[2/3] overflow-hidden">
                         <img
-                          src={getSafeImageUrl(item.thumbnail || item.thumbnailUrl || item.thumbnailPath, 300, 400, 'poster')}
+                          src={getSafeImageUrl(item.thumbnailUrl || item.posterUrl || item.thumbnail, 300, 400, 'poster')}
                           alt={item.title}
                           className="w-full h-full object-cover transition-transform duration-300 group-hover/item:scale-110"
+                          onError={(e) => {
+                            // Resim yüklenemezse placeholder göster
+                            const target = e.target as HTMLImageElement;
+                            target.src = getRandomPlaceholderImage(300, 400);
+                          }}
                         />
                         
                         {/* Overlay */}
@@ -159,14 +164,14 @@ export function ContentGrid({
                           <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4" />
                             <span>
-                              {isMovie ? `${item.duration || 0} min` : `${item.totalSeasons || 0} seasons`}
+                              {isMovie ? `${item.duration || 0} min` : `${(item as any).totalSeasons || 0} seasons`}
                             </span>
                           </div>
                         </div>
 
                         {/* Genres */}
                         <div className="mt-3 flex flex-wrap gap-1">
-                          {(typeof item.genre === 'string' ? JSON.parse(item.genre) : item.genre).slice(0, 2).map((genre) => (
+                          {(typeof item.genre === 'string' ? JSON.parse(item.genre) : item.genre).slice(0, 2).map((genre: string) => (
                             <span
                               key={genre}
                               className="px-2 py-1 bg-slate-700 text-slate-300 text-xs rounded"

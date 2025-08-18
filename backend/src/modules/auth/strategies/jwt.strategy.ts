@@ -23,10 +23,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    const user = await this.authService.validateUser(payload);
-    if (!user) {
-      throw new UnauthorizedException();
+    try {
+      const user = await this.authService.validateUser(payload);
+      if (!user) {
+        throw new UnauthorizedException('Kullanıcı bulunamadı');
+      }
+      return user;
+    } catch (error) {
+      // Re-throw UnauthorizedException as is
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      
+      // For other errors, throw a generic UnauthorizedException
+      throw new UnauthorizedException('Token doğrulanamadı');
     }
-    return user;
   }
 }

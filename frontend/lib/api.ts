@@ -37,6 +37,8 @@ export interface Movie {
   descriptionKurdish: string
   thumbnail: string
   poster: string
+  thumbnailUrl?: string
+  posterUrl?: string
   trailer: string
   videoUrl: string
   duration: number // in minutes
@@ -64,6 +66,8 @@ export interface Series {
   descriptionKurdish: string
   thumbnail: string
   poster: string
+  thumbnailUrl?: string
+  posterUrl?: string
   trailer: string
   year: number
   genre: string[]
@@ -177,8 +181,11 @@ class ApiClient {
       'Content-Type': 'application/json',
     }
     
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`
+    // Get fresh token from localStorage each time
+    const currentToken = typeof window !== 'undefined' ? localStorage.getItem('filmxane_token') : null
+    
+    if (currentToken) {
+      headers.Authorization = `Bearer ${currentToken}`
     }
     
     return headers
@@ -202,21 +209,60 @@ class ApiClient {
         headers: this.getHeaders(),
       })
 
+      console.log(`📊 Response status: ${response.status}`)
+      console.log(`📊 Response ok: ${response.ok}`)
+
       if (!response.ok) {
         if (response.status === 401) {
           this.clearToken()
-          throw new Error('Authentication failed')
+          console.log('❌ Authentication failed - clearing token')
+          return {
+            success: false,
+            error: 'Authentication failed. Please login again.'
+          }
         }
-        throw new Error(`HTTP error! status: ${response.status}`)
+        
+        // Try to get error message from response
+        let errorMessage = `HTTP error! status: ${response.status}`
+        try {
+          const errorData = await response.json()
+          if (errorData.message) {
+            errorMessage = errorData.message
+          } else if (errorData.error) {
+            errorMessage = errorData.error
+          }
+        } catch (e) {
+          // If we can't parse JSON, use status text
+          errorMessage = response.statusText || `HTTP error! status: ${response.status}`
+        }
+        
+        return {
+          success: false,
+          error: errorMessage
+        }
       }
 
       const data = await response.json()
-      return data
+      console.log('✅ API Response data:', data)
+      
+      return {
+        success: true,
+        data: data
+      }
     } catch (error) {
-      console.error('API request failed:', error)
+      console.error('❌ API request failed:', error)
+      
+      // Check if it's a network error
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        return {
+          success: false,
+          error: 'Backend bağlantısı kurulamadı. Lütfen backend\'in çalıştığından emin olun.'
+        }
+      }
+      
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
+        error: error instanceof Error ? error.message : 'Bilinmeyen hata oluştu'
       }
     }
   }
@@ -261,7 +307,7 @@ class ApiClient {
   }
 
   async getProfile(): Promise<ApiResponse<User>> {
-    return this.request<User>('/auth/profile')
+    return this.request<User>('/auth/me')
   }
 
   // Content APIs
@@ -330,19 +376,20 @@ class ApiClient {
 
   // User Content APIs
   async getFavorites(): Promise<ApiResponse<(Movie | Series)[]>> {
-    return this.request<(Movie | Series)[]>('/user/favorites')
+    return this.request<(Movie | Series)[]>('/favorites/my-favorites')
   }
 
   async addToFavorites(contentId: string, contentType: 'movie' | 'series'): Promise<ApiResponse<void>> {
-    return this.request<void>('/user/favorites', {
+    return this.request<void>('/favorites', {
       method: 'POST',
-      body: JSON.stringify({ contentId, contentType }),
+      body: JSON.stringify({ videoId: contentId, type: contentType }),
     })
   }
 
   async removeFromFavorites(contentId: string): Promise<ApiResponse<void>> {
-    return this.request<void>(`/user/favorites/${contentId}`, {
+    return this.request<void>('/favorites', {
       method: 'DELETE',
+      body: JSON.stringify({ videoId: contentId }),
     })
   }
 

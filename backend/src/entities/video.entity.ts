@@ -99,6 +99,9 @@ export class Video {
   @Column({ default: 0 })
   dislikeCount: number;
 
+  @Column({ default: 0 })
+  shares: number;
+
   // Video files
   @Column({ nullable: true })
   videoUrl?: string;

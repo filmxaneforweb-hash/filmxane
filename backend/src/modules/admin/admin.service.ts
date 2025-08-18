@@ -31,12 +31,20 @@ export class AdminService {
       .select('SUM(video.views)', 'sum')
       .getRawOne();
     const totalViews = parseInt(totalViewsResult.sum) || 0;
+    const featuredContent = await this.videosRepository.count({ where: { isFeatured: true } });
+    const newContent = await this.videosRepository.count({ 
+      where: { 
+        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days
+      } 
+    });
 
     return {
       totalMovies,
       totalSeries,
       totalUsers,
       totalViews,
+      featuredContent,
+      newContent,
     };
   }
 
@@ -353,70 +361,55 @@ export class AdminService {
       // Create default settings if none exist
       const defaultSettings = this.settingsRepository.create({
         siteName: 'Filmxane',
-        siteDescription: 'Kurdish Video Platform',
+        siteDescription: 'Platforma fîlm û rêzefîlman',
         maintenanceMode: false,
-        allowRegistrations: true,
-        maxUploadSize: '100MB',
-        supportedVideoFormats: '["MP4", "AVI", "MOV", "MKV"]',
-        supportedImageFormats: '["JPG", "PNG", "GIF"]',
-        defaultLanguage: 'ku',
-        timezone: 'Asia/Baghdad',
-        version: '1.0.0',
+        allowRegistration: true,
+        allowComments: true,
+        maxUploadSize: 100,
+        allowedFileTypes: ['mp4', 'avi', 'mov', 'mkv'],
+        emailNotifications: true,
+        pushNotifications: true,
+        theme: 'auto'
       });
       settings = await this.settingsRepository.save(defaultSettings);
     }
 
-    // Calculate server uptime (simplified)
-    const uptime = '24h 0m 0s' // For now, we'll use a static value
-
-    // Get current server time
-    const now = new Date()
-    const serverTime = now.toISOString()
-    
-    // Parse the JSON strings to arrays for frontend
-    let videoFormats = ['MP4', 'AVI', 'MOV', 'MKV']
-    let imageFormats = ['JPG', 'PNG', 'GIF']
-    
-    try {
-      if (settings.supportedVideoFormats) {
-        videoFormats = JSON.parse(settings.supportedVideoFormats)
-      }
-      if (settings.supportedImageFormats) {
-        imageFormats = JSON.parse(settings.supportedImageFormats)
-      }
-    } catch (error) {
-      console.log('Error parsing formats, using defaults')
-    }
-    
-    // Return settings with real-time server info
+    // Return settings in the format expected by frontend
     return {
-      ...settings,
-      supportedVideoFormats: videoFormats,
-      supportedImageFormats: imageFormats,
-      serverTime: serverTime,
-      uptime: uptime,
-      lastBackup: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 24 hours ago
+      siteName: settings.siteName || 'Filmxane',
+      siteDescription: settings.siteDescription || 'Platforma fîlm û rêzefîlman',
+      maintenanceMode: settings.maintenanceMode || false,
+      allowRegistration: settings.allowRegistration || true,
+      allowComments: settings.allowComments || true,
+      maxUploadSize: settings.maxUploadSize || 100,
+      allowedFileTypes: settings.allowedFileTypes || ['mp4', 'avi', 'mov', 'mkv'],
+      emailNotifications: settings.emailNotifications || true,
+      pushNotifications: settings.pushNotifications || true,
+      theme: settings.theme || 'auto'
     };
   }
 
-  async updateSystemSettings(updateData: Partial<SystemSettings>) {
+  async updateSystemSettings(updateData: any) {
     // Get current settings
     let settings = await this.settingsRepository.findOne({ where: {} });
     
     if (!settings) {
       // Create new settings if none exist
-      settings = this.settingsRepository.create(updateData as SystemSettings);
+      settings = this.settingsRepository.create({
+        siteName: updateData.siteName || 'Filmxane',
+        siteDescription: updateData.siteDescription || 'Platforma fîlm û rêzefîlman',
+        maintenanceMode: updateData.maintenanceMode || false,
+        allowRegistration: updateData.allowRegistration || true,
+        allowComments: updateData.allowComments || true,
+        maxUploadSize: updateData.maxUploadSize || 100,
+        allowedFileTypes: updateData.allowedFileTypes || ['mp4', 'avi', 'mov', 'mkv'],
+        emailNotifications: updateData.emailNotifications || true,
+        pushNotifications: updateData.pushNotifications || true,
+        theme: updateData.theme || 'auto'
+      });
     } else {
       // Update existing settings
       Object.assign(settings, updateData);
-    }
-    
-    // Convert arrays back to JSON strings for storage
-    if (updateData.supportedVideoFormats && Array.isArray(updateData.supportedVideoFormats)) {
-      settings.supportedVideoFormats = JSON.stringify(updateData.supportedVideoFormats)
-    }
-    if (updateData.supportedImageFormats && Array.isArray(updateData.supportedImageFormats)) {
-      settings.supportedImageFormats = JSON.stringify(updateData.supportedImageFormats)
     }
     
     // Save to database
@@ -435,19 +428,18 @@ export class AdminService {
 
     return users.map(user => ({
       id: user.id,
-      name: `${user.firstName} ${user.lastName}`,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
-      phone: user.phoneNumber || '+964 XXX XXX XXXX',
       role: user.role || 'user',
       status: user.status === 'active' ? 'active' : 'inactive',
-      subscription: user.subscription?.plan || 'basic',
-      joinDate: user.createdAt.toISOString().split('T')[0],
-      lastLogin: user.lastLoginAt?.toISOString().split('T')[0] || 'Never',
-      totalWatched: 0, // TODO: Implement from user activity
-      favorites: 0, // TODO: Implement from favorites
-      reviews: 0, // TODO: Implement from reviews
-      isVerified: user.emailVerified || false,
-      isPremium: user.subscription?.plan === 'premium' || user.subscription?.plan === 'family'
+      emailVerified: user.emailVerified || false,
+      subscription: {
+        plan: user.subscription?.plan || 'basic',
+        status: user.subscription?.status || 'active'
+      },
+      createdAt: user.createdAt.toISOString(),
+      lastLogin: user.lastLoginAt?.toISOString() || null
     }));
   }
 
@@ -510,6 +502,7 @@ export class AdminService {
       total: totalUsers,
       active: activeUsers,
       premium: premiumUsers + familyUsers,
+      basic: totalUsers - (premiumUsers + familyUsers),
       verified: verifiedUsers,
       totalWatched: 0, // TODO: Implement from user activity
       totalFavorites: 0 // TODO: Implement from favorites
@@ -669,25 +662,67 @@ export class AdminService {
   }
 
   async createSeries(createSeriesDto: any, thumbnailFile?: Express.Multer.File, posterFile?: Express.Multer.File) {
-    // For now, we'll create a video with type SERIES
-    // In the future, you might want a separate series table
-    const series = this.videosRepository.create({
-      ...createSeriesDto,
-      thumbnailUrl: thumbnailFile ? `/uploads/thumbnails/${thumbnailFile.filename}` : null,
-      posterUrl: posterFile ? `/uploads/posters/${posterFile.filename}` : null,
-      type: VideoType.SERIES,
-      views: 0,
-      rating: 0,
-      isFeatured: false,
-      isNew: true
-    });
+    try {
+      console.log('📝 Creating series with data:', createSeriesDto);
+      
+      // Ensure genre is an array
+      let genreArray = createSeriesDto.genre;
+      if (typeof genreArray === 'string') {
+        try {
+          genreArray = JSON.parse(genreArray);
+        } catch (error) {
+          console.log('Failed to parse genre, using empty array');
+          genreArray = [];
+        }
+      }
+      if (!Array.isArray(genreArray)) {
+        genreArray = [];
+      }
+      
+      // Ensure totalSeasons and totalEpisodes are numbers
+      const totalSeasons = typeof createSeriesDto.totalSeasons === 'string' 
+        ? parseInt(createSeriesDto.totalSeasons) || 1 
+        : createSeriesDto.totalSeasons || 1;
+        
+      const totalEpisodes = typeof createSeriesDto.totalEpisodes === 'string' 
+        ? parseInt(createSeriesDto.totalEpisodes) || 1 
+        : createSeriesDto.totalEpisodes || 1;
+      
+      console.log('✅ Processed series data:');
+      console.log('  genre:', genreArray, 'type:', typeof genreArray);
+      console.log('  totalSeasons:', totalSeasons, 'type:', typeof totalSeasons);
+      console.log('  totalEpisodes:', totalEpisodes, 'type:', typeof totalEpisodes);
+      
+      // For now, we'll create a video with type SERIES
+      // In the future, you might want a separate series table
+      const series = this.videosRepository.create({
+        title: createSeriesDto.title,
+        description: createSeriesDto.description,
+        genre: JSON.stringify(genreArray), // JSON string olarak sakla
+        year: createSeriesDto.year,
+        rating: createSeriesDto.rating || 0,
+        status: createSeriesDto.status || 'ongoing',
+        totalSeasons: totalSeasons,
+        totalEpisodes: totalEpisodes,
+        thumbnailUrl: thumbnailFile ? `/uploads/thumbnails/${thumbnailFile.filename}` : null,
+        posterUrl: posterFile ? `/uploads/posters/${posterFile.filename}` : null,
+        type: VideoType.SERIES,
+        views: 0,
+        isFeatured: createSeriesDto.isFeatured || false,
+        isNew: createSeriesDto.isNew || true
+      });
 
-    const savedSeries = await this.videosRepository.save(series);
-    
-    // WebSocket ile admin'lere bildir
-    this.adminGateway.notifySeriesAdded(savedSeries);
-    
-    return savedSeries;
+      const savedSeries = await this.videosRepository.save(series);
+      console.log('✅ Series created successfully:', savedSeries.id);
+      
+      // WebSocket ile admin'lere bildir
+      this.adminGateway.notifySeriesAdded(savedSeries);
+      
+      return savedSeries;
+    } catch (error) {
+      console.error('❌ Error creating series:', error);
+      throw new Error(`Failed to create series: ${error.message}`);
+    }
   }
 
   async getMovies() {
@@ -708,5 +743,73 @@ export class AdminService {
     }
     
     return adminUser.id;
+  }
+
+  async getAllContent() {
+    const allVideos = await this.videosRepository.find({
+      order: { createdAt: 'DESC' }
+    });
+
+    return allVideos.map(video => ({
+      id: video.id,
+      title: video.title,
+      type: video.type === VideoType.MOVIE ? 'movie' : 'series',
+      thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/300x200/3B82F6/FFFFFF?text=Content',
+      views: video.views || 0,
+      rating: video.rating || 0,
+      isFeatured: video.isFeatured || false,
+      isNew: new Date().getTime() - video.createdAt.getTime() < 7 * 24 * 60 * 60 * 1000, // 7 days
+      status: video.status || 'published',
+      createdAt: video.createdAt.toISOString(),
+      genre: video.genre ? JSON.parse(video.genre) : []
+    }));
+  }
+
+  async deleteContent(contentId: string) {
+    const content = await this.videosRepository.findOne({ where: { id: contentId } });
+    
+    if (!content) {
+      throw new Error('Content not found');
+    }
+
+    // Delete the content
+    await this.videosRepository.remove(content);
+    
+    // WebSocket ile admin'lere bildir
+    this.adminGateway.notifyContentDeleted(contentId);
+    
+    return { success: true, message: 'Content deleted successfully' };
+  }
+
+  async toggleContentFeature(contentId: string, isFeatured: boolean) {
+    const content = await this.videosRepository.findOne({ where: { id: contentId } });
+    
+    if (!content) {
+      throw new Error('Content not found');
+    }
+
+    content.isFeatured = isFeatured;
+    await this.videosRepository.save(content);
+    
+    // WebSocket ile admin'lere bildir
+    this.adminGateway.notifyContentUpdated(content);
+    
+    return { success: true, message: `Content ${isFeatured ? 'featured' : 'unfeatured'} successfully` };
+  }
+
+  async updateContentStatus(contentId: string, status: string) {
+    const content = await this.videosRepository.findOne({ where: { id: contentId } });
+    
+    if (!content) {
+      throw new Error('Content not found');
+    }
+
+    content.status = status as any;
+    await this.videosRepository.save(content);
+    
+    // WebSocket ile admin'lere bildir
+    this.adminGateway.notifyContentUpdated(content);
+    
+    return { success: true, message: `Content status updated to ${status}` };
   }
 }

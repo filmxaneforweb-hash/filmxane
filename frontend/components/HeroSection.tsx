@@ -6,6 +6,7 @@ import { Play, Info, Heart, Clock, Star } from 'lucide-react'
 import Link from 'next/link'
 import { useContent } from '@/contexts/ContentContext'
 import { Movie, Series } from '@/lib/api'
+import { getSafeImageUrl } from '@/lib/utils'
 
 export function HeroSection() {
   const { featuredContent, isLoading } = useContent()
@@ -46,7 +47,7 @@ export function HeroSection() {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url(${currentContent.poster})`,
+          backgroundImage: `url(${getSafeImageUrl(currentContent.thumbnail || currentContent.poster, 1920, 1080, 'thumbnail')})`,
         }}
       >
         {/* Gradient Overlay */}

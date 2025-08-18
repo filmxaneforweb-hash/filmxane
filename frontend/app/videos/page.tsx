@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Search, Film, TrendingUp, Star, Clock, Users } from 'lucide-react'
 import { VideoRow } from '@/components/VideoRow'
 import { useContent } from '@/contexts/ContentContext'
+import { getSafeImageUrl } from '@/lib/utils'
 
 export default function VideosPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -55,24 +56,38 @@ export default function VideosPage() {
       {/* Hero Section */}
       <section className="py-16 px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <motion.h1 
-            className="text-5xl md:text-6xl font-bold text-white mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="bg-gradient-to-r from-white via-purple-100 to-purple-200 bg-clip-text text-transparent">
-              Hemû Fîlm û Rêzefîlm
-            </span>
-          </motion.h1>
-          <motion.p 
-            className="text-xl text-slate-400 max-w-3xl mx-auto mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Herî baştirîn naverokên kurdî û cîhanî bibîne û temaşe bike
-          </motion.p>
+          {/* Hero Background with Featured Content */}
+          {movies && movies.length > 0 && (
+            <div className="relative mb-12">
+              <div 
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat rounded-2xl"
+                style={{ 
+                  backgroundImage: `url('${getSafeImageUrl(movies[0]?.thumbnailUrl || movies[0]?.posterUrl || movies[0]?.thumbnail, 1920, 600, 'thumbnail')}')` 
+                }}
+              />
+              <div className="absolute inset-0 bg-black/60 rounded-2xl" />
+              <div className="relative z-10 py-16 px-8">
+                <motion.h1 
+                  className="text-5xl md:text-6xl font-bold text-white mb-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <span className="bg-gradient-to-r from-white via-purple-100 to-purple-200 bg-clip-text text-transparent">
+                    Hemû Fîlm û Rêzefîlm
+                  </span>
+                </motion.h1>
+                <motion.p 
+                  className="text-xl text-slate-400 max-w-3xl mx-auto mb-8"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                >
+                  Herî baştirîn naverokên kurdî û cîhanî bibîne û temaşe bike
+                </motion.p>
+              </div>
+            </div>
+          )}
 
           {/* Search Bar */}
           <motion.div 

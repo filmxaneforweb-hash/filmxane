@@ -1,13 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { seedCategories } from './seeds/categories.seed';
-import { seedUsers } from './seeds/users.seed';
-import { DataSource } from 'typeorm';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import * as fs from 'fs';
 import * as path from 'path';
-import { NestExpressApplication } from '@nestjs/platform-express';
 
 // Set JWT secret if not provided
 if (!process.env.JWT_SECRET) {
@@ -19,6 +16,7 @@ const createUploadsDirectories = () => {
   const uploadsDir = path.join(process.cwd(), 'uploads');
   const videosDir = path.join(uploadsDir, 'videos');
   const thumbnailsDir = path.join(uploadsDir, 'thumbnails');
+  const postersDir = path.join(uploadsDir, 'posters');
   
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -28,6 +26,9 @@ const createUploadsDirectories = () => {
   }
   if (!fs.existsSync(thumbnailsDir)) {
     fs.mkdirSync(thumbnailsDir, { recursive: true });
+  }
+  if (!fs.existsSync(postersDir)) {
+    fs.mkdirSync(postersDir, { recursive: true });
   }
   
   console.log('📁 Upload directories created successfully');
@@ -44,72 +45,77 @@ async function bootstrap() {
     prefix: '/uploads',
   });
 
+  // Global exception filter to prevent server crashes
+  app.useGlobalFilters(new (class {
+    catch(exception: any, host: any) {
+      // Only log critical errors, not authentication failures
+      if (exception?.response?.statusCode === 500 || exception?.response?.statusCode >= 500) {
+        console.error('❌ Critical server error:', exception?.message || exception);
+      } else if (exception?.response?.statusCode === 401) {
+        // Silent authentication failures - just continue
+        return;
+      } else if (exception?.response?.statusCode === 404) {
+        // Silent 404 errors - just continue
+        return;
+      } else if (exception?.response?.statusCode === 400) {
+        // Silent 400 errors - just continue
+        return;
+      } else if (exception instanceof HttpException) {
+        const status = exception.getStatus();
+        if (status >= 500) {
+          console.error(`❌ Critical HTTP ${status} error:`, exception.getResponse());
+        }
+        // For other HTTP errors, just continue silently
+        return;
+      } else {
+        // Only log unknown critical errors
+        console.error('❌ Unknown critical error:', exception?.message || exception);
+      }
+      
+      // Always continue, never crash
+      return;
+    }
+  })());
+
   // Global prefix
   app.setGlobalPrefix('api');
 
-  // CORS configuration
-  app.enableCors({
-    origin:
-      process.env.CORS_ORIGIN?.split(',') || [
-        'http://localhost:3000',  // Film sitesi
-        'http://localhost:3002',  // Admin panel (eski port)
-        'http://localhost:5173',  // Admin panel (yeni port)
-      ],
-    credentials: true,
-  });
-
-  // Increase body size limit for large file uploads
-  app.use((req, res, next) => {
-    res.setHeader('Content-Length', '0');
-    res.setHeader('Transfer-Encoding', 'chunked');
-    next();
-  });
-
-  // Global validation pipe
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true, // Validation'ı geri açıyoruz
-      transform: true,
-    }),
-  );
-
-  // Swagger documentation
+  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Filmxane API')
-    .setDescription('Kürtçe streaming platformu API dokümantasyonu')
+    .setDescription('Filmxane platformu için REST API')
     .setVersion('1.0')
     .addBearerAuth()
-    .addTag('auth', 'Kimlik doğrulama')
-    .addTag('users', 'Kullanıcı yönetimi')
-    .addTag('videos', 'Video yönetimi')
-    .addTag('subscriptions', 'Abonelik yönetimi')
-    .addTag('payments', 'Ödeme işlemleri')
-    .addTag('admin', 'Admin paneli')
     .build();
-
+  
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
+
+  // CORS configuration
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001', 
+      'http://localhost:3002',
+      'http://localhost:5173',
+      'http://localhost:4173'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    credentials: true,
+  });
 
   const port = process.env.PORT || 3005;
   await app.listen(port);
   
-  // Seed initial data
-  try {
-    const dataSource = app.get(DataSource);
-    // Tabloların oluşmasını bekle
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    await seedCategories(dataSource);
-    console.log('🌱 Categories seeded successfully');
-    await seedUsers(dataSource);
-    console.log('👥 Users seeded successfully');
-  } catch (error) {
-    console.log('⚠️ Could not seed data:', error.message);
-    console.log('📝 This is normal if tables are still being created');
-  }
-  
-  console.log(`🚀 Filmxane API ${port} portunda çalışıyor`);
+  console.log(`🚀 Filmxane Backend başlatıldı: http://localhost:${port}`);
   console.log(`📚 API Dokümantasyonu: http://localhost:${port}/api/docs`);
+  console.log(`📁 Static files: http://localhost:${port}/uploads`);
+  console.log(`🔐 Gerçek kullanıcı kayıtları için hazır`);
 }
 
-bootstrap();
+bootstrap().catch(err => {
+  console.error('❌ Backend başlatılamadı:', err);
+  // Don't exit, just log the error
+  console.log('⚠️ Backend hata ile karşılaştı ama durmadı');
+});

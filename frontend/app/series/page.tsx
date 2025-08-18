@@ -4,28 +4,43 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Search, Filter, Play, Heart, Clock, Star, Tv } from 'lucide-react'
 import { apiClient } from '@/lib/api'
+import { useRouter } from 'next/navigation'
+import { getSafeImageUrl } from '@/lib/utils'
 
 export default function SeriesPage() {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [selectedYear, setSelectedYear] = useState('all')
-  const [series, setSeries] = useState([])
+  const [series, setSeries] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Watch series function
+  const handleWatchSeries = (seriesId: string) => {
+    router.push(`/videos/${seriesId}`)
+  }
 
   // Fetch series from API
   useEffect(() => {
     const fetchSeries = async () => {
       try {
         setLoading(true)
+        console.log('🔍 Fetching series...')
         const response = await apiClient.getSeries()
+        console.log('📊 Series response:', response)
+        
         if (response.success && response.data) {
-          setSeries(response.data.items || [])
+          // Backend'den gelen veriyi düzenle
+          const formattedSeries = response.data.items || response.data || []
+          console.log('📺 Formatted series:', formattedSeries)
+          setSeries(formattedSeries)
         } else {
-          setError('Failed to fetch series')
+          console.error('❌ Failed to fetch series:', response.error)
+          setError(response.error || 'Failed to fetch series')
         }
       } catch (error) {
-        console.error('Error fetching series:', error)
+        console.error('❌ Error fetching series:', error)
         setError('Failed to fetch series')
       } finally {
         setLoading(false)
@@ -36,15 +51,45 @@ export default function SeriesPage() {
   }, [])
 
   // Get unique genres and years from series
-  const genres = ['all', ...Array.from(new Set(series.map(show => show.genre).flat()))]
-  const years = ['all', ...Array.from(new Set(series.map(show => show.year))).sort((a, b) => b - a)]
+  const genres = ['all', ...Array.from(new Set(
+    series
+      .map(show => {
+        // Genre'yi parse et (JSON string veya array olabilir)
+        if (typeof show.genre === 'string') {
+          try {
+            return JSON.parse(show.genre)
+          } catch {
+            return [show.genre]
+          }
+        }
+        return show.genre || []
+      })
+      .flat()
+      .filter(Boolean)
+      .filter(genre => genre !== 'all') // 'all' seçeneğini tekrar ekleme
+  ))]
+
+  const years = ['all', ...Array.from(new Set(
+    series
+      .map(show => show.year || show.releaseYear)
+      .filter(Boolean)
+  )).sort((a, b) => b - a)]
 
   // Filter series based on search and filters
   const filteredSeries = series.filter(show => {
-    const matchesSearch = show.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         show.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesGenre = selectedGenre === 'all' || (show.genre && show.genre.includes(selectedGenre))
-    const matchesYear = selectedYear === 'all' || show.year.toString() === selectedYear
+    const showGenre = typeof show.genre === 'string' 
+      ? (() => {
+          try { return JSON.parse(show.genre) } 
+          catch { return [show.genre] }
+        })()
+      : (show.genre || [])
+    
+    const matchesSearch = show.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         show.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesGenre = selectedGenre === 'all' || showGenre.includes(selectedGenre)
+    const matchesYear = selectedYear === 'all' || 
+                       (show.year?.toString() === selectedYear || 
+                        show.releaseYear?.toString() === selectedYear)
     
     return matchesSearch && matchesGenre && matchesYear
   })
@@ -191,7 +236,7 @@ export default function SeriesPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6 }}
             >
-              <h3 className="text-2xl font-bold text-slate-400 mb-4">
+              <h3 className="text-2xl font-bold text-red-400 mb-4">
                 {error}
               </h3>
               <p className="text-slate-500 mb-8">
@@ -200,71 +245,119 @@ export default function SeriesPage() {
             </motion.div>
           ) : filteredSeries.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredSeries.map((show, index) => (
-                <motion.div
-                  key={show.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="bg-slate-800/40 backdrop-blur-sm rounded-2xl overflow-hidden border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300 group hover:scale-105"
-                >
-                  {/* Thumbnail */}
-                  <div className="relative aspect-video bg-slate-700/50 flex items-center justify-center">
-                    <Tv className="w-16 h-16 text-blue-500 group-hover:scale-110 transition-transform duration-300" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    
-                    {/* Genre Badge */}
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2 py-1 bg-blue-500/80 text-white text-xs rounded-full font-medium">
-                        {show.genre}
-                      </span>
+              {filteredSeries.map((show, index) => {
+                // Genre'yi parse et
+                const showGenre = typeof show.genre === 'string' 
+                  ? (() => {
+                      try { return JSON.parse(show.genre) } 
+                      catch { return [show.genre] }
+                    })()
+                  : (show.genre || [])
+                
+                const displayGenre = Array.isArray(showGenre) ? showGenre[0] : showGenre
+                
+                return (
+                  <motion.div
+                    key={show.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="bg-slate-800/40 backdrop-blur-sm rounded-2xl overflow-hidden border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300 group hover:scale-105"
+                  >
+                    {/* Thumbnail */}
+                    <div className="relative aspect-video bg-slate-700/50 flex items-center justify-center overflow-hidden">
+                      {show.thumbnailUrl ? (
+                        <img 
+                          src={getSafeImageUrl(show.thumbnailUrl, 400, 225, 'thumbnail')} 
+                          alt={show.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Resim yüklenemezse placeholder göster
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const placeholder = target.nextElementSibling as HTMLElement;
+                            if (placeholder) {
+                              placeholder.classList.remove('hidden');
+                            }
+                          }}
+                        />
+                      ) : (
+                        // Test için basit placeholder resim
+                        <img 
+                          src={`https://via.placeholder.com/400x225/1f1f1f/ffffff?text=${encodeURIComponent(show.title)}`}
+                          alt={show.title}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      
+                      {/* Genre Badge */}
+                      {displayGenre && (
+                        <div className="absolute top-3 left-3">
+                          <span className="px-2 py-1 bg-blue-500/80 text-white text-xs rounded-full font-medium">
+                            {displayGenre}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Episodes Badge */}
+                      {show.totalEpisodes && (
+                        <div className="absolute top-3 right-3">
+                          <span className="px-2 py-1 bg-slate-800/80 text-white text-xs rounded-full font-medium">
+                            {show.totalEpisodes} Epîzod
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Episodes Badge */}
-                    <div className="absolute top-3 right-3">
-                      <span className="px-2 py-1 bg-slate-800/80 text-white text-xs rounded-full font-medium">
-                        {show.episodes} Epîzod
-                      </span>
-                    </div>
-                  </div>
+                    {/* Content */}
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-300">
+                        {show.title}
+                      </h3>
+                      <p className="text-slate-400 text-sm mb-4 leading-relaxed">
+                        {show.description}
+                      </p>
 
-                  {/* Content */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-300">
-                      {show.title}
-                    </h3>
-                    <p className="text-slate-400 text-sm mb-4 leading-relaxed">
-                      {show.description}
-                    </p>
-
-                    {/* Meta Info */}
-                    <div className="flex items-center justify-between text-sm mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-blue-400" />
-                          <span className="text-slate-300">{show.seasons} Sezon</span>
+                      {/* Meta Info */}
+                      <div className="flex items-center justify-between text-sm mb-4">
+                        <div className="flex items-center gap-4">
+                          {show.totalSeasons && (
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-blue-400" />
+                              <span className="text-slate-300">{show.totalSeasons} Sezon</span>
+                            </div>
+                          )}
+                          {show.rating && (
+                            <div className="flex items-center gap-2">
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                              <span className="text-slate-300">{show.rating}</span>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-slate-300">{show.rating}</span>
-                        </div>
+                        <span className="text-slate-400">
+                          {show.year || show.releaseYear}
+                        </span>
                       </div>
-                      <span className="text-slate-400">{show.year}</span>
-                    </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-3">
-                      <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
-                        <Play className="w-4 h-4" />
-                        Temaşe Bike
-                      </button>
-                      <button className="px-4 py-2 border border-slate-600 text-slate-300 hover:text-white hover:border-slate-500 rounded-lg transition-all duration-200">
-                        <Heart className="w-4 h-4" />
-                      </button>
+                      {/* Action Buttons */}
+                      <div className="flex gap-3">
+                        <button 
+                          onClick={() => handleWatchSeries(show.id)}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                        >
+                          <Play className="w-4 h-4" />
+                          Temaşe Bike
+                        </button>
+                        <button className="px-4 py-2 border border-slate-600 text-slate-300 hover:text-white hover:border-slate-500 rounded-lg transition-all duration-200">
+                          <Heart className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                )
+              })}
             </div>
           ) : (
             <motion.div 

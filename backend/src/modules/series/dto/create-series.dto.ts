@@ -1,4 +1,5 @@
-import { IsString, IsNumber, IsArray, IsOptional, IsBoolean, IsEnum } from 'class-validator';
+import { IsString, IsArray, IsOptional, IsEnum } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 
 export enum SeriesStatus {
   ONGOING = 'ongoing',
@@ -17,20 +18,20 @@ export class CreateSeriesDto {
   @IsString({ each: true })
   genre: string[];
 
-  @IsNumber()
+  @Transform(({ value }) => parseInt(value))
   year: number;
 
-  @IsNumber()
+  @Transform(({ value }) => parseFloat(value))
   rating: number;
 
   @IsEnum(SeriesStatus)
   status: SeriesStatus;
 
-  @IsNumber()
-  seasons: number;
+  @Transform(({ value }) => parseInt(value))
+  totalSeasons: number;
 
-  @IsNumber()
-  episodes: number;
+  @Transform(({ value }) => parseInt(value))
+  totalEpisodes: number;
 
   @IsOptional()
   @IsString()
@@ -41,10 +42,10 @@ export class CreateSeriesDto {
   poster?: string;
 
   @IsOptional()
-  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
   isFeatured?: boolean;
 
   @IsOptional()
-  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
   isNew?: boolean;
 }

@@ -194,11 +194,11 @@ export const ContentProvider: React.FC<ContentProviderProps> = ({ children }) =>
         setIsLoading(true)
         console.log('🚀 Initializing content...')
         
-        // Timeout ekle - 10 saniye sonra loading'i kapat
+        // Timeout ekle - 1 saniye sonra loading'i kapat
         const timeoutId = setTimeout(() => {
           console.log('⏰ Timeout reached, stopping loading')
           setIsLoading(false)
-        }, 10000)
+        }, 1000)
         
         // Fetch categories first
         await fetchCategories()

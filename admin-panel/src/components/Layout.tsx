@@ -1,23 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { 
+import {  
   LogOut, 
-  Settings, 
   User,
-  Bell,
   Search,
   Sun,
   Moon
 } from 'lucide-react'
-
-interface Notification {
-  id: string
-  message: string
-  time: string
-  unread: boolean
-  type: 'success' | 'info' | 'warning' | 'error'
-}
 
 interface UserProfile {
   id: string
@@ -31,10 +21,7 @@ interface UserProfile {
 const Layout: React.FC = () => {
   const navigate = useNavigate()
   const [darkMode, setDarkMode] = useState(false)
-  const [notifications, setNotifications] = useState<Notification[]>([])
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
-  const [showNotifications, setShowNotifications] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
   
   const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3005/api'
 
@@ -46,45 +33,8 @@ const Layout: React.FC = () => {
       return
     }
     
-    loadNotifications()
     loadUserProfile()
   }, [navigate])
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element
-      if (!target.closest('.notifications-dropdown') && !target.closest('.notifications-button')) {
-        setShowNotifications(false)
-      }
-      if (!target.closest('.settings-dropdown') && !target.closest('.settings-button')) {
-        setShowSettings(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const loadNotifications = async () => {
-    try {
-      const token = localStorage.getItem('filmxane_admin_token')
-      if (!token) return
-      
-      const response = await fetch(`${API_BASE_URL}/admin/notifications`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        setNotifications(data)
-      }
-    } catch (error) {
-      console.error('Dengvedan nehatin barkirin:', error)
-    }
-  }
 
   const loadUserProfile = async () => {
     try {
@@ -126,33 +76,6 @@ const Layout: React.FC = () => {
     setDarkMode(!darkMode)
     document.documentElement.classList.toggle('dark')
   }
-
-  const markNotificationAsRead = async (notificationId: string) => {
-    try {
-      const token = localStorage.getItem('filmxane_admin_token')
-      if (!token) return
-      
-      const response = await fetch(`${API_BASE_URL}/admin/notifications/${notificationId}/read`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-      
-      if (response.ok) {
-        setNotifications(prev => 
-          prev.map(n => 
-            n.id === notificationId ? { ...n, unread: false } : n
-          )
-        )
-      }
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error)
-    }
-  }
-
-  const unreadCount = notifications.filter(n => n.unread).length
 
   return (
     <div className={`admin-layout flex h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100'}`}>
@@ -199,149 +122,6 @@ const Layout: React.FC = () => {
                 {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </motion.button>
 
-              {/* Notifications */}
-              <div className="relative">
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className={`notifications-button p-2.5 rounded-xl transition-all duration-200 relative ${
-                    darkMode 
-                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' 
-                      : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <Bell className="w-5 h-5" />
-                  {unreadCount > 0 && (
-                    <motion.span 
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium shadow-lg"
-                    >
-                      {unreadCount}
-                    </motion.span>
-                  )}
-                </motion.button>
-
-                {/* Notifications Dropdown */}
-                {showNotifications && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className={`notifications-dropdown absolute right-0 top-12 w-80 max-h-96 overflow-y-auto rounded-xl shadow-xl border ${
-                      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-                    } z-50`}
-                  >
-                    <div className={`p-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                      <h3 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                        Notifications ({notifications.length})
-                      </h3>
-                    </div>
-                    <div className="p-2">
-                      {notifications.length > 0 ? (
-                        notifications.map((notification) => (
-                          <motion.div
-                            key={notification.id}
-                            whileHover={{ backgroundColor: darkMode ? '#374151' : '#f3f4f6' }}
-                            className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                              notification.unread ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                            }`}
-                            onClick={() => markNotificationAsRead(notification.id)}
-                          >
-                            <div className="flex items-start space-x-3">
-                              <div className={`w-2 h-2 rounded-full mt-2 ${
-                                notification.type === 'success' ? 'bg-green-500' :
-                                notification.type === 'info' ? 'bg-green-500' :
-                                notification.type === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
-                              }`} />
-                              <div className="flex-1 min-w-0">
-                                <p className={`text-sm ${darkMode ? 'text-white' : 'text-gray-900'} ${
-                                  notification.unread ? 'font-medium' : ''
-                                }`}>
-                                  {notification.message}
-                                </p>
-                                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                  {notification.time}
-                                </p>
-                              </div>
-                            </div>
-                          </motion.div>
-                        ))
-                      ) : (
-                        <div className={`p-4 text-center ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                          Dengvedan tune
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-
-              {/* Settings */}
-              <div className="relative">
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowSettings(!showSettings)}
-                  className={`settings-button p-2.5 rounded-xl transition-all duration-200 ${
-                    darkMode 
-                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' 
-                      : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <Settings className="w-5 h-5" />
-                </motion.button>
-
-                {/* Settings Dropdown */}
-                {showSettings && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className={`settings-dropdown absolute right-0 top-12 w-64 rounded-xl shadow-xl border ${
-                      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-                    } z-50`}
-                  >
-                    <div className={`p-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                      <h3 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                        Mîhengên Zû
-                      </h3>
-                    </div>
-                    <div className="p-2">
-                      <motion.button
-                        whileHover={{ backgroundColor: darkMode ? '#374151' : '#f3f4f6' }}
-                        onClick={() => {
-                          setShowSettings(false)
-                          navigate('/admin/dashboard/settings')
-                        }}
-                        className={`w-full p-3 rounded-lg text-left transition-colors ${
-                          darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-3">
-                          <Settings className="w-4 h-4" />
-                          <span>Mîhengên Sîstemê</span>
-                        </div>
-                      </motion.button>
-                      
-                      <motion.button
-                        whileHover={{ backgroundColor: darkMode ? '#374151' : '#f3f4f6' }}
-                        onClick={toggleDarkMode}
-                        className={`w-full p-3 rounded-lg text-left transition-colors ${
-                          darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-3">
-                          {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                          <span>Moda {darkMode ? 'Ronahî' : 'Tarî'} Guherîne</span>
-                        </div>
-                      </motion.button>
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-
               {/* User profile */}
               <div className="flex items-center space-x-3 ml-4 pl-4 border-l border-gray-300 dark:border-gray-600">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
@@ -367,6 +147,60 @@ const Layout: React.FC = () => {
             </div>
           </div>
         </header>
+
+        {/* Navigation Menu */}
+        <nav className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-xl shadow-sm border-b ${darkMode ? 'border-gray-700' : 'border-gray-200/50'} px-6`}>
+          <div className="flex items-center space-x-8 overflow-x-auto">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/admin/dashboard')}
+              className={`py-4 px-3 border-b-2 font-medium text-sm transition-all duration-200 ${
+                window.location.pathname === '/admin/dashboard'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Dashboard
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/admin/dashboard/content')}
+              className={`py-4 px-3 border-b-2 font-medium text-sm transition-all duration-200 ${
+                window.location.pathname === '/admin/dashboard/content'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Birêvebirina Naverokê
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/admin/dashboard/users')}
+              className={`py-4 px-3 border-b-2 font-medium text-sm transition-all duration-200 ${
+                window.location.pathname === '/admin/dashboard/users'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Bikarhêner
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/admin/dashboard/settings')}
+              className={`py-4 px-3 border-b-2 font-medium text-sm transition-all duration-200 ${
+                window.location.pathname === '/admin/dashboard/settings'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Mîhengên
+            </motion.button>
+          </div>
+        </nav>
 
         {/* Page content - full width */}
         <main className="admin-content flex-1 overflow-auto p-6">

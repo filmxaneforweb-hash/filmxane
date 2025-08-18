@@ -13,6 +13,7 @@ interface VideoCardProps {
   description: string
   thumbnail?: string
   thumbnailUrl?: string
+  posterUrl?: string
   thumbnailPath?: string
   duration?: number
   rating?: number
@@ -85,7 +86,7 @@ export function VideoCard({
       {/* Thumbnail - Netflix style */}
       <div className="relative aspect-video overflow-hidden">
         <Image
-          src={getSafeImageUrl(thumbnail || thumbnailUrl || thumbnailPath, 300, 200, 'thumbnail')}
+          src={getSafeImageUrl(thumbnailUrl || posterUrl || thumbnail || thumbnailPath, 300, 200, 'thumbnail')}
           alt={title}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"

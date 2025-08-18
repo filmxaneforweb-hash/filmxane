@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
 import { 
   Play, 
   Users, 
@@ -76,7 +75,6 @@ interface ContentItem {
 }
 
 const Dashboard: React.FC = () => {
-  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
   const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3005/api'
   const [showUploadModal, setShowUploadModal] = useState(false)
@@ -992,4 +990,4 @@ const Dashboard: React.FC = () => {
   )
 }
 
-export default Dashboard
+export default Dashboard 

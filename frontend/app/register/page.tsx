@@ -79,22 +79,20 @@ export default function RegisterPage() {
         formData.password
       )
 
-      if (response.success) {
-        setSuccess('Hesap başarıyla oluşturuldu! Giriş yapabilirsiniz.')
-        console.log('✅ Register successful:', response.data)
+      if (response.success && response.data) {
+        // Store token
+        localStorage.setItem('filmxane_token', response.data.token)
         
-        // Store token if returned
-        if (response.data?.token) {
-          apiClient.setToken(response.data.token)
+        // Store user name
+        if (response.data.user) {
+          const fullName = `${response.data.user.firstName || ''} ${response.data.user.lastName || ''}`.trim()
+          localStorage.setItem('filmxane_user_name', fullName || 'Kullanıcı')
         }
         
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          router.push('/login-test')
-        }, 2000)
+        // Redirect to profile
+        router.push('/profile')
       } else {
-        setError(response.error || 'Kayıt işlemi başarısız')
-        console.error('❌ Register failed:', response.error)
+        setError(response.error || 'Hesap oluşturulamadı')
       }
     } catch (error) {
       console.error('💥 Register error:', error)
@@ -105,130 +103,134 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-xl p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-900 text-white flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo ve Başlık */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">🎬 Filmxane</h1>
-          <p className="text-gray-400">Hesap oluştur ve filmleri keşfet</p>
+          <h1 className="text-4xl font-bold text-red-500 mb-2">FILMXANE</h1>
+          <p className="text-gray-400">Kürt Sineması Platformu</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-900/20 border border-red-600 rounded-lg">
-            <p className="text-red-400 text-sm">{error}</p>
-          </div>
-        )}
+        {/* Register Form */}
+        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-8 shadow-2xl">
+          <h2 className="text-2xl font-bold text-center mb-6">Hesap Oluştur</h2>
+          
+          {error && (
+            <div className="bg-red-900/20 border border-red-600 text-red-300 p-3 rounded-lg mb-4 text-sm">
+              {error}
+            </div>
+          )}
 
-        {success && (
-          <div className="mb-6 p-4 bg-green-900/20 border border-green-600 rounded-lg">
-            <p className="text-green-400 text-sm">{success}</p>
-          </div>
-        )}
+          {success && (
+            <div className="bg-green-900/20 border border-green-600 text-green-300 p-3 rounded-lg mb-4 text-sm">
+              {success}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-300">
+                  Ad *
+                </label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                  placeholder="Adınız"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-300">
+                  Soyad *
+                </label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                  placeholder="Soyadınız"
+                  required
+                />
+              </div>
+            </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Ad *
+              <label className="block text-sm font-medium mb-2 text-gray-300">
+                Email *
               </label>
               <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
-                className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                placeholder="Adınız"
+                className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                placeholder="ornek@email.com"
                 required
               />
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Soyad *
+              <label className="block text-sm font-medium mb-2 text-gray-300">
+                Şifre *
               </label>
               <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
+                type="password"
+                name="password"
+                value={formData.password}
                 onChange={handleChange}
-                className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                placeholder="Soyadınız"
+                className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                placeholder="En az 6 karakter"
+                minLength={6}
                 required
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-300">
+                Şifre Tekrar *
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                placeholder="Şifrenizi tekrar girin"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-red-600 hover:bg-red-700 disabled:bg-slate-600 p-3 rounded-lg font-semibold text-white transition-colors duration-200 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                  Hesap oluşturuluyor...
+                </>
+              ) : (
+                '🚀 Hesap Oluştur'
+              )}
+            </button>
+          </form>
+
+          {/* Giriş Yap Linki */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-400 text-sm">
+              Zaten hesabın var mı?{' '}
+              <Link href="/login" className="text-red-400 hover:text-red-300 font-medium transition-colors">
+                Giriş yap
+              </Link>
+            </p>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Email *
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              placeholder="ornek@email.com"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Şifre *
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              placeholder="En az 6 karakter"
-              minLength={6}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Şifre Tekrar *
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              placeholder="Şifrenizi tekrar girin"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 py-3 px-4 rounded-lg font-semibold text-white transition-colors"
-          >
-            {loading ? '🔄 Hesap oluşturuluyor...' : '🚀 Hesap Oluştur'}
-          </button>
-        </form>
-
-        <div className="mt-8 text-center">
-          <p className="text-gray-400">
-            Zaten hesabın var mı?{' '}
-            <Link href="/login-test" className="text-blue-400 hover:text-blue-300 font-medium">
-              Giriş yap
-            </Link>
-          </p>
-        </div>
-
-        <div className="mt-6 p-4 bg-yellow-900/20 border border-yellow-600 rounded-lg">
-          <h3 className="text-sm font-medium text-yellow-400 mb-2">💡 Test Bilgileri</h3>
-          <ul className="text-xs text-yellow-300 space-y-1">
-            <li>• Backend'in 3001 portunda çalıştığından emin ol</li>
-            <li>• Email adresi benzersiz olmalı</li>
-            <li>• Şifre en az 6 karakter olmalı</li>
-            <li>• Console'da register loglarını kontrol et</li>
-          </ul>
         </div>
       </div>
     </div>

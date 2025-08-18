@@ -151,6 +151,10 @@ export class VideosService {
     await this.videosRepository.increment({ id }, 'views', 1);
   }
 
+  async incrementShares(id: string): Promise<void> {
+    await this.videosRepository.increment({ id }, 'shares', 1);
+  }
+
   async fixVideoUrls(): Promise<{ updated: number; total: number }> {
     const videos = await this.videosRepository.find();
     let updatedCount = 0;

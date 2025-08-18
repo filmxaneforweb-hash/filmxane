@@ -6,28 +6,43 @@ import { Search, Filter, Play, Heart, Clock, Star } from 'lucide-react'
 import { VideoCard } from '@/components/VideoCard'
 import { useContent } from '@/contexts/ContentContext'
 import { apiClient } from '@/lib/api'
+import { useRouter } from 'next/navigation'
+import { getSafeImageUrl } from '@/lib/utils'
 
 export default function MoviesPage() {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [selectedYear, setSelectedYear] = useState('all')
-  const [movies, setMovies] = useState([])
+  const [movies, setMovies] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Watch movie function
+  const handleWatchMovie = (movieId: string) => {
+    router.push(`/videos/${movieId}`)
+  }
 
   // Fetch movies from API
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         setLoading(true)
+        console.log('🔍 Fetching movies...')
         const response = await apiClient.getMovies()
+        console.log('📊 Movies response:', response)
+        
         if (response.success && response.data) {
-          setMovies(response.data.items || [])
+          // Backend'den gelen veriyi düzenle
+          const formattedMovies = response.data.items || response.data || []
+          console.log('🎬 Formatted movies:', formattedMovies)
+          setMovies(formattedMovies)
         } else {
-          setError('Failed to fetch movies')
+          console.error('❌ Failed to fetch movies:', response.error)
+          setError(response.error || 'Failed to fetch movies')
         }
       } catch (error) {
-        console.error('Error fetching movies:', error)
+        console.error('❌ Error fetching movies:', error)
         setError('Failed to fetch movies')
       } finally {
         setLoading(false)
@@ -38,15 +53,45 @@ export default function MoviesPage() {
   }, [])
 
   // Get unique genres and years from movies
-  const genres = ['all', ...Array.from(new Set(movies.map(movie => movie.genre).flat()))]
-  const years = ['all', ...Array.from(new Set(movies.map(movie => movie.year))).sort((a, b) => b - a)]
+  const genres = ['all', ...Array.from(new Set(
+    movies
+      .map(movie => {
+        // Genre'yi parse et (JSON string veya array olabilir)
+        if (typeof movie.genre === 'string') {
+          try {
+            return JSON.parse(movie.genre)
+          } catch {
+            return [movie.genre]
+          }
+        }
+        return movie.genre || []
+      })
+      .flat()
+      .filter(Boolean)
+      .filter(genre => genre !== 'all') // 'all' seçeneğini tekrar ekleme
+  ))]
+
+  const years = ['all', ...Array.from(new Set(
+    movies
+      .map(movie => movie.year || movie.releaseYear)
+      .filter(Boolean)
+  )).sort((a, b) => b - a)]
 
   // Filter movies based on search and filters
   const filteredMovies = movies.filter(movie => {
-    const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         movie.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesGenre = selectedGenre === 'all' || (movie.genre && movie.genre.includes(selectedGenre))
-    const matchesYear = selectedYear === 'all' || movie.year.toString() === selectedYear
+    const movieGenre = typeof movie.genre === 'string' 
+      ? (() => {
+          try { return JSON.parse(movie.genre) } 
+          catch { return [movie.genre] }
+        })()
+      : (movie.genre || [])
+    
+    const matchesSearch = movie.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         movie.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesGenre = selectedGenre === 'all' || movieGenre.includes(selectedGenre)
+    const matchesYear = selectedYear === 'all' || 
+                       (movie.year?.toString() === selectedYear || 
+                        movie.releaseYear?.toString() === selectedYear)
     
     return matchesSearch && matchesGenre && matchesYear
   })
@@ -203,64 +248,112 @@ export default function MoviesPage() {
             </motion.div>
           ) : filteredMovies.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredMovies.map((movie, index) => (
-                <motion.div
-                  key={movie.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="bg-slate-800/40 backdrop-blur-sm rounded-2xl overflow-hidden border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300 group hover:scale-105"
-                >
-                  {/* Thumbnail */}
-                  <div className="relative aspect-video bg-slate-700/50 flex items-center justify-center">
-                    <Play className="w-16 h-16 text-red-500 group-hover:scale-110 transition-transform duration-300" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    
-                    {/* Genre Badge */}
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2 py-1 bg-red-500/80 text-white text-xs rounded-full font-medium">
-                        {movie.genre}
-                      </span>
+              {filteredMovies.map((movie, index) => {
+                // Genre'yi parse et
+                const movieGenre = typeof movie.genre === 'string' 
+                  ? (() => {
+                      try { return JSON.parse(movie.genre) } 
+                      catch { return [movie.genre] }
+                    })()
+                  : (movie.genre || [])
+                
+                const displayGenre = Array.isArray(movieGenre) ? movieGenre[0] : movieGenre
+                
+                return (
+                  <motion.div
+                    key={movie.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="bg-slate-800/40 backdrop-blur-sm rounded-2xl overflow-hidden border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300 group hover:scale-105"
+                  >
+                    {/* Thumbnail */}
+                    <div className="relative aspect-video bg-slate-700/50 flex items-center justify-center overflow-hidden">
+                      {movie.thumbnailUrl ? (
+                        <img 
+                          src={getSafeImageUrl(movie.thumbnailUrl, 400, 225, 'thumbnail')} 
+                          alt={movie.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Resim yüklenemezse placeholder göster
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const placeholder = target.nextElementSibling as HTMLElement;
+                            if (placeholder) {
+                              placeholder.classList.remove('hidden');
+                            }
+                          }}
+                        />
+                      ) : (
+                        // Test için basit placeholder resim
+                        <img 
+                          src={`https://via.placeholder.com/400x225/1f1f1f/ffffff?text=${encodeURIComponent(movie.title)}`}
+                          alt={movie.title}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      
+                      {/* Genre Badge */}
+                      {displayGenre && (
+                        <div className="absolute top-3 left-3">
+                          <span className="px-2 py-1 bg-red-500/80 text-white text-xs rounded-full font-medium">
+                            {displayGenre}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  </div>
 
-                  {/* Content */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-400 transition-colors duration-300">
-                      {movie.title}
-                    </h3>
-                    <p className="text-slate-400 text-sm mb-4 leading-relaxed">
-                      {movie.description}
-                    </p>
+                    {/* Content */}
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-400 transition-colors duration-300">
+                        {movie.title}
+                      </h3>
+                      <p className="text-slate-400 text-sm mb-4 leading-relaxed">
+                        {movie.description}
+                      </p>
 
-                    {/* Meta Info */}
-                    <div className="flex items-center justify-between text-sm mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-blue-400" />
-                          <span className="text-slate-300">{movie.duration}</span>
+                      {/* Meta Info */}
+                      <div className="flex items-center justify-between text-sm mb-4">
+                        <div className="flex items-center gap-4">
+                          {movie.duration && (
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-blue-400" />
+                              <span className="text-slate-300">
+                                {Math.floor(movie.duration / 60)}d
+                              </span>
+                            </div>
+                          )}
+                          {movie.rating && (
+                            <div className="flex items-center gap-2">
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                              <span className="text-slate-300">{movie.rating}</span>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-slate-300">{movie.rating}</span>
-                        </div>
+                        <span className="text-slate-400">
+                          {movie.year || movie.releaseYear}
+                        </span>
                       </div>
-                      <span className="text-slate-400">{movie.year}</span>
-                    </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-3">
-                      <button className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
-                        <Play className="w-4 h-4" />
-                        Temaşe Bike
-                      </button>
-                      <button className="px-4 py-2 border border-slate-600 text-slate-300 hover:text-white hover:border-slate-500 rounded-lg transition-all duration-200">
-                        <Heart className="w-4 h-4" />
-                      </button>
+                      {/* Action Buttons */}
+                      <div className="flex gap-3">
+                        <button 
+                          onClick={() => handleWatchMovie(movie.id)}
+                          className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                        >
+                          <Play className="w-4 h-4" />
+                          Temaşe Bike
+                        </button>
+                        <button className="px-4 py-2 border border-slate-600 text-slate-300 hover:text-white hover:border-slate-500 rounded-lg transition-all duration-200">
+                          <Heart className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                )
+              })}
             </div>
           ) : (
             <motion.div 

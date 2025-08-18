@@ -1,196 +1,221 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Heart, Clock, Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api'
-import { useAuth } from '@/contexts/AuthContext'
+import Link from 'next/link'
+import { Heart, Play, Clock, Star, Trash2 } from 'lucide-react'
+
+interface FavoriteContent {
+  id: string
+  title: string
+  type: 'movie' | 'series'
+  thumbnail?: string
+  poster?: string
+  year?: number
+  rating?: number
+  duration?: number
+  genre?: string[]
+}
 
 export default function MyListPage() {
   const router = useRouter()
-  const { isAuthenticated } = useAuth()
-  const [favoriteVideos, setFavoriteVideos] = useState([])
+  const [favorites, setFavorites] = useState<FavoriteContent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Fetch favorites from API
   useEffect(() => {
-    const fetchFavorites = async () => {
-      if (!isAuthenticated) {
-        setError('Please login to view your favorites')
-        setLoading(false)
+    const checkAuth = async () => {
+      // Check if we're on client side
+      if (typeof window === 'undefined') return
+      
+      const token = localStorage.getItem('filmxane_token')
+      if (!token) {
+        router.push('/login')
         return
       }
 
       try {
-        setLoading(true)
         const response = await apiClient.getFavorites()
         if (response.success && response.data) {
-          setFavoriteVideos(response.data)
+          setFavorites(response.data)
         } else {
-          setError('Failed to fetch favorites')
+          console.error('Favorites response error:', response.error)
+          if (response.error?.includes('Authentication failed')) {
+            localStorage.removeItem('filmxane_token')
+            router.push('/login')
+            return
+          }
+          setError(response.error || 'Favoriler yüklenemedi')
         }
       } catch (error) {
-        console.error('Error fetching favorites:', error)
-        setError('Failed to fetch favorites')
+        console.error('Favoriler yüklenirken hata:', error)
+        setError('Favoriler yüklenirken bir hata oluştu')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchFavorites()
-  }, [isAuthenticated])
+    checkAuth()
+  }, [router])
 
-  const handleWatchVideo = (videoId: string, videoTitle: string) => {
-    // TODO: Implement actual video watching functionality
-    console.log(`Watching video: ${videoTitle} (ID: ${videoId})`)
-    alert(`Temaşeya ${videoTitle} dest pê dike...`)
-  }
-
-  const handleToggleFavorite = async (videoId: string, videoTitle: string) => {
+  const handleRemoveFavorite = async (contentId: string) => {
     try {
-      await apiClient.removeFromFavorites(videoId)
-      // Refresh favorites list
-      const response = await apiClient.getFavorites()
-      if (response.success && response.data) {
-        setFavoriteVideos(response.data)
+      const response = await apiClient.removeFromFavorites(contentId)
+      if (response.success) {
+        setFavorites(prev => prev.filter(item => item.id !== contentId))
       }
-      alert(`${videoTitle} ji lîsta te ya xweşbînî hate rakirin`)
     } catch (error) {
-      console.error('Error removing from favorites:', error)
-      alert('Error removing from favorites')
+      console.error('Favorilerden çıkarırken hata:', error)
     }
   }
 
-  const handleViewAllVideos = () => {
-    // Navigate to videos page
-    router.push('/videos')
+  const handlePlay = (contentId: string, type: 'movie' | 'series') => {
+    if (type === 'movie') {
+      router.push(`/videos/${contentId}`)
+    } else {
+      router.push(`/series/${contentId}`)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-900 text-white flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full"></div>
+      </div>
+    )
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black pt-20">
-      {/* Hero Section */}
-      <section className="py-16 px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <motion.h1 
-            className="text-5xl md:text-6xl font-bold text-white mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="bg-gradient-to-r from-white via-red-100 to-red-200 bg-clip-text text-transparent">
-              Lîsta Min
-            </span>
-          </motion.h1>
-          <motion.p 
-            className="text-xl text-slate-400 max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Fîlm û rêzefîlmên ku te ji xweş dîtine û dixwazî dîsa bibînî
-          </motion.p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-900 text-white">
+      {/* Header */}
+      <div className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-red-500">FILMXANE</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="text-gray-300 hover:text-white transition-colors">
+                Ana Sayfa
+              </Link>
+              <Link href="/movies" className="text-gray-300 hover:text-white transition-colors">
+                Filmler
+              </Link>
+              <Link href="/series" className="text-gray-300 hover:text-white transition-colors">
+                Diziler
+              </Link>
+              <Link href="/profile" className="text-gray-300 hover:text-white transition-colors">
+                Profilim
+              </Link>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* Favorites Grid */}
-      <section className="py-16 px-8">
-        <div className="max-w-7xl mx-auto">
-          {loading && (
-            <div className="text-center py-20">
-              <p className="text-slate-500">Loading favorites...</p>
-            </div>
-          )}
-          {error && (
-            <div className="text-center py-20 text-red-400">
-              <p>{error}</p>
-            </div>
-          )}
-          {!loading && !error && favoriteVideos.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {favoriteVideos.map((video, index) => (
-                <motion.div
-                  key={video.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="bg-slate-800/40 backdrop-blur-sm rounded-2xl overflow-hidden border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300 group hover:scale-105"
-                >
-                  {/* Thumbnail */}
-                  <div className="relative aspect-video bg-slate-700/50 flex items-center justify-center">
-                    <Heart className="w-16 h-16 text-red-500 fill-current" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  </div>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">🎬 Favori Listem</h1>
+          <p className="text-gray-400">Beğendiğiniz film ve diziler burada saklanır</p>
+        </div>
 
-                  {/* Content */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-400 transition-colors duration-300">
-                      {video.title}
-                    </h3>
-                    <p className="text-slate-400 text-sm mb-4 leading-relaxed">
-                      {video.description}
-                    </p>
+        {error && (
+          <div className="bg-red-900/20 border border-red-600 text-red-300 p-4 rounded-lg mb-6">
+            {error}
+          </div>
+        )}
 
-                    {/* Meta Info */}
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-blue-400" />
-                          <span className="text-slate-300">{video.duration}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-slate-300">{video.rating}</span>
-                        </div>
-                      </div>
-                      <span className="text-slate-400">{video.year}</span>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-3 mt-6">
-                      <button 
-                        onClick={() => handleWatchVideo(video.id, video.title)}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200"
-                      >
-                        Temaşe Et
-                      </button>
-                      <button 
-                        onClick={() => handleToggleFavorite(video.id, video.title)}
-                        className="px-4 py-2 border border-slate-600 text-slate-300 hover:text-white hover:border-slate-500 rounded-lg transition-all duration-200"
-                      >
-                        <Heart className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-          {!loading && !error && favoriteVideos.length === 0 && (
-            <motion.div 
-              className="text-center py-20"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
+        {favorites.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="text-8xl mb-6">💔</div>
+            <h2 className="text-2xl font-bold text-white mb-4">Henüz favori listeniz boş</h2>
+            <p className="text-gray-400 mb-8">Filmleri keşfetmeye başlayın ve beğendiklerinizi favorilere ekleyin</p>
+            <Link 
+              href="/movies" 
+              className="inline-block bg-red-600 hover:bg-red-700 text-white py-3 px-8 rounded-lg font-medium transition-colors"
             >
-              <Heart className="w-24 h-24 text-slate-600 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-slate-400 mb-4">
-                Lîsta te ya xweşbînî vala ye
-              </h3>
-              <p className="text-slate-500 mb-8">
-                Fîlm û rêzefîlmên ku te ji xweş dîtine li vir dê xuya bibin
-              </p>
-              <button 
-                onClick={handleViewAllVideos}
-                className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
-              >
-                Fîlmên Bibîne
-              </button>
-            </motion.div>
-          )}
-        </div>
-      </section>
-    </main>
+              Filmleri Keşfet
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {favorites.map((content) => (
+              <div key={content.id} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                {/* Thumbnail */}
+                <div className="relative h-48 bg-slate-700">
+                  {content.thumbnail || content.poster ? (
+                    <img 
+                      src={content.thumbnail || content.poster} 
+                      alt={content.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-4xl text-slate-500">
+                      🎬
+                    </div>
+                  )}
+                  
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => handlePlay(content.id, content.type)}
+                        className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-full transition-colors"
+                      >
+                        <Play className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleRemoveFavorite(content.id)}
+                        className="bg-slate-700 hover:bg-slate-600 text-white p-3 rounded-full transition-colors"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content Info */}
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">
+                    {content.title}
+                  </h3>
+                  
+                  <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {content.duration ? `${content.duration} dk` : 'N/A'}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Star className="w-4 h-4 text-yellow-500" />
+                      {content.rating ? content.rating.toFixed(1) : 'N/A'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">
+                      {content.year || 'N/A'}
+                    </span>
+                    <span className="text-xs bg-red-600 text-white px-2 py-1 rounded">
+                      {content.type === 'movie' ? 'Film' : 'Dizi'}
+                    </span>
+                  </div>
+
+                  {content.genre && content.genre.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      {content.genre.slice(0, 2).map((genre, index) => (
+                        <span key={index} className="text-xs bg-slate-700 text-gray-300 px-2 py-1 rounded">
+                          {genre}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

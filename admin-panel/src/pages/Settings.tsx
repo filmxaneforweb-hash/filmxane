@@ -2,125 +2,138 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Settings as SettingsIcon, 
-  Clock, 
-  Globe, 
-  Database, 
-  Shield, 
-  Palette,
+  Shield,
   Bell,
-  User,
+  Globe,
+  Database,
+  Key,
   Save,
+  CheckCircle,
+  AlertCircle,
+  Sun,
+  Moon,
   RefreshCw
 } from 'lucide-react'
-import { useWebSocket } from '../hooks/useWebSocket'
 
 interface SystemSettings {
   siteName: string
   siteDescription: string
   maintenanceMode: boolean
-  allowRegistrations: boolean
-  maxUploadSize: string
-  supportedVideoFormats: string[]
-  supportedImageFormats: string[]
-  defaultLanguage: string
-  timezone: string
-  version: string
-  serverTime: string
-  uptime: string
-  lastBackup: string
+  allowRegistration: boolean
+  allowComments: boolean
+  maxUploadSize: number
+  allowedFileTypes: string[]
+  emailNotifications: boolean
+  pushNotifications: boolean
+  theme: 'light' | 'dark' | 'auto'
 }
 
 const Settings: React.FC = () => {
-  const [settings, setSettings] = useState<SystemSettings | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [currentTime, setCurrentTime] = useState(new Date())
-  
+  const [settings, setSettings] = useState<SystemSettings>({
+    siteName: 'Filmxane',
+    siteDescription: 'Platforma fîlm û rêzefîlman',
+    maintenanceMode: false,
+    allowRegistration: true,
+    allowComments: true,
+    maxUploadSize: 100,
+    allowedFileTypes: ['mp4', 'avi', 'mov', 'mkv'],
+    emailNotifications: true,
+    pushNotifications: true,
+    theme: 'auto'
+  })
+  const [hasChanges, setHasChanges] = useState(false)
+  const [originalSettings, setOriginalSettings] = useState<SystemSettings | null>(null)
+
   const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3005/api'
 
   useEffect(() => {
     loadSettings()
-    // Update current time every second
-    const timeInterval = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
-
-    return () => clearInterval(timeInterval)
   }, [])
-
-  const handleWebSocketMessage = (message: { type: string; data: any }) => {
-    switch (message.type) {
-      case 'settingsUpdated':
-        // Gava mîhengên nû bûn
-        setSettings(message.data);
-        // Peyama serkeftiyê nîşan bide
-        alert('Mîhengên bi WebSocket ve bi serkeftî hatine nûkirin!');
-        break;
-        
-      case 'systemInfoUpdated':
-        // Gava agahiyên sîstemê nû bûn
-        loadSettings();
-        break;
-    }
-  };
-
-  useWebSocket(handleWebSocketMessage);
 
   const loadSettings = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/settings`)
+      const token = localStorage.getItem('filmxane_admin_token')
+      if (!token) {
+        console.error('No admin token found')
+        return
+      }
+
+      const response = await fetch(`${API_BASE_URL}/admin/settings`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
       if (response.ok) {
-        const data = await response.json()
-        setSettings(data)
+        const settingsData = await response.json()
+        setSettings(settingsData)
+        setOriginalSettings(settingsData)
+      } else {
+        console.error('Failed to load settings:', response.status)
       }
     } catch (error) {
-      console.error('Mîhengên nehatin barkirin:', error)
+      console.error('Failed to load settings:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleSaveSettings = async () => {
-    if (!settings) return
-    
+  const handleSettingChange = (key: keyof SystemSettings, value: any) => {
+    setSettings(prev => ({ ...prev, [key]: value }))
+    setHasChanges(true)
+  }
+
+  const handleSave = async () => {
     setIsSaving(true)
     try {
+      const token = localStorage.getItem('filmxane_admin_token')
+      if (!token) {
+        alert('Ji kerema xwe dîsa têkeve')
+        return
+      }
+
       const response = await fetch(`${API_BASE_URL}/admin/settings`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(settings)
       })
-      
+
       if (response.ok) {
-        // Peyama serkeftiyê nîşan bide
-        alert('Mîhengên bi serkeftî hatine tomarkirin!')
-        // WebSocket üzerinden güncelleme gelecek
+        setOriginalSettings(settings)
+        setHasChanges(false)
+        alert('Mîhengên bi serkeftî hatine tomarkirin')
+      } else {
+        const errorData = await response.json()
+        alert(`Çewtiyek çêbû: ${errorData.message || 'Failed to save settings'}`)
       }
     } catch (error) {
       console.error('Failed to save settings:', error)
-      alert('Failed to save settings')
+      alert('Çewtiyek çêbû, ji kerema xwe dîsa biceribîne')
     } finally {
       setIsSaving(false)
     }
   }
 
-  const formatUptime = (uptime: string) => {
-    // Convert uptime string to readable format
-    return uptime || 'Calculating...'
-  }
-
-  const formatLastBackup = (lastBackup: string) => {
-    if (!lastBackup) return 'Never'
-    const date = new Date(lastBackup)
-    return date.toLocaleString()
+  const handleReset = () => {
+    if (originalSettings) {
+      setSettings(originalSettings)
+      setHasChanges(false)
+    }
   }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="w-full space-y-6 px-4 lg:px-6 xl:px-8">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="bg-gray-200 h-96 rounded-xl"></div>
+        </div>
       </div>
     )
   }
@@ -132,91 +145,52 @@ const Settings: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex items-center justify-between"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            System Settings
+            Mîhengên
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Manage Filmxane system configuration and preferences
+            Mîhengên sîstemê û platformê biguherîne
           </p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleSaveSettings}
-          disabled={isSaving}
-          className="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center space-x-2 disabled:opacity-50"
-        >
-          {isSaving ? (
-            <RefreshCw className="w-5 h-5 animate-spin" />
-          ) : (
-            <Save className="w-5 h-5" />
+        <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+          {hasChanges && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="flex items-center space-x-2 px-3 py-2 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 rounded-lg"
+            >
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm font-medium">Guhertin hene</span>
+            </motion.div>
           )}
-          <span>{isSaving ? 'Saving...' : 'Save Settings'}</span>
-        </motion.button>
-      </motion.div>
-
-      {/* Time Information */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6"
-      >
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-xl">
-              <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Current Time</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Server time</p>
-            </div>
-          </div>
-          <div className="text-2xl font-mono text-gray-900 dark:text-white">
-            {currentTime.toLocaleTimeString()}
-          </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            {currentTime.toLocaleDateString()}
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-xl">
-              <Globe className="w-6 h-6 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Timezone</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Server timezone</p>
-            </div>
-          </div>
-          <div className="text-xl font-semibold text-gray-900 dark:text-white">
-            {settings?.timezone || 'Loading...'}
-          </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            {settings?.timezone ? `Server timezone: ${settings.timezone}` : 'Loading timezone...'}
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-xl">
-              <Database className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">System Uptime</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Server running time</p>
-            </div>
-          </div>
-          <div className="text-xl font-semibold text-gray-900 dark:text-white">
-            {formatUptime(settings?.uptime || '')}
-          </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Last backup: {formatLastBackup(settings?.lastBackup || '')}
-          </p>
+          <button
+            onClick={handleReset}
+            disabled={!hasChanges}
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RefreshCw className="w-4 h-4 inline mr-2" />
+            Reset
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!hasChanges || isSaving}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          >
+            {isSaving ? (
+              <>
+                <RefreshCw className="w-4 h-4 inline mr-2 animate-spin" />
+                Tê tomarkirin...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 inline mr-2" />
+                Tomar Bike
+              </>
+            )}
+          </button>
         </div>
       </motion.div>
 
@@ -224,152 +198,219 @@ const Settings: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* General Settings */}
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6"
+        >
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
+              <Globe className="w-5 h-5 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Mîhengên Giştî</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Navê Malperê
+              </label>
+              <input
+                type="text"
+                value={settings.siteName}
+                onChange={(e) => handleSettingChange('siteName', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Daxûyaniya Malperê
+              </label>
+              <textarea
+                value={settings.siteDescription}
+                onChange={(e) => handleSettingChange('siteDescription', e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Moda Tema
+              </label>
+              <select
+                value={settings.theme}
+                onChange={(e) => handleSettingChange('theme', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="auto">Otomatîk</option>
+                <option value="light">Ronahî</option>
+                <option value="dark">Tarî</option>
+              </select>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* System Settings */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6"
         >
           <div className="flex items-center space-x-3 mb-6">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-xl">
-              <SettingsIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="w-10 h-10 bg-green-100 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
+              <Shield className="w-5 h-5 text-green-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">General Settings</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Mîhengên Sîstemê</h3>
           </div>
-          
+
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Site Name
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Moda Parastinê</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Malperê ji bikarhêneran veşêre</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.maintenanceMode}
+                  onChange={(e) => handleSettingChange('maintenanceMode', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
               </label>
-              <input
-                type="text"
-                value={settings?.siteName || ''}
-                onChange={(e) => setSettings(prev => prev ? { ...prev, siteName: e.target.value } : null)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Site Description
-              </label>
-              <textarea
-                value={settings?.siteDescription || ''}
-                onChange={(e) => setSettings(prev => prev ? { ...prev, siteDescription: e.target.value } : null)}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
             </div>
 
-            <div className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                checked={settings?.maintenanceMode || false}
-                onChange={(e) => setSettings(prev => prev ? { ...prev, maintenanceMode: e.target.checked } : null)}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Maintenance Mode</span>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Destûra Qeydbûnê</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Bikarhêneran destûr bide qeyd bibin</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.allowRegistration}
+                  onChange={(e) => handleSettingChange('allowRegistration', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+              </label>
             </div>
 
-            <div className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                checked={settings?.allowRegistrations || false}
-                onChange={(e) => setSettings(prev => prev ? { ...prev, allowRegistrations: e.target.checked } : null)}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Allow User Registrations</span>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Destûra Şîroveyan</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Bikarhêneran destûr bide şîrove binivîsin</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.allowComments}
+                  onChange={(e) => handleSettingChange('allowComments', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+              </label>
             </div>
           </div>
         </motion.div>
 
-        {/* File Settings */}
+        {/* Upload Settings */}
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6"
         >
           <div className="flex items-center space-x-3 mb-6">
-            <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-xl">
-              <Database className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-xl flex items-center justify-center">
+              <Database className="w-5 h-5 text-purple-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">File Settings</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Mîhengên Barkirinê</h3>
           </div>
-          
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Max Upload Size
+                Mezinahiya Maksîmal a Barkirinê (MB)
               </label>
               <input
-                type="text"
-                value={settings?.maxUploadSize || ''}
-                onChange={(e) => setSettings(prev => prev ? { ...prev, maxUploadSize: e.target.value } : null)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                type="number"
+                value={settings.maxUploadSize}
+                onChange={(e) => handleSettingChange('maxUploadSize', parseInt(e.target.value))}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Supported Video Formats
+                Cureyên Pelên Destûrdar
               </label>
               <input
                 type="text"
-                value={settings?.supportedVideoFormats?.join(', ') || ''}
-                onChange={(e) => setSettings(prev => prev ? { ...prev, supportedVideoFormats: e.target.value.split(', ').filter(Boolean) } : null)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="MP4, AVI, MOV, MKV"
+                value={settings.allowedFileTypes.join(', ')}
+                onChange={(e) => handleSettingChange('allowedFileTypes', e.target.value.split(',').map(t => t.trim()))}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="mp4, avi, mov, mkv"
               />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Cureyên pelan bi vîrgulê ji hev cuda bike
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Notification Settings */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6"
+        >
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/20 rounded-xl flex items-center justify-center">
+              <Bell className="w-5 h-5 text-orange-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Mîhengên Agahdariyê</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Agahdariyên E-mail</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Agahdariyên bi e-mailê bişîne</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.emailNotifications}
+                  onChange={(e) => handleSettingChange('emailNotifications', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+              </label>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Supported Image Formats
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Agahdariyên Push</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Agahdariyên push bişîne</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.pushNotifications}
+                  onChange={(e) => handleSettingChange('pushNotifications', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
               </label>
-              <input
-                type="text"
-                value={settings?.supportedImageFormats?.join(', ') || ''}
-                onChange={(e) => setSettings(prev => prev ? { ...prev, supportedImageFormats: e.target.value.split(', ').filter(Boolean) } : null)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="JPG, PNG, GIF"
-              />
             </div>
           </div>
         </motion.div>
       </div>
-
-      {/* System Info */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6"
-      >
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-xl">
-            <Shield className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-          </div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">System Information</h3>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Version</p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-white">{settings?.version || 'Loading...'}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Default Language</p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-white">{settings?.defaultLanguage || 'Loading...'}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Server Time</p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-white">
-              {currentTime.toLocaleTimeString()}
-            </p>
-          </div>
-        </div>
-      </motion.div>
     </div>
   )
 }

@@ -70,4 +70,14 @@ export class AdminGateway implements OnGatewayConnection, OnGatewayDisconnect {
   notifySystemInfoUpdated(info: any) {
     this.notifyAdmins('systemInfoUpdated', info);
   }
+
+  // Content deleted
+  notifyContentDeleted(contentId: string) {
+    this.notifyAdmins('contentDeleted', { contentId });
+  }
+
+  // Content updated
+  notifyContentUpdated(content: any) {
+    this.notifyAdmins('contentUpdated', content);
+  }
 }

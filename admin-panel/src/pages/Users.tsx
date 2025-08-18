@@ -1,161 +1,141 @@
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { 
   Users as UsersIcon, 
-  User, 
-  Crown, 
-  Shield, 
-  Star, 
-  Eye, 
-  TrendingUp, 
+  Crown,
+  Shield,
+  Mail,
   Calendar,
-  Phone,
-  Clock,
-  CheckCircle,
-  Plus,
   Search,
   Filter,
   MoreVertical,
+  Eye,
   Edit,
   Trash2,
-  Mail
+  CheckCircle,
+  XCircle,
+  Clock
 } from 'lucide-react'
 
-interface UserData {
-  id: number
-  name: string
+interface User {
+  id: string
+  firstName: string
+  lastName: string
   email: string
-  phone: string
   role: string
-  status: string
-  subscription: string
-  joinDate: string
-  lastLogin: string
-  totalWatched: number
-  favorites: number
-  reviews: number
-  isVerified: boolean
-  isPremium: boolean
+  status: 'active' | 'inactive' | 'suspended'
+  emailVerified: boolean
+  subscription?: {
+    plan: 'basic' | 'premium' | 'family'
+    status: 'active' | 'expired' | 'cancelled'
+  }
+  createdAt: string
+  lastLogin?: string
 }
 
 const Users: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedRole, setSelectedRole] = useState('all')
-  const [selectedStatus, setSelectedStatus] = useState('all')
-  const [selectedSubscription, setSelectedSubscription] = useState('all')
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [isLoading, setIsLoading] = useState(true)
+  const [users, setUsers] = useState<User[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'suspended'>('all')
+  const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'admin'>('all')
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [showUserModal, setShowUserModal] = useState(false)
 
-  const roles = ['hemû', 'birêveber', 'moderatör', 'premium', 'bikarhêner']
-  const statuses = ['hemû', 'çalak', 'neçalak', 'astengkirî', 'li bendê']
-  const subscriptions = ['hemû', 'vip', 'premium', 'bazî']
-
-  const [users, setUsers] = useState<UserData[]>([])
-  const [userStats, setUserStats] = useState({
-    total: 0,
-    active: 0,
-    premium: 0,
-    verified: 0,
-    totalWatched: 0,
-    totalFavorites: 0
-  })
-  const [isLoadingUsers, setIsLoadingUsers] = useState(true)
+  const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3005/api'
 
   useEffect(() => {
     loadUsers()
-    loadUserStats()
   }, [])
 
   const loadUsers = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users`)
+      const token = localStorage.getItem('filmxane_admin_token')
+      if (!token) {
+        console.error('No admin token found')
+        return
+      }
+
+      const response = await fetch(`${API_BASE_URL}/admin/users`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
       if (response.ok) {
-        const data = await response.json()
-        setUsers(data)
+        const usersData = await response.json()
+        setUsers(usersData)
+      } else {
+        console.error('Failed to load users:', response.status)
       }
     } catch (error) {
-      console.error('Bikarhêner nehatin barkirin:', error)
+      console.error('Failed to load users:', error)
     } finally {
-      setIsLoadingUsers(false)
+      setIsLoading(false)
     }
   }
 
-  const loadUserStats = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/admin/users/stats`)
-      if (response.ok) {
-        const data = await response.json()
-        setUserStats(data)
-      }
-    } catch (error) {
-      console.error('Statîstîkên bikarhêneran nehatin barkirin:', error)
-    }
-  }
-
-  const stats = userStats
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'birêveber': return 'from-red-500 to-red-600'
-      case 'moderatör': return 'from-blue-500 to-blue-600'
-      case 'premium': return 'from-yellow-500 to-yellow-600'
-      default: return 'from-gray-500 to-gray-600'
-    }
-  }
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesStatus = statusFilter === 'all' || user.status === statusFilter
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter
+    
+    return matchesSearch && matchesStatus && matchesRole
+  })
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'çalak': return 'from-green-500 to-green-600'
-      case 'neçalak': return 'from-yellow-500 to-yellow-600'
-      case 'astengkirî': return 'from-red-500 to-red-600'
-      case 'li bendê': return 'from-orange-500 to-orange-600'
-      default: return 'from-gray-500 to-gray-600'
-    }
-  }
-
-  const getSubscriptionColor = (subscription: string) => {
-    switch (subscription) {
-      case 'vip': return 'from-purple-500 to-purple-600'
-      case 'premium': return 'from-blue-500 to-blue-600'
-      case 'bazî': return 'from-green-500 to-green-600'
-      default: return 'from-gray-500 to-gray-600'
+      case 'active':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+      case 'inactive':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      case 'suspended':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
     }
   }
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'birêveber': return <Crown className="w-4 h-4" />
-      case 'moderatör': return <Shield className="w-4 h-4" />
-      case 'premium': return <Star className="w-4 h-4" />
-      default: return <User className="w-4 h-4" />
+      case 'admin':
+        return <Shield className="w-4 h-4 text-red-600" />
+      case 'user':
+        return <UsersIcon className="w-4 h-4 text-blue-600" />
+      default:
+        return <UsersIcon className="w-4 h-4 text-gray-600" />
     }
   }
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesRole = selectedRole === 'all' || user.role === selectedRole
-    const matchesStatus = selectedStatus === 'all' || user.status === selectedStatus
-    const matchesSubscription = selectedSubscription === 'all' || user.subscription === selectedSubscription
+  const getSubscriptionBadge = (subscription?: any) => {
+    if (!subscription) return null
     
-    return matchesSearch && matchesRole && matchesStatus && matchesSubscription
-  })
-
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 1000)
-  }, [])
+    const colors = {
+      basic: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+      premium: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+      family: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+    }
+    
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[subscription.plan as keyof typeof colors] || colors.basic}`}>
+        {subscription.plan === 'basic' ? 'Bingehîn' : 
+         subscription.plan === 'premium' ? 'Premium' : 
+         subscription.plan === 'family' ? 'Malbat' : 'Bingehîn'}
+      </span>
+    )
+  }
 
   if (isLoading) {
     return (
       <div className="w-full space-y-6 px-4 lg:px-6 xl:px-8">
         <div className="animate-pulse space-y-6">
           <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-200 h-80 rounded-2xl"></div>
-            ))}
-          </div>
+          <div className="bg-gray-200 h-96 rounded-xl"></div>
         </div>
       </div>
     )
@@ -168,411 +148,234 @@ const Users: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Users Management</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage all users and their permissions in Filmxane</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Bikarhêner
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Hemû bikarhêneran birêvebirin û kontrol bike
+          </p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-xl"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Add New User
-        </motion.button>
       </motion.div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-        {[
-          { label: 'Total Users', value: stats.total, icon: UsersIcon, color: 'from-purple-500 to-purple-600' },
-          { label: 'Active Users', value: stats.active, icon: CheckCircle, color: 'from-green-500 to-green-600' },
-          { label: 'Premium Users', value: stats.premium, icon: Crown, color: 'from-yellow-500 to-yellow-600' },
-          { label: 'Verified Users', value: stats.verified, icon: Shield, color: 'from-blue-500 to-blue-600' },
-          { label: 'Total Watched', value: stats.totalWatched.toLocaleString(), icon: Eye, color: 'from-indigo-500 to-indigo-600' },
-          { label: 'Total Favorites', value: stats.totalFavorites.toLocaleString(), icon: Star, color: 'from-pink-500 to-pink-600' }
-        ].map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-              </div>
-              <div className={`bg-gradient-to-br ${stat.color} p-3 rounded-xl`}>
-                <stat.icon className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Search and Filters */}
+      {/* Users Management */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
         className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6"
       >
-        <div className="flex flex-col lg:flex-row gap-4 items-center">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search users by name or email..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200"
-            />
-          </div>
-          <div className="flex gap-3 items-center">
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
-            >
-              {roles.map(role => (
-                <option key={role} value={role}>
-                  {role === 'all' ? 'All Roles' : role.charAt(0).toUpperCase() + role.slice(1)}
-                </option>
-              ))}
-            </select>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
-            >
-              {statuses.map(status => (
-                <option key={status} value={status}>
-                  {status === 'all' ? 'All Status' : status.charAt(0).toUpperCase() + status.slice(1)}
-                </option>
-              ))}
-            </select>
-            <select
-              value={selectedSubscription}
-              onChange={(e) => setSelectedSubscription(e.target.value)}
-              className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
-            >
-              {subscriptions.map(subscription => (
-                <option key={subscription} value={subscription}>
-                  {subscription === 'all' ? 'All Subscriptions' : subscription.charAt(0).toUpperCase() + subscription.slice(1)}
-                </option>
-              ))}
-            </select>
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="p-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <Filter className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </motion.button>
-            <div className="flex border border-gray-300 dark:border-gray-600 rounded-xl overflow-hidden">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-3 transition-all duration-200 ${
-                  viewMode === 'grid' 
-                    ? 'bg-purple-500 text-white' 
-                    : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600'
-                }`}
-              >
-                <div className="grid grid-cols-2 gap-1 w-4 h-4">
-                  <div className="w-1.5 h-1.5 bg-current rounded-sm"></div>
-                  <div className="w-1.5 h-1.5 bg-current rounded-sm"></div>
-                  <div className="w-1.5 h-1.5 bg-current rounded-sm"></div>
-                  <div className="w-1.5 h-1.5 bg-current rounded-sm"></div>
-                </div>
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-3 transition-all duration-200 ${
-                  viewMode === 'list' 
-                    ? 'bg-purple-500 text-white' 
-                    : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600'
-                }`}
-              >
-                <div className="space-y-1 w-4 h-4">
-                  <div className="w-full h-1.5 bg-current rounded-sm"></div>
-                  <div className="w-full h-1.5 bg-current rounded-sm"></div>
-                  <div className="w-full h-1.5 bg-current rounded-sm"></div>
-                </div>
-              </button>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Birêvebirina Bikarhêneran</h3>
+          <div className="flex flex-wrap gap-2 mt-4 sm:mt-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Lêgerîn..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
             </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="all">Hemû Rewş</option>
+              <option value="active">Çalak</option>
+              <option value="inactive">Neçalak</option>
+              <option value="suspended">Hate Rawestandin</option>
+            </select>
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value as any)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="all">Hemû Rol</option>
+              <option value="user">Bikarhêner</option>
+              <option value="admin">Birêvebir</option>
+            </select>
           </div>
         </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Bikarhêner</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Rol</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Rewş</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Abonetî</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">E-mail</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Çalakî</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user, index) => (
+                <motion.tr
+                  key={user.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <td className="py-4 px-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-medium text-sm">
+                          {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {user.firstName} {user.lastName}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="flex items-center space-x-2">
+                      {getRoleIcon(user.role)}
+                      <span className="text-sm text-gray-900 dark:text-white capitalize">
+                        {user.role === 'admin' ? 'Birêvebir' : 'Bikarhêner'}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
+                      {user.status === 'active' ? 'Çalak' : 
+                       user.status === 'inactive' ? 'Neçalak' : 
+                       user.status === 'suspended' ? 'Hate Rawestandin' : 'Neçalak'}
+                    </span>
+                  </td>
+                  <td className="py-4 px-4">
+                    {getSubscriptionBadge(user.subscription)}
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="flex items-center space-x-2">
+                      <Mail className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm text-gray-900 dark:text-white">{user.email}</span>
+                      {user.emailVerified && (
+                        <CheckCircle className="w-4 h-4 text-green-500" title="E-mail piştrast e" />
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => {
+                          setSelectedUser(user)
+                          setShowUserModal(true)
+                        }}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        title="Bikarhêner bibîne"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-colors"
+                        title="Bikarhêner biguherîne"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        title="Bikarhêner jê bibe"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {filteredUsers.length === 0 && (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            Bikarhêner tune ye
+          </div>
+        )}
       </motion.div>
 
-      {/* Users Grid/List */}
-      <AnimatePresence mode="wait">
-        {viewMode === 'grid' ? (
-          <motion.div
-            key="grid"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          >
-            {filteredUsers.map((user, index) => (
-              <motion.div
-                key={user.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
-              >
-                {/* Avatar */}
-                <div className="relative bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-700 dark:to-purple-800 p-8 text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3">
-                    {user.name.charAt(0)}
-                  </div>
-                  <div className="absolute top-3 right-3 flex flex-col gap-2">
-                    {user.isVerified && (
-                      <motion.span 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-medium rounded-full shadow-lg"
-                      >
-                        Verified
-                      </motion.span>
-                    )}
-                    {user.isPremium && (
-                      <motion.span 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.1 }}
-                        className="px-3 py-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-xs font-medium rounded-full shadow-lg"
-                      >
-                        Premium
-                      </motion.span>
-                    )}
-                  </div>
-                  <div className="absolute top-3 left-3">
-                    <span className={`px-3 py-1 bg-gradient-to-r ${getRoleColor(user.role)} text-white text-xs font-medium rounded-full shadow-lg`}>
-                      {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 left-3">
-                    <span className={`px-3 py-1 bg-gradient-to-r ${getStatusColor(user.status)} text-white text-xs font-medium rounded-full shadow-lg`}>
-                      {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="font-bold text-gray-900 dark:text-white text-lg group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                        {user.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{user.email}</p>
-                    </div>
-                    <motion.button 
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
-                    >
-                      <MoreVertical className="w-4 h-4 text-gray-400" />
-                    </motion.button>
-                  </div>
-                  
-                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    <div className="flex items-center gap-1">
-                      <Phone className="w-4 h-4" />
-                      <span>{user.phone}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>Joined {new Date(user.joinDate).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex gap-2">
-                      <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full font-medium">
-                        {user.totalWatched} Watched
-                      </span>
-                      <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full font-medium">
-                        {user.favorites} Favorites
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                      <span className={`px-3 py-1 bg-gradient-to-r ${getSubscriptionColor(user.subscription)} text-white text-xs font-medium rounded-full`}>
-                        {user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2 pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <motion.button 
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors font-medium"
-                    >
-                      <Eye className="w-4 h-4" />
-                      View
-                    </motion.button>
-                    <motion.button 
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-sm text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-xl transition-colors font-medium"
-                    >
-                      <Edit className="w-4 h-4" />
-                      Edit
-                    </motion.button>
-                    <motion.button 
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors font-medium"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        ) : (
-          <motion.div
-            key="list"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="space-y-4"
-          >
-            {filteredUsers.map((user, index) => (
-              <motion.div
-                key={user.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
-              >
-                <div className="flex gap-6">
-                  <div className="relative w-20 h-20 bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-700 dark:to-purple-800 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
-                    {user.name.charAt(0)}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-1">{user.name}</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{user.email}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        {user.isVerified && (
-                          <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-medium rounded-full">
-                            Verified
-                          </span>
-                        )}
-                        {user.isPremium && (
-                          <span className="px-3 py-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-xs font-medium rounded-full">
-                            Premium
-                          </span>
-                        )}
-                        <span className={`px-3 py-1 bg-gradient-to-r ${getRoleColor(user.role)} text-white text-xs font-medium rounded-full`}>
-                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                        </span>
-                        <span className={`px-3 py-1 bg-gradient-to-r ${getStatusColor(user.status)} text-white text-xs font-medium rounded-full`}>
-                          {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                        </span>
-                        <span className={`px-3 py-1 bg-gradient-to-r ${getSubscriptionColor(user.subscription)} text-white text-xs font-medium rounded-full`}>
-                          {user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1)}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                      <div className="flex items-center gap-1">
-                        <Phone className="w-4 h-4" />
-                        <span>{user.phone}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>Joined {new Date(user.joinDate).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        <span>Last login {new Date(user.lastLogin).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        <span>{user.totalWatched} watched</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4" />
-                        <span>{user.favorites} favorites</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-2">
-                        <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full font-medium">
-                          {user.totalWatched} Watched
-                        </span>
-                        <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full font-medium">
-                          {user.favorites} Favorites
-                        </span>
-                        <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full font-medium">
-                          {user.reviews} Reviews
-                        </span>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <motion.button 
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors font-medium"
-                        >
-                          <Eye className="w-4 h-4 inline mr-2" />
-                          View
-                        </motion.button>
-                        <motion.button 
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="px-4 py-2 text-sm text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-xl transition-colors font-medium"
-                        >
-                          <Edit className="w-4 h-4 inline mr-2" />
-                          Edit
-                        </motion.button>
-                        <motion.button 
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors font-medium"
-                        >
-                          <Trash2 className="w-4 h-4 inline mr-2" />
-                          Delete
-                        </motion.button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {filteredUsers.length === 0 && (
+      {/* User Detail Modal */}
+      {showUserModal && selectedUser && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center py-16"
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
         >
-          <div className="text-gray-400 dark:text-gray-500 mb-6">
-            <UsersIcon className="w-20 h-20 mx-auto" />
-          </div>
-          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">No users found</h3>
-          <p className="text-gray-600 dark:text-gray-400">Try adjusting your search or filter criteria.</p>
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4"
+          >
+            <div className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-medium">
+                    {selectedUser.firstName.charAt(0)}{selectedUser.lastName.charAt(0)}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {selectedUser.firstName} {selectedUser.lastName}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {selectedUser.role === 'admin' ? 'Birêvebir' : 'Bikarhêner'}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center space-x-3">
+                  <Mail className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{selectedUser.email}</span>
+                  {selectedUser.emailVerified && (
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                  )}
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Calendar className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {new Date(selectedUser.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                {selectedUser.lastLogin && (
+                  <div className="flex items-center space-x-3">
+                    <Clock className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      Dawî têketin: {new Date(selectedUser.lastLogin).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowUserModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Girtin
+                </button>
+                <button
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Biguherîne
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </motion.div>
       )}
     </div>

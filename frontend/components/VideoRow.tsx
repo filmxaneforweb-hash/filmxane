@@ -9,6 +9,8 @@ interface Video {
   title: string
   description: string
   thumbnail: string
+  thumbnailUrl?: string
+  posterUrl?: string
   duration?: number
   rating?: number
   views?: number
@@ -121,6 +123,8 @@ export function VideoRow({
                 title={video.title}
                 description={video.description}
                 thumbnail={video.thumbnail}
+                thumbnailUrl={video.thumbnailUrl}
+                posterUrl={video.posterUrl}
                 duration={video.duration}
                 rating={video.rating}
                 views={video.views}

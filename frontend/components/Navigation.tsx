@@ -23,6 +23,7 @@ export function Navigation() {
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
   // Form state
   const [loginForm, setLoginForm] = useState({ email: '', password: '' })
@@ -38,6 +39,11 @@ export function Navigation() {
   // Real notifications from API
   const [notifications, setNotifications] = useState<any[]>([])
   const [notificationsLoading, setNotificationsLoading] = useState(false)
+
+  // Check if we're on client side
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   // Fetch notifications from API
   useEffect(() => {
@@ -69,6 +75,12 @@ export function Navigation() {
     { name: 'Nû', href: '/videos' },
     { name: 'Lîsta Min', href: '/mylist' }
   ]
+
+  // Check if user is authenticated
+  const isUserAuthenticated = () => {
+    if (!isClient) return false
+    return localStorage.getItem('filmxane_token') !== null
+  }
 
   // Handle search
   const handleSearch = async (query: string) => {
@@ -384,18 +396,18 @@ export function Navigation() {
 
             {/* User Menu */}
             <div ref={userMenuRef} className="relative">
-              {isAuthenticated && user ? (
+              {isUserAuthenticated() ? (
                 <motion.button 
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center gap-2 p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  title="User Profile"
+                  title="Kullanıcı Profili"
                 >
                   <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">{user.name[0]}</span>
+                    <span className="text-white text-sm font-medium">👤</span>
                   </div>
-                  <span className="hidden md:block text-sm font-medium">{user.name}</span>
+                  <span className="hidden md:block text-sm font-medium">Profil</span>
                 </motion.button>
               ) : (
                 <motion.button 
@@ -403,7 +415,7 @@ export function Navigation() {
                   className="p-2.5 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  title="Login/Signup"
+                  title="Giriş Yap / Kayıt Ol"
                 >
                   <User className="w-4 h-4" />
                 </motion.button>
@@ -417,43 +429,42 @@ export function Navigation() {
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     className="absolute top-full right-0 mt-2 w-64 bg-slate-800 border border-slate-600 rounded-lg shadow-2xl"
                   >
-                    {isAuthenticated && user ? (
+                    {isUserAuthenticated() ? (
                       <div className="p-4">
                         <div className="flex items-center gap-3 mb-4 p-3 bg-slate-700/50 rounded-lg">
                           <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center">
-                            <span className="text-white text-sm font-medium">{user.name[0]}</span>
+                            <span className="text-white text-sm font-medium">👤</span>
                           </div>
                           <div>
-                            <p className="text-white font-medium">{user.name}</p>
-                            <p className="text-slate-400 text-sm">{user.email}</p>
+                            <p className="text-white font-medium">
+                              {isClient && localStorage.getItem('filmxane_user_name') || 'Kullanıcı'}
+                            </p>
+                            <p className="text-slate-400 text-sm">Giriş yapıldı</p>
                           </div>
                         </div>
                         <div className="space-y-2">
                           <Link href="/profile" className="flex items-center gap-3 p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors duration-200">
                             <UserIcon className="w-4 h-4" />
-                            <span>Profîla Min</span>
+                            <span>Profilim</span>
                           </Link>
                           <Link href="/mylist" className="flex items-center gap-3 p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors duration-200">
                             <Heart className="w-4 h-4" />
-                            <span>Lîsta Min</span>
+                            <span>Listem</span>
                           </Link>
-                          <Link href="/settings" className="flex items-center gap-3 p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors duration-200">
-                            <Settings className="w-4 h-4" />
-                            <span>Mîhengên</span>
-                          </Link>
-                          {user.role === 'admin' && (
-                            <Link href="/admin" className="flex items-center gap-3 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors duration-200">
-                              <Settings className="w-4 h-4" />
-                              <span>Admin Panel</span>
-                            </Link>
-                          )}
                           <hr className="border-slate-600 my-2" />
                           <button 
-                            onClick={handleLogout}
+                            onClick={() => {
+                              if (typeof window !== 'undefined') {
+                                localStorage.removeItem('filmxane_token')
+                                localStorage.removeItem('filmxane_user_name')
+                                setIsUserMenuOpen(false)
+                                window.location.reload()
+                              }
+                            }}
                             className="w-full flex items-center gap-3 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors duration-200"
                           >
                             <LogOut className="w-4 h-4" />
-                            <span>Derketin</span>
+                            <span>Çıkış Yap</span>
                           </button>
                         </div>
                       </div>
@@ -465,14 +476,14 @@ export function Navigation() {
                             className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                           >
                             <LogIn className="w-4 h-4" />
-                            <span>Têketin</span>
+                            <span>Giriş Yap</span>
                           </button>
                           <button 
                             onClick={() => { setIsSignupModalOpen(true); setIsUserMenuOpen(false); }}
                             className="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                           >
                             <UserPlus className="w-4 h-4" />
-                            <span>Hesab Vekirin</span>
+                            <span>Hesap Oluştur</span>
                           </button>
                         </div>
                       </div>
@@ -612,8 +623,8 @@ export function Navigation() {
               className="bg-slate-800 rounded-2xl p-6 sm:p-8 w-full max-w-md mx-4 border border-slate-600 shadow-2xl modal-content"
             >
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">Hesab Vekirin</h2>
-                <p className="text-slate-400">Ji kerema xwe hesabeke nû vekirin</p>
+                <h2 className="text-2xl font-bold text-white mb-2">Hesap Oluştur</h2>
+                <p className="text-slate-400">Lütfen yeni bir hesap oluşturun</p>
               </div>
               
               {formErrors.general && (
@@ -624,20 +635,20 @@ export function Navigation() {
               
               <form onSubmit={handleSignup} className="space-y-4">
                 <div>
-                  <label className="block text-slate-300 text-sm font-medium mb-2">Navê Yekem</label>
+                  <label className="block text-slate-300 text-sm font-medium mb-2">Ad</label>
                   <input
                     type="text"
-                    placeholder="Navê yekem"
+                    placeholder="Adınız"
                     value={signupForm.firstName}
                     onChange={(e) => setSignupForm({ ...signupForm, firstName: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 text-sm font-medium mb-2">Navê Duwem</label>
+                  <label className="block text-slate-300 text-sm font-medium mb-2">Soyad</label>
                   <input
                     type="text"
-                    placeholder="Navê duwem"
+                    placeholder="Soyadınız"
                     value={signupForm.lastName}
                     onChange={(e) => setSignupForm({ ...signupForm, lastName: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -647,17 +658,17 @@ export function Navigation() {
                   <label className="block text-slate-300 text-sm font-medium mb-2">Email</label>
                   <input
                     type="email"
-                    placeholder="Emaila te"
+                    placeholder="Email adresiniz"
                     value={signupForm.email}
                     onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 text-sm font-medium mb-2">Şîfre</label>
+                  <label className="block text-slate-300 text-sm font-medium mb-2">Şifre</label>
                   <input
                     type="password"
-                    placeholder="Şîfreya te"
+                    placeholder="Şifreniz"
                     value={signupForm.password}
                     onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -670,7 +681,7 @@ export function Navigation() {
                   type="submit"
                   className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200"
                 >
-                  Hesab Vekirin
+                  Hesap Oluştur
                 </button>
               </form>
               
@@ -679,7 +690,7 @@ export function Navigation() {
                   onClick={() => { setIsSignupModalOpen(false); setIsLoginModalOpen(true); }}
                   className="text-slate-400 hover:text-white transition-colors duration-200"
                 >
-                  Hesabeke te heye? Têketin
+                  Zaten hesabınız var mı? Giriş yapın
                 </button>
               </div>
               

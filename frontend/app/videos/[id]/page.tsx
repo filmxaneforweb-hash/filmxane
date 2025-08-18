@@ -9,10 +9,12 @@ import { apiClient } from '@/lib/api'
 import { Movie, Series } from '@/lib/api'
 import { VideoCard } from '@/components/VideoCard'
 import { getSafeImageUrl } from '@/lib/utils'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function VideoPlayerPage() {
   const params = useParams()
   const videoId = params.id as string
+  const { user, isAuthenticated } = useAuth()
   
   const [video, setVideo] = useState<Movie | Series | null>(null)
   const [loading, setLoading] = useState(true)
@@ -23,6 +25,9 @@ export default function VideoPlayerPage() {
   const [duration, setDuration] = useState(0)
   const [relatedVideos, setRelatedVideos] = useState<(Movie | Series)[]>([])
   const [showControls, setShowControls] = useState(true)
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [isLoadingFavorite, setIsLoadingFavorite] = useState(false)
+  const [isLoadingShare, setIsLoadingShare] = useState(false)
   const playerRef = useRef<ReactPlayer>(null)
 
   useEffect(() => {
@@ -136,6 +141,109 @@ export default function VideoPlayerPage() {
     }
   }
 
+  // Favori ekleme/çıkarma işlevi
+  const toggleFavorite = async () => {
+    if (!video) return
+    
+    try {
+      setIsLoadingFavorite(true)
+      const response = await fetch(`http://localhost:3005/api/favorites`, {
+        method: isFavorite ? 'DELETE' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          videoId: video.id,
+          userId: user?.id || 'anonymous',
+          type: isMovie ? 'movie' : 'series'
+        })
+      })
+      
+      if (response.ok) {
+        setIsFavorite(!isFavorite)
+        console.log(`✅ ${isFavorite ? 'Favorilerden çıkarıldı' : 'Favorilere eklendi'}`)
+      } else {
+        console.error('❌ Favori işlemi başarısız')
+      }
+    } catch (error) {
+      console.error('❌ Favori işlemi hatası:', error)
+    } finally {
+      setIsLoadingFavorite(false)
+    }
+  }
+
+  // Paylaşma işlevi
+  const handleShare = async () => {
+    if (!video) return
+    
+    try {
+      setIsLoadingShare(true)
+      
+      // Web Share API kullan (modern tarayıcılarda)
+      if (navigator.share) {
+        await navigator.share({
+          title: video.title,
+          text: video.description || `${video.title} - Filmxane'de izle`,
+          url: window.location.href
+        })
+      } else {
+        // Fallback: URL'yi panoya kopyala
+        await navigator.clipboard.writeText(window.location.href)
+        alert('Video linki panoya kopyalandı!')
+      }
+      
+      // Backend'e paylaşım sayısını gönder
+      try {
+        await fetch(`http://localhost:3005/api/videos/${video.id}/share`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+      } catch (error) {
+        console.error('❌ Paylaşım sayısı güncellenemedi:', error)
+      }
+      
+    } catch (error) {
+      console.error('❌ Paylaşım hatası:', error)
+      // Fallback: Basit alert
+      alert('Paylaşım hatası oluştu')
+    } finally {
+      setIsLoadingShare(false)
+    }
+  }
+
+  // Video yüklendiğinde favori durumunu kontrol et
+  useEffect(() => {
+    if (video) {
+      checkFavoriteStatus()
+    }
+  }, [video])
+
+  const checkFavoriteStatus = async () => {
+    if (!video) return
+    
+    try {
+      const response = await fetch(`http://localhost:3005/api/favorites/check`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          videoId: video.id,
+          userId: user?.id || 'anonymous'
+        })
+      })
+      
+      if (response.ok) {
+        const { isFavorite: favoriteStatus } = await response.json()
+        setIsFavorite(favoriteStatus)
+      }
+    } catch (error) {
+      console.error('❌ Favori durumu kontrol edilemedi:', error)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -163,204 +271,351 @@ export default function VideoPlayerPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Video Player Section */}
-      <section className="relative h-[70vh] bg-black">
+      {/* Video Player Section - Netflix Style */}
+      <section className="relative h-[80vh] bg-black overflow-hidden">
         <div className="relative w-full h-full">
           {/* React Player */}
-                               <ReactPlayer
+          <ReactPlayer
             ref={playerRef}
             url={isMovie ? (video.videoUrl || video.videoPath ? `http://localhost:3005${video.videoUrl || video.videoPath}` : undefined) : undefined}
-             playing={isPlaying}
-             muted={isMuted}
-             width="100%"
-             height="100%"
-             onPlay={handlePlay}
-             onPause={handlePause}
-             onProgress={handleProgress}
-             onDuration={handleDuration}
-             controls={false}
-             style={{ objectFit: 'cover' }}
+            playing={isPlaying}
+            muted={isMuted}
+            width="100%"
+            height="100%"
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onProgress={handleProgress}
+            onDuration={handleDuration}
+            controls={false}
+            style={{ objectFit: 'cover' }}
             fallback={
-              <div className="w-full h-full bg-gradient-to-br from-slate-900 to-black flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-slate-900 to-black flex items-center justify-center relative">
                 {(video.thumbnail || video.thumbnailUrl || video.thumbnailPath) && (
                   <img 
-                    src={getSafeImageUrl(video.thumbnail || video.thumbnailUrl || video.thumbnailPath, 800, 600, 'poster')} 
+                    src={getSafeImageUrl(video.thumbnail || video.thumbnailUrl || video.thumbnailPath, 1200, 800, 'poster')} 
                     alt={video.title}
-                    className="w-full h-full object-cover opacity-50"
+                    className="w-full h-full object-cover opacity-60"
                   />
                 )}
+                <div className="absolute inset-0 bg-black/40" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                                     <motion.button
-                     whileHover={{ scale: 1.1 }}
-                     whileTap={{ scale: 0.9 }}
-                     className="bg-red-600 hover:bg-red-700 text-white rounded-full p-6 shadow-2xl"
-                     onClick={() => {
-                       if (!isPlaying) {
-                         // Video oynatıldığında view count'ı artır
-                         incrementViewCount()
-                       }
-                       setIsPlaying(!isPlaying)
-                     }}
-                   >
-                     {isPlaying ? (
-                       <Pause className="w-12 h-12" />
-                     ) : (
-                       <Play className="w-12 h-12 ml-1" />
-                     )}
-                   </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="bg-red-600 hover:bg-red-700 text-white rounded-full p-8 shadow-2xl transition-all duration-300"
+                    onClick={() => {
+                      if (!isPlaying) {
+                        incrementViewCount()
+                      }
+                      setIsPlaying(!isPlaying)
+                    }}
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-16 h-16" />
+                    ) : (
+                      <Play className="w-16 h-16 ml-2" />
+                    )}
+                  </motion.button>
+                </div>
+                
+                {/* Video Title Overlay */}
+                <div className="absolute bottom-20 left-8 right-8">
+                  <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                    className="text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-2xl"
+                  >
+                    {video.title}
+                  </motion.h1>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.5 }}
+                    className="flex items-center gap-6 text-gray-300 mb-6"
+                  >
+                    {video.rating && (
+                      <div className="flex items-center gap-2">
+                        <Star className="w-6 h-6 text-yellow-500 fill-current" />
+                        <span className="text-lg">{video.rating}</span>
+                      </div>
+                    )}
+                    {video.year && (
+                      <span className="text-lg">{video.year}</span>
+                    )}
+                    {video.duration && (
+                      <span className="text-lg">{formatDuration(video.duration)}</span>
+                    )}
+                    <span className="bg-red-600 px-3 py-1 rounded text-sm font-semibold">HD</span>
+                  </motion.div>
                 </div>
               </div>
             }
           />
 
-          {/* Custom Video Controls */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+          {/* Enhanced Video Controls */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/60 to-transparent p-8">
+            {/* Progress Bar */}
+            <div className="mb-6">
+              <div className="w-full bg-gray-600/30 rounded-full h-2 mb-2">
+                <div 
+                  className="bg-red-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${(currentTime / duration) * 100}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-white text-sm">
+                <span>{formatDuration(currentTime)}</span>
+                <span>{formatDuration(duration)}</span>
+              </div>
+            </div>
+            
+            {/* Control Buttons */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                                 <button
-                   onClick={() => {
-                     if (!isPlaying) {
-                       // Video oynatıldığında view count'ı artır
-                       incrementViewCount()
-                     }
-                     setIsPlaying(!isPlaying)
-                   }}
-                   className="text-white hover:text-red-500 transition-colors"
-                 >
-                   {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
-                 </button>
+              <div className="flex items-center gap-6">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => {
+                    if (!isPlaying) {
+                      incrementViewCount()
+                    }
+                    setIsPlaying(!isPlaying)
+                  }}
+                  className="bg-white text-black rounded-full p-4 hover:bg-gray-200 transition-colors shadow-lg"
+                >
+                  {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
+                </motion.button>
                 
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={toggleMute}
-                  className="text-white hover:text-red-500 transition-colors"
+                  className="text-white hover:text-red-500 transition-colors p-2"
                 >
                   {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
-                </button>
+                </motion.button>
                 
-                <div className="text-white text-sm">
+                <div className="text-white text-lg font-medium">
                   {formatDuration(currentTime)} / {formatDuration(duration)}
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
-                <button className="text-white hover:text-red-500 transition-colors">
-                  <Heart className="w-6 h-6" />
-                </button>
-                <button className="text-white hover:text-red-500 transition-colors">
-                  <Share2 className="w-6 h-6" />
-                </button>
-                <button className="text-white hover:text-red-500 transition-colors">
-                  <Download className="w-6 h-6" />
-                </button>
-                <button 
+                             <div className="flex items-center gap-4">
+                 {isAuthenticated && (
+                   <motion.button 
+                     whileHover={{ scale: 1.1 }}
+                     whileTap={{ scale: 0.9 }}
+                     onClick={toggleFavorite}
+                     disabled={isLoadingFavorite}
+                     className={`text-white transition-colors p-2 ${
+                       isFavorite 
+                         ? 'text-red-500 hover:text-red-400' 
+                         : 'hover:text-red-500'
+                     } ${isLoadingFavorite ? 'opacity-50 cursor-not-allowed' : ''}`}
+                   >
+                     <Heart className={`w-6 h-6 ${isFavorite ? 'fill-current' : ''}`} />
+                   </motion.button>
+                 )}
+                                 <motion.button 
+                   whileHover={{ scale: 1.1 }}
+                   whileTap={{ scale: 0.9 }}
+                   onClick={handleShare}
+                   disabled={isLoadingShare}
+                   className={`text-white hover:text-red-500 transition-colors p-2 ${
+                     isLoadingShare ? 'opacity-50 cursor-not-allowed' : ''
+                   }`}
+                 >
+                   <Share2 className="w-6 h-6" />
+                 </motion.button>
+                <motion.button 
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={toggleFullscreen}
-                  className="text-white hover:text-red-500 transition-colors"
+                  className="text-white hover:text-red-500 transition-colors p-2"
                 >
                   <Maximize className="w-6 h-6" />
-                </button>
+                </motion.button>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Video Info Section */}
-      <section className="py-8 px-4 md:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Video Info Section - Enhanced */}
+      <section className="py-12 px-4 md:px-8 bg-gradient-to-b from-black to-slate-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Video Details */}
             <div className="lg:col-span-2">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.8 }}
+                className="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-8 border border-slate-700/30"
               >
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
                   {video.title}
                 </h1>
                 
-                <div className="flex items-center gap-6 text-gray-400 mb-6">
-                  <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                    <span>{video.rating}</span>
+                <div className="flex items-center gap-8 text-gray-300 mb-8">
+                  {video.rating && (
+                    <div className="flex items-center gap-3">
+                      <Star className="w-7 h-7 text-yellow-500 fill-current" />
+                      <span className="text-xl font-semibold">{video.rating}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <Eye className="w-7 h-7 text-blue-400" />
+                    <span className="text-xl font-semibold">{formatViewCount(video.views || 0)} temaşe</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Eye className="w-5 h-5" />
-                    <span>{formatViewCount(video.views || 0)} temaşe</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-5 h-5" />
-                    <span>{formatDuration(video.duration || 0)}</span>
-                  </div>
+                  {video.duration && (
+                    <div className="flex items-center gap-3">
+                      <Clock className="w-7 h-7 text-green-400" />
+                      <span className="text-xl font-semibold">{formatDuration(video.duration)}</span>
+                    </div>
+                  )}
                   {video.year && (
-                    <span>{video.year}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl font-semibold">{video.year}</span>
+                    </div>
                   )}
                 </div>
 
-                <p className="text-gray-300 text-lg leading-relaxed mb-6">
-                  {video.description}
-                </p>
+                {video.description && (
+                  <div className="mb-8">
+                    <h3 className="text-2xl font-semibold text-white mb-4">Açıklama</h3>
+                    <p className="text-gray-300 text-lg leading-relaxed">
+                      {video.description}
+                    </p>
+                  </div>
+                )}
 
                 {/* Genre Tags */}
                 {video.genre && (
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {(typeof video.genre === 'string' ? JSON.parse(video.genre) : video.genre).map((genre, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-slate-800 text-white rounded-full text-sm"
-                      >
-                         {genre}
-                       </span>
-                     ))}
-                   </div>
-                 )}
+                  <div className="mb-8">
+                    <h3 className="text-2xl font-semibold text-white mb-4">Türler</h3>
+                    <div className="flex flex-wrap gap-3">
+                      {(typeof video.genre === 'string' ? JSON.parse(video.genre) : video.genre).map((genre, index) => (
+                        <span
+                          key={index}
+                          className="px-4 py-2 bg-red-600/20 text-red-400 rounded-full text-sm font-medium border border-red-500/30 hover:bg-red-600/30 transition-colors cursor-pointer"
+                        >
+                          {genre}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Movie/Series Specific Info */}
                 {isMovie && video.director && (
-                  <div className="mb-4">
-                    <span className="text-gray-400">Direktor: </span>
-                    <span className="text-white">{video.director}</span>
+                  <div className="mb-6">
+                    <h3 className="text-2xl font-semibold text-white mb-4">Yönetmen</h3>
+                    <p className="text-gray-300 text-lg">{video.director}</p>
                   </div>
                 )}
 
                 {isMovie && video.cast && video.cast.length > 0 && (
-                  <div className="mb-4">
-                    <span className="text-gray-400">Aktor: </span>
-                    <span className="text-white">{video.cast.join(', ')}</span>
+                  <div className="mb-6">
+                    <h3 className="text-2xl font-semibold text-white mb-4">Oyuncular</h3>
+                    <div className="flex flex-wrap gap-3">
+                      {video.cast.map((actor, index) => (
+                        <span
+                          key={index}
+                          className="px-4 py-2 bg-slate-700/50 text-gray-300 rounded-full text-sm hover:bg-slate-600/50 transition-colors cursor-pointer"
+                        >
+                          {actor}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
+
+                                 {/* Action Buttons */}
+                 <div className="flex flex-wrap gap-4 pt-6 border-t border-slate-700/30">
+                   {isAuthenticated ? (
+                     <motion.button
+                       whileHover={{ scale: 1.05 }}
+                       whileTap={{ scale: 0.95 }}
+                       onClick={toggleFavorite}
+                       disabled={isLoadingFavorite}
+                       className={`px-8 py-4 rounded-xl font-semibold transition-colors flex items-center gap-3 ${
+                         isFavorite
+                           ? 'bg-red-700 text-white hover:bg-red-800'
+                           : 'bg-red-600 text-white hover:bg-red-700'
+                       } ${isLoadingFavorite ? 'opacity-50 cursor-not-allowed' : ''}`}
+                     >
+                       <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
+                       {isFavorite ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+                     </motion.button>
+                   ) : (
+                     <motion.button
+                       whileHover={{ scale: 1.05 }}
+                       whileTap={{ scale: 0.95 }}
+                       onClick={() => window.location.href = '/login'}
+                       className="px-8 py-4 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-500 transition-colors flex items-center gap-3"
+                     >
+                       <Heart className="w-5 h-5" />
+                       Giriş Yap ve Favorilere Ekle
+                     </motion.button>
+                   )}
+                   <motion.button
+                     whileHover={{ scale: 1.05 }}
+                     whileTap={{ scale: 0.95 }}
+                     onClick={handleShare}
+                     disabled={isLoadingShare}
+                     className={`px-8 py-4 bg-slate-700 text-white rounded-xl font-semibold hover:bg-gray-600 transition-colors flex items-center gap-3 ${
+                       isLoadingShare ? 'opacity-50 cursor-not-allowed' : ''
+                     }`}
+                   >
+                     <Share2 className="w-5 h-5" />
+                     {isLoadingShare ? 'Paylaşılıyor...' : 'Paylaş'}
+                   </motion.button>
+                 </div>
               </motion.div>
             </div>
 
-            {/* Sidebar */}
+            {/* Enhanced Sidebar */}
             <div className="lg:col-span-1">
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="bg-slate-900/50 rounded-xl p-6 backdrop-blur-sm border border-slate-700/30"
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="bg-slate-900/70 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/30 sticky top-8"
               >
-                <h3 className="text-xl font-semibold text-white mb-4">Çavkaniyên Têkildar</h3>
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="w-2 h-8 bg-red-500 rounded-full"></span>
+                  İlgili İçerikler
+                </h3>
                 
                 {relatedVideos.length > 0 ? (
                   <div className="space-y-4">
                     {relatedVideos.map((relatedVideo) => (
-                      <VideoCard
+                      <motion.div
                         key={relatedVideo.id}
-                        id={relatedVideo.id}
-                        title={relatedVideo.title}
-                        description={relatedVideo.description}
-                        thumbnail={relatedVideo.thumbnail || relatedVideo.thumbnailUrl || relatedVideo.thumbnailPath}
-                        duration={relatedVideo.duration}
-                        rating={relatedVideo.rating}
-                        views={relatedVideo.views}
-                      />
+                        whileHover={{ scale: 1.02 }}
+                        className="cursor-pointer"
+                      >
+                        <VideoCard
+                          id={relatedVideo.id}
+                          title={relatedVideo.title}
+                          description={relatedVideo.description}
+                          thumbnail={relatedVideo.thumbnail || relatedVideo.thumbnailUrl || relatedVideo.thumbnailPath}
+                          duration={relatedVideo.duration}
+                          rating={relatedVideo.rating}
+                          views={relatedVideo.views}
+                        />
+                      </motion.div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-400 text-center py-8">
-                    Hîn çavkaniyên têkildar nehatine zêdekirin
-                  </p>
+                  <div className="text-center py-12">
+                    <div className="text-gray-500 text-6xl mb-4">🎬</div>
+                    <p className="text-gray-400 text-lg">
+                      Henüz ilgili içerik bulunmuyor
+                    </p>
+                  </div>
                 )}
               </motion.div>
             </div>

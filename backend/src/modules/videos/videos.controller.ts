@@ -82,6 +82,11 @@ export class VideosController {
     return this.videosService.incrementViews(id);
   }
 
+  @Post(':id/share')
+  incrementShares(@Param('id') id: string) {
+    return this.videosService.incrementShares(id);
+  }
+
   @Post('fix-urls')
   async fixVideoUrls() {
     return this.videosService.fixVideoUrls();

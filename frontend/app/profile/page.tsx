@@ -1,240 +1,233 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { User, Mail, Calendar, Heart, Clock, Star, Settings } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api'
+import Link from 'next/link'
+
+interface User {
+  id: string
+  email: string
+  firstName: string
+  lastName: string
+  role: string
+  createdAt: string
+}
 
 export default function ProfilePage() {
-  const { user, isAuthenticated } = useAuth()
-  const [userStats, setUserStats] = useState({
-    totalWatched: 0,
-    totalHours: 0,
-    averageRating: 0,
-    favorites: 0
-  })
-  const [recentActivity, setRecentActivity] = useState<any[]>([])
+  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [stats, setStats] = useState({
+    favoritesCount: 0,
+    watchHistoryCount: 0,
+    totalWatchTime: 0
+  })
 
-  // Fetch user data from API
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (!isAuthenticated) {
-        setError('Please login to view your profile')
-        setLoading(false)
+    const checkAuth = async () => {
+      // Check if we're on client side
+      if (typeof window === 'undefined') return
+      
+      const token = localStorage.getItem('filmxane_token')
+      if (!token) {
+        router.push('/login')
         return
       }
 
       try {
-        setLoading(true)
-        
-        // Fetch user stats and activity
-        const [statsResponse, activityResponse] = await Promise.all([
-          apiClient.getContentStats(),
-          apiClient.getWatchHistory()
+        const [profileResponse, favoritesResponse] = await Promise.all([
+          apiClient.getProfile(),
+          apiClient.getFavorites()
         ])
-
-        if (statsResponse.success && statsResponse.data) {
-          setUserStats({
-            totalWatched: statsResponse.data.totalViews || 0,
-            totalHours: Math.floor((statsResponse.data.totalViews || 0) * 2 / 60), // Assuming 2 hours average
-            averageRating: 4.2, // Default value
-            favorites: 0 // Will be fetched separately
+        
+        if (profileResponse.success && profileResponse.data) {
+          // API'den gelen veriyi local User type'ına dönüştür
+          const userData = profileResponse.data as any
+          setUser({
+            id: userData.id,
+            email: userData.email,
+            firstName: userData.firstName || userData.name?.split(' ')[0] || 'Kullanıcı',
+            lastName: userData.lastName || userData.name?.split(' ').slice(1).join(' ') || '',
+            role: userData.role,
+            createdAt: userData.createdAt
           })
+        } else {
+          console.error('Profile response error:', profileResponse.error)
+          localStorage.removeItem('filmxane_token')
+          router.push('/login')
+          return
         }
 
-        if (activityResponse.success && activityResponse.data) {
-          setRecentActivity(activityResponse.data.slice(0, 5)) // Show last 5 activities
+        if (favoritesResponse.success && favoritesResponse.data) {
+          setStats(prev => ({
+            ...prev,
+            favoritesCount: favoritesResponse.data?.length || 0
+          }))
         }
-
       } catch (error) {
-        console.error('Error fetching user data:', error)
-        setError('Failed to fetch user data')
+        console.error('Profil yüklenirken hata:', error)
+        localStorage.removeItem('filmxane_token')
+        router.push('/login')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchUserData()
-  }, [isAuthenticated])
+    checkAuth()
+  }, [router])
 
-  const handleSettingsClick = () => {
-    // Navigate to settings page
-    window.location.href = '/settings'
-  }
-
-  const handleActivityClick = (activityId: number, activityTitle: string, activityType: string) => {
-    // TODO: Implement activity click functionality
-    console.log(`Activity clicked: ${activityTitle} (ID: ${activityId}, Type: ${activityType})`)
-    
-    switch (activityType) {
-      case 'watch':
-        alert(`Temaşeya ${activityTitle} dê dest pê bike`)
-        break
-      case 'favorite':
-        alert(`${activityTitle} dê ji lîsta te ya xweşbînî were rakirin`)
-        break
-      case 'recommend':
-        alert(`Pêşniyara ${activityTitle} dê were nîşandan`)
-        break
-      default:
-        alert(`Çalakiyeke nû: ${activityTitle}`)
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('filmxane_token')
+    router.push('/login')
   }
 
   if (loading) {
-    return <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black pt-20 text-white text-center py-16">Loading...</div>
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-900 text-white flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full"></div>
+      </div>
+    )
   }
 
-  if (error) {
-    return <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black pt-20 text-white text-center py-16">{error}</div>
-  }
-
-  if (!isAuthenticated) {
-    return <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black pt-20 text-white text-center py-16">Please <a href="/login" className="underline">login</a> to view your profile.</div>
+  if (!user) {
+    return null
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black pt-20">
-      {/* Hero Section */}
-      <section className="py-16 px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div 
-            className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-8 border border-slate-600/30"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="flex flex-col md:flex-row items-center gap-8">
-              {/* Avatar */}
-              <div className="relative">
-                <div className="w-32 h-32 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-4xl font-bold">{user?.name?.[0]}</span>
-                </div>
-                <motion.button
-                  onClick={handleSettingsClick}
-                  className="absolute -bottom-2 -right-2 w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-full flex items-center justify-center text-slate-300 hover:text-white transition-all duration-200"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Settings className="w-5 h-5" />
-                </motion.button>
-              </div>
-
-              {/* User Info */}
-              <div className="flex-1 text-center md:text-left">
-                <motion.h1 
-                  className="text-4xl md:text-5xl font-bold text-white mb-4"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                >
-                  {user?.name}
-                </motion.h1>
-                <motion.div 
-                  className="space-y-2 text-slate-400"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
-                >
-                  <div className="flex items-center justify-center md:justify-start gap-2">
-                    <Mail className="w-4 h-4" />
-                    <span>{user?.email}</span>
-                  </div>
-                  <div className="flex items-center justify-center md:justify-start gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>Endam ji {user?.createdAt ? new Date(user.createdAt).getFullYear() : 'N/A'}</span>
-                  </div>
-                </motion.div>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-900 text-white">
+      {/* Header */}
+      <div className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-red-500">FILMXANE</h1>
             </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.h2 
-            className="text-3xl font-bold text-white mb-8 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-          >
-            Statîstîkên Te
-          </motion.h2>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { icon: Clock, label: 'Fîlmên Temaşe Kirî', value: userStats.totalWatched, color: 'from-blue-500 to-blue-600' },
-              { icon: Clock, label: 'Saetên Temaşe', value: `${userStats.totalHours}h`, color: 'from-green-500 to-green-600' },
-              { icon: Star, label: 'Pûana Navîn', value: userStats.averageRating, color: 'from-yellow-500 to-yellow-600' },
-              { icon: Heart, label: 'Favorî', value: userStats.favorites, color: 'from-red-500 to-red-600' }
-            ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                className="bg-slate-800/40 backdrop-blur-sm p-6 rounded-xl border border-slate-600/30 text-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
-              >
-                <div className={`w-16 h-16 bg-gradient-to-br ${stat.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                  <stat.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-2">{stat.value}</h3>
-                <p className="text-slate-400 text-sm">{stat.label}</p>
-              </motion.div>
-            ))}
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="text-gray-300 hover:text-white transition-colors">
+                Ana Sayfa
+              </Link>
+              <Link href="/movies" className="text-gray-300 hover:text-white transition-colors">
+                Filmler
+              </Link>
+              <Link href="/series" className="text-gray-300 hover:text-white transition-colors">
+                Diziler
+              </Link>
+              <Link href="/mylist" className="text-gray-300 hover:text-white transition-colors">
+                Listem
+              </Link>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Recent Activity */}
-      <section className="py-16 px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.h2 
-            className="text-3xl font-bold text-white mb-8 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.2 }}
-          >
-            Çalakiyên Dawî
-          </motion.h2>
-          
-          <motion.div 
-            className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-6 border border-slate-600/30"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.4 }}
-          >
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <motion.button
-                  key={activity.id}
-                  onClick={() => handleActivityClick(activity.id, activity.title, activity.type)}
-                  className="w-full flex items-center gap-4 p-4 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors duration-200 text-left"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 1.6 + index * 0.1 }}
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Profile Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-6 shadow-2xl">
+              <div className="text-center mb-6">
+                <div className="w-24 h-24 bg-red-500 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold">
+                  {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                </div>
+                <h2 className="text-xl font-bold text-white">{user.firstName} {user.lastName}</h2>
+                <p className="text-gray-400">{user.email}</p>
+                <p className="text-sm text-gray-500 mt-1">Üye olma: {new Date(user.createdAt).toLocaleDateString('tr-TR')}</p>
+              </div>
+
+              <div className="space-y-4">
+                <button
+                  onClick={handleLogout}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
                 >
-                  <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center">
-                    {activity.type === 'watch' && <Clock className="w-5 h-5 text-blue-400" />}
-                    {activity.type === 'favorite' && <Heart className="w-5 h-5 text-red-400" />}
-                    {activity.type === 'recommend' && <Star className="w-5 h-5 text-yellow-400" />}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-white font-medium">{activity.title}</h4>
-                    <p className="text-slate-400 text-sm">{activity.action}</p>
-                  </div>
-                  <span className="text-slate-500 text-sm">{activity.time}</span>
-                </motion.button>
-              ))}
+                  Çıkış Yap
+                </button>
+              </div>
             </div>
-          </motion.div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Stats Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-6 shadow-2xl text-center">
+                <div className="text-3xl mb-2">❤️</div>
+                <div className="text-2xl font-bold text-white mb-1">{stats.favoritesCount}</div>
+                <div className="text-sm text-gray-400">Favori</div>
+              </div>
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-6 shadow-2xl text-center">
+                <div className="text-3xl mb-2">👁️</div>
+                <div className="text-2xl font-bold text-white mb-1">{stats.watchHistoryCount}</div>
+                <div className="text-sm text-gray-400">İzlenen</div>
+              </div>
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-6 shadow-2xl text-center">
+                <div className="text-3xl mb-2">⏱️</div>
+                <div className="text-2xl font-bold text-white mb-1">{stats.totalWatchTime}h</div>
+                <div className="text-sm text-gray-400">Toplam Süre</div>
+              </div>
+            </div>
+
+            {/* My List Section */}
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-6 shadow-2xl">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">🎬 Listem</h3>
+                <Link 
+                  href="/mylist" 
+                  className="text-red-400 hover:text-red-300 text-sm transition-colors"
+                >
+                  Tümünü Gör →
+                </Link>
+              </div>
+              {stats.favoritesCount > 0 ? (
+                <div className="text-center py-8">
+                  <div className="text-4xl mb-2">🎉</div>
+                  <p className="text-gray-400">Listenizde {stats.favoritesCount} favori var</p>
+                  <Link 
+                    href="/mylist" 
+                    className="inline-block mt-3 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm transition-colors"
+                  >
+                    Listeyi Görüntüle
+                  </Link>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-4xl mb-2">📝</div>
+                  <p className="text-gray-400">Henüz listenize film eklemediniz</p>
+                  <p className="text-gray-500 text-sm mt-2">Filmleri keşfetmeye başlayın ve favorilerinizi ekleyin</p>
+                  <Link 
+                    href="/movies" 
+                    className="inline-block mt-3 bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-lg transition-colors"
+                  >
+                    Filmleri Keşfet
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Recently Watched */}
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-6 shadow-2xl">
+              <h3 className="text-xl font-bold text-white mb-4">⏰ Son İzlenenler</h3>
+              <div className="text-center py-8">
+                <div className="text-4xl mb-2">🕒</div>
+                <p className="text-gray-400">Henüz film izlemediniz</p>
+                <p className="text-gray-500 text-sm mt-2">İlk filminizi izlemeye başlayın</p>
+              </div>
+            </div>
+
+            {/* Watchlist */}
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-6 shadow-2xl">
+              <h3 className="text-xl font-bold text-white mb-4">📋 İzleme Listesi</h3>
+              <div className="text-center py-8">
+                <div className="text-4xl mb-2">📋</div>
+                <p className="text-gray-400">İzleme listeniz boş</p>
+                <p className="text-gray-500 text-sm mt-2">Daha sonra izlemek istediğiniz filmleri ekleyin</p>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
-    </main>
+      </div>
+    </div>
   )
 }
