@@ -110,7 +110,7 @@ export function FeaturedVideos() {
                 thumbnail={video.thumbnail}
                 duration={video.duration}
                 rating={video.rating}
-                views={video.views}
+                views={video.viewCount}
               />
             </motion.div>
           ))}

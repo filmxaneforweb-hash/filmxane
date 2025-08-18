@@ -602,6 +602,8 @@ export default function VideoPlayerPage() {
                           title={relatedVideo.title}
                           description={relatedVideo.description}
                           thumbnail={relatedVideo.thumbnail || relatedVideo.thumbnailUrl || relatedVideo.thumbnailPath}
+                          thumbnailUrl={relatedVideo.thumbnailUrl}
+                          posterUrl={relatedVideo.posterUrl}
                           duration={relatedVideo.duration}
                           rating={relatedVideo.rating}
                           views={relatedVideo.views}

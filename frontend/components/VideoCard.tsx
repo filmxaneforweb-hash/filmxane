@@ -28,6 +28,7 @@ export function VideoCard({
   description,
   thumbnail,
   thumbnailUrl,
+  posterUrl,
   thumbnailPath,
   duration,
   rating,
