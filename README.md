@@ -11,44 +11,56 @@ Netflix tarzı modern bir streaming platformu. Akademik Kürtçe dil desteği il
 - ✅ Kategoriler ve gelişmiş arama
 - ✅ Favoriler ve izleme listesi
 - ✅ Akademik Kürtçe arayüz
+- ✅ Kapak fotoğrafları ve thumbnail desteği
+- ✅ Video izleme sayfası
+- ✅ Responsive tasarım
 
 ### Admin Özellikleri
 - ✅ Video upload ve yönetim
+- ✅ Kapak fotoğrafı yükleme
 - ✅ Kullanıcı yönetimi
 - ✅ Abonelik ve ödeme takibi
 - ✅ İçerik moderasyonu
+- ✅ WebSocket gerçek zamanlı güncellemeler
 
 ## 🛠️ Teknoloji Stack
 
 ### Frontend
-- **Next.js 14** - React tabanlı full-stack framework
+- **Next.js 15** - React tabanlı full-stack framework
 - **Tailwind CSS** - Modern CSS framework
 - **TypeScript** - Tip güvenliği
-- **React Query** - Server state management
+- **Framer Motion** - Animasyonlar
+- **Lucide React** - İkonlar
 
 ### Backend
 - **NestJS** - Node.js enterprise framework
 - **PostgreSQL** - Ana veritabanı
-- **Redis** - Cache ve session storage
+- **TypeORM** - ORM
 - **JWT** - Authentication
+- **WebSocket** - Gerçek zamanlı iletişim
 
 ### Video Streaming
 - **HLS (HTTP Live Streaming)** - Video streaming protokolü
-- **AWS S3** - Video depolama
-- **CloudFront** - CDN
-
-### Ödeme
-- **Stripe** - Ödeme işlemleri
+- **Static File Serving** - Kapak fotoğrafları için
+- **Upload System** - Dosya yükleme sistemi
 
 ## 📁 Proje Yapısı
 
 ```
 filmxane/
 ├── frontend/          # Next.js kullanıcı arayüzü
+│   ├── app/          # App Router sayfaları
+│   ├── components/   # React component'leri
+│   ├── contexts/     # React context'leri
+│   └── lib/          # Utility fonksiyonları
 ├── backend/           # NestJS API
+│   ├── src/
+│   │   ├── entities/ # Veritabanı entity'leri
+│   │   ├── modules/  # Feature modülleri
+│   │   ├── seeds/    # Veritabanı seed'leri
+│   │   └── migrations/ # Veritabanı migration'ları
 ├── admin-panel/       # React admin paneli
-├── database/          # Veritabanı migration'ları
-└── docs/             # Dokümantasyon
+└── uploads/          # Yüklenen dosyalar
 ```
 
 ## 🚀 Kurulum
@@ -56,19 +68,25 @@ filmxane/
 ### Gereksinimler
 - Node.js 18+
 - PostgreSQL 14+
-- Redis 6+
 
 ### Adımlar
 
 1. **Repository'yi klonlayın**
 ```bash
-git clone <repository-url>
+git clone https://github.com/SerkanCtn/projectFilmxane.git
 cd filmxane
 ```
 
 2. **Bağımlılıkları yükleyin**
 ```bash
-npm run install:all
+# Frontend
+cd frontend && npm install
+
+# Backend
+cd ../backend && npm install
+
+# Admin Panel
+cd ../admin-panel && npm install
 ```
 
 3. **Veritabanını kurun**
@@ -79,52 +97,79 @@ createdb filmxane_db
 # Migration'ları çalıştırın
 cd backend
 npm run migration:run
+
+# Seed verilerini yükleyin
+npm run seed
 ```
 
 4. **Environment değişkenlerini ayarlayın**
 ```bash
-# .env dosyalarını oluşturun
-cp frontend/.env.example frontend/.env
-cp backend/.env.example backend/.env
-cp admin-panel/.env.example admin-panel/.env
+# Backend .env
+cp backend/env.example backend/.env
+# .env dosyasını düzenleyin
 ```
 
 5. **Uygulamayı başlatın**
 ```bash
-npm run dev
+# Backend (Terminal 1)
+cd backend && npm run start:dev
+
+# Frontend (Terminal 2)
+cd frontend && npm run dev
+
+# Admin Panel (Terminal 3)
+cd admin-panel && npm run dev
 ```
 
 ## 🌐 Erişim Noktaları
 
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:3001
-- **Admin Panel**: http://localhost:3002
-- **API Docs**: http://localhost:3001/api/docs
+- **Backend API**: http://localhost:3005
+- **Admin Panel**: http://localhost:5173
+- **API Docs**: http://localhost:3005/api/docs
 
-## 📝 API Dokümantasyonu
+## 📝 API Endpoints
 
-Backend API dokümantasyonu Swagger ile sağlanır:
-http://localhost:3001/api/docs
+### Auth
+- `POST /auth/register` - Kullanıcı kaydı
+- `POST /auth/login` - Kullanıcı girişi
+- `POST /auth/admin/login` - Admin girişi
+
+### Videos
+- `GET /videos` - Tüm videolar
+- `GET /videos/:id` - Video detayı
+- `POST /videos` - Video yükleme (Admin)
+- `PUT /videos/:id` - Video güncelleme (Admin)
+
+### Categories
+- `GET /categories` - Tüm kategoriler
+- `POST /categories` - Kategori oluşturma (Admin)
+
+### Users
+- `GET /users` - Kullanıcı listesi (Admin)
+- `PUT /users/:id` - Kullanıcı güncelleme
 
 ## 🔧 Geliştirme
 
 ### Scripts
 
 ```bash
-# Tüm servisleri başlat
-npm run dev
+# Backend
+cd backend
+npm run start:dev    # Development server
+npm run build        # Production build
+npm run migration:run # Migration çalıştır
+npm run seed         # Seed verilerini yükle
 
-# Sadece frontend
-npm run dev:frontend
+# Frontend
+cd frontend
+npm run dev          # Development server
+npm run build        # Production build
 
-# Sadece backend
-npm run dev:backend
-
-# Sadece admin panel
-npm run dev:admin
-
-# Production build
-npm run build
+# Admin Panel
+cd admin-panel
+npm run dev          # Development server
+npm run build        # Production build
 ```
 
 ### Veritabanı
@@ -139,19 +184,42 @@ npm run migration:run
 
 # Migration geri al
 npm run migration:revert
+
+# Seed verilerini yükle
+npm run seed
 ```
+
+## 🐛 Son Düzeltmeler
+
+### ✅ Kapak Fotoğrafları
+- Tüm sayfalarda kapak fotoğrafları düzgün görünüyor
+- `getSafeImageUrl` utility fonksiyonu eklendi
+- Fallback mekanizması ile placeholder görseller
+- Hero, Movies, Series, Videos sayfalarında düzeltildi
+
+### ✅ Video İzleme
+- Watch butonları doğru sayfalara yönlendiriyor
+- `/videos/[id]` sayfası düzgün çalışıyor
+- VideoCard component'i güncellendi
+
+### ✅ TypeScript Düzeltmeleri
+- Interface'ler güncellendi (`thumbnailUrl`, `posterUrl`)
+- Type safety iyileştirildi
+- Component prop'ları düzeltildi
+
+### ✅ Admin Panel
+- Video yükleme sistemi çalışıyor
+- Kapak fotoğrafı yükleme aktif
+- WebSocket bağlantısı kuruldu
 
 ## 🧪 Test
 
 ```bash
-# Frontend testleri
-cd frontend && npm run test
-
 # Backend testleri
 cd backend && npm run test
 
-# E2E testleri
-npm run test:e2e
+# Frontend testleri
+cd frontend && npm run test
 ```
 
 ## 📦 Deployment
@@ -170,7 +238,9 @@ docker-compose up -d
 
 ```bash
 # Production build
-npm run build
+cd backend && npm run build
+cd frontend && npm run build
+cd admin-panel && npm run build
 
 # PM2 ile process yönetimi
 pm2 start ecosystem.config.js
@@ -192,14 +262,23 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 
 - **Geliştirici**: Filmxane Team
 - **Dil Desteği**: Akademik Kürtçe
-- **Versiyon**: 1.0.0
+- **Versiyon**: 1.1.0
 
 ## 📞 İletişim
 
-- **Email**: info@filmxane.com
-- **Website**: https://filmxane.com
-- **GitHub**: https://github.com/filmxane
+- **GitHub**: https://github.com/SerkanCtn/projectFilmxane
 
 ---
 
 **Filmxane** - Kürtçe içerik için modern streaming platformu 🎬
+
+## 🎯 Son Güncellemeler
+
+### v1.1.0 (Güncel)
+- ✅ Kapak fotoğrafları tüm sayfalarda düzeltildi
+- ✅ Video izleme sistemi tamamlandı
+- ✅ TypeScript hataları giderildi
+- ✅ Admin panel video yükleme sistemi aktif
+- ✅ Database seed sistemi eklendi
+- ✅ WebSocket gerçek zamanlı güncellemeler
+- ✅ Responsive tasarım iyileştirmeleri
