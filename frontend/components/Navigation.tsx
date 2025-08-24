@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Bell, User, Menu, X, LogIn, UserPlus, LogOut, Settings, Heart, User as UserIcon, Film } from 'lucide-react'
+import { Search, User, Menu, X, LogIn, UserPlus, LogOut, Settings, Heart, User as UserIcon, Film } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
@@ -16,7 +16,6 @@ export function Navigation() {
 
   // Local state
   const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
@@ -32,41 +31,17 @@ export function Navigation() {
 
   // Refs
   const searchRef = useRef<HTMLDivElement>(null)
-  const notificationsRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
 
-  // Real notifications from API
-  const [notifications, setNotifications] = useState<any[]>([])
-  const [notificationsLoading, setNotificationsLoading] = useState(false)
+
 
   // Check if we're on client side
   useEffect(() => {
     setIsClient(true)
   }, [])
 
-  // Fetch notifications from API
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      if (!isAuthenticated) return
-      
-      try {
-        setNotificationsLoading(true)
-        const response = await apiClient.getNotifications()
-        if (response.success && response.data) {
-          setNotifications(response.data)
-        }
-      } catch (error) {
-        console.error('Failed to fetch notifications:', error)
-      } finally {
-        setNotificationsLoading(false)
-      }
-    }
 
-    fetchNotifications()
-  }, [isAuthenticated])
-
-  const unreadCount = notifications.filter(n => !n.isRead).length
 
   // Navigation tabs
   const tabs = [
@@ -181,9 +156,6 @@ export function Navigation() {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsSearchOpen(false)
-      }
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
-        setIsNotificationsOpen(false)
       }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false)
@@ -307,7 +279,7 @@ export function Navigation() {
                                     {item.title}
                                   </p>
                                   <p className="text-slate-400 text-xs truncate">
-                                    {item.year} • {item.genre.join(', ')}
+                                    {item.year} • {Array.isArray(item.genre) ? item.genre.join(', ') : item.genre || 'Bilinmiyor'}
                                   </p>
                                 </div>
                               </Link>
@@ -338,61 +310,7 @@ export function Navigation() {
               </AnimatePresence>
             </div>
 
-            {/* Notifications */}
-            <div ref={notificationsRef} className="relative">
-              <motion.button
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                className="p-2.5 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200 relative"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                title="Notifications"
-              >
-                <Bell className="w-4 h-4" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </motion.button>
-              
-              <AnimatePresence>
-                {isNotificationsOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    className="absolute top-full right-0 mt-2 w-80 bg-slate-800 border border-slate-600 rounded-lg shadow-2xl"
-                  >
-                    <div className="p-4">
-                      <h3 className="text-lg font-semibold text-white mb-3">Agahdariyên</h3>
-                      <div className="space-y-3">
-                        {notificationsLoading ? (
-                          <div className="text-center py-4">
-                            <div className="animate-spin w-6 h-6 border-2 border-red-500 border-t-transparent rounded-full mx-auto"></div>
-                            <p className="text-slate-400 text-sm mt-2">Lêdigere...</p>
-                          </div>
-                        ) : notifications.length === 0 ? (
-                          <p className="text-slate-400 text-sm text-center">Tu encam hat dîtin</p>
-                        ) : (
-                          notifications.map((notification) => (
-                            <div
-                              key={notification.id}
-                              className={`p-3 rounded-lg ${
-                                notification.isRead ? 'bg-slate-700/50' : 'bg-red-500/20 border border-red-500/30'
-                              }`}
-                            >
-                              <h4 className="font-medium text-white text-sm">{notification.title}</h4>
-                              <p className="text-slate-300 text-xs mt-1">{notification.message}</p>
-                              <span className="text-slate-400 text-xs">{notification.time}</span>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+
 
             {/* User Menu */}
             <div ref={userMenuRef} className="relative">
@@ -437,7 +355,21 @@ export function Navigation() {
                           </div>
                           <div>
                             <p className="text-white font-medium">
-                              {isClient && localStorage.getItem('filmxane_user_name') || 'Kullanıcı'}
+                              {isClient && (() => {
+                                const firstName = localStorage.getItem('filmxane_user_firstName');
+                                const lastName = localStorage.getItem('filmxane_user_lastName');
+                                const fullName = localStorage.getItem('filmxane_user_name');
+                                
+                                if (firstName && lastName) {
+                                  return `${firstName} ${lastName}`;
+                                } else if (firstName) {
+                                  return firstName;
+                                } else if (fullName) {
+                                  return fullName;
+                                } else {
+                                  return 'Kullanıcı';
+                                }
+                              })()}
                             </p>
                             <p className="text-slate-400 text-sm">Giriş yapıldı</p>
                           </div>
@@ -457,6 +389,10 @@ export function Navigation() {
                               if (typeof window !== 'undefined') {
                                 localStorage.removeItem('filmxane_token')
                                 localStorage.removeItem('filmxane_user_name')
+                                localStorage.removeItem('filmxane_user_firstName')
+                                localStorage.removeItem('filmxane_user_lastName')
+                                localStorage.removeItem('filmxane_user_email')
+                                localStorage.removeItem('filmxane_user_role')
                                 setIsUserMenuOpen(false)
                                 window.location.reload()
                               }

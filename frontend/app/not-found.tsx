@@ -22,13 +22,13 @@ export default function NotFound() {
 
         {/* 404 title */}
         <h1 className="text-3xl font-bold text-white mb-4">
-          Sayfa Bulunamadı
+          Rûpel Nehat Dîtin
         </h1>
 
         {/* 404 message */}
         <p className="text-gray-400 mb-8 leading-relaxed">
-          Aradığınız sayfa mevcut değil veya taşınmış olabilir. 
-          Ana sayfaya dönün veya arama yapın.
+          Rûpela ku hûn dixwazin mevcut nîne an jî hate guhertin. 
+          Serê rûpelê biçin an jî lêbigere.
         </p>
 
         {/* Action buttons */}
@@ -38,7 +38,7 @@ export default function NotFound() {
             className="flex items-center justify-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200"
           >
             <Home className="w-4 h-4" />
-            Ana Sayfa
+            Serê Rûpelê
           </Link>
 
           <button
@@ -46,28 +46,28 @@ export default function NotFound() {
             className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200"
           >
             <ArrowLeft className="w-4 h-4" />
-            Geri Dön
+            Vegere
           </button>
         </div>
 
         {/* Search suggestion */}
         <div className="p-4 bg-gray-900 rounded-lg">
           <p className="text-sm text-gray-300 mb-3">
-            Aradığınız içeriği bulamadınız mı?
+            Naveroka ku hûn dixwazin nehat dîtin?
           </p>
           <Link
             href="/search"
             className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors duration-200"
           >
             <Search className="w-4 h-4" />
-            Arama Yap
+            Lêbigere
           </Link>
         </div>
 
         {/* Netflix style footer */}
         <div className="mt-8 pt-6 border-t border-gray-800">
           <p className="text-sm text-gray-500">
-            Filmxane - Kürtçe İçerik Platformu
+            Filmxane - Platforma Naveroka Kurdî
           </p>
         </div>
       </motion.div>

@@ -23,20 +23,31 @@ export class AdminService {
   ) {}
 
   async getStats() {
-    const totalMovies = await this.videosRepository.count({ where: { type: VideoType.MOVIE } });
-    const totalSeries = await this.videosRepository.count({ where: { type: VideoType.SERIES } });
-    const totalUsers = await this.usersRepository.count();
-    const totalViewsResult = await this.videosRepository
-      .createQueryBuilder('video')
-      .select('SUM(video.views)', 'sum')
-      .getRawOne();
-    const totalViews = parseInt(totalViewsResult.sum) || 0;
-    const featuredContent = await this.videosRepository.count({ where: { isFeatured: true } });
-    const newContent = await this.videosRepository.count({ 
-      where: { 
-        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days
-      } 
-    });
+    // Tek seferde tüm istatistikleri al
+    const [
+      totalMovies,
+      totalSeries,
+      totalUsers,
+      totalViewsResult,
+      featuredContent,
+      newContent
+    ] = await Promise.all([
+      this.videosRepository.count({ where: { type: VideoType.MOVIE } }),
+      this.videosRepository.count({ where: { type: VideoType.SERIES } }),
+      this.usersRepository.count(),
+      this.videosRepository
+        .createQueryBuilder('video')
+        .select('SUM(video.views)', 'sum')
+        .getRawOne(),
+      this.videosRepository.count({ where: { isFeatured: true } }),
+      this.videosRepository.count({ 
+        where: { 
+          createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days
+        } 
+      })
+    ]);
+
+    const totalViews = parseInt(totalViewsResult?.sum) || 0;
 
     return {
       totalMovies,
@@ -49,45 +60,58 @@ export class AdminService {
   }
 
   async getChartData() {
-    // Get last 6 months of data
+    // Get last 6 months of data - optimize with single query
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
     const currentDate = new Date();
     const chartData = [];
 
+    // Tek seferde tüm ayların verilerini al
+    const monthQueries = [];
     for (let i = 5; i >= 0; i--) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
       const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
       const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
-      const views = await this.videosRepository
-        .createQueryBuilder('video')
-        .select('SUM(video.views)', 'sum')
-        .where('video.createdAt >= :start', { start: monthStart })
-        .andWhere('video.createdAt <= :end', { end: monthEnd })
-        .getRawOne();
-
-      const users = await this.usersRepository
-        .createQueryBuilder('user')
-        .where('user.createdAt >= :start', { start: monthStart })
-        .andWhere('user.createdAt <= :end', { end: monthEnd })
-        .getCount();
-
-      const movies = await this.videosRepository
-        .createQueryBuilder('video')
-        .where('video.type = :type', { type: VideoType.MOVIE })
-        .andWhere('video.createdAt >= :start', { start: monthStart })
-        .andWhere('video.createdAt <= :end', { end: monthEnd })
-        .getCount();
-
-      chartData.push({
-        name: months[5 - i],
-        views: parseInt(views.sum) || 0,
-        users,
-        movies,
+      monthQueries.push({
+        month: months[5 - i],
+        start: monthStart,
+        end: monthEnd
       });
     }
 
-    return chartData;
+    // Parallel olarak tüm ayların verilerini al
+    const monthData = await Promise.all(
+      monthQueries.map(async ({ month, start, end }) => {
+        const [views, users, movies] = await Promise.all([
+          this.videosRepository
+            .createQueryBuilder('video')
+            .select('SUM(video.views)', 'sum')
+            .where('video.createdAt >= :start', { start })
+            .andWhere('video.createdAt <= :end', { end })
+            .getRawOne(),
+          this.usersRepository
+            .createQueryBuilder('user')
+            .where('user.createdAt >= :start', { start })
+            .andWhere('user.createdAt <= :end', { end })
+            .getCount(),
+          this.videosRepository
+            .createQueryBuilder('video')
+            .where('video.type = :type', { type: VideoType.MOVIE })
+            .andWhere('video.createdAt >= :start', { start })
+            .andWhere('video.createdAt <= :end', { end })
+            .getCount()
+        ]);
+
+        return {
+          name: month,
+          views: parseInt(views?.sum) || 0,
+          users,
+          movies,
+        };
+      })
+    );
+
+    return monthData;
   }
 
   async getPieData() {

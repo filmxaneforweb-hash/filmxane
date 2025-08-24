@@ -32,31 +32,31 @@ export const MaintenanceMode: React.FC = () => {
         </div>
         
         <h1 className="text-3xl font-bold text-white mb-4">
-          {settings.siteName || 'Filmxane'} Bakımda
+          {settings.siteName || 'Filmxane'} Di Çêkirinê de
         </h1>
         
         <p className="text-slate-300 mb-6 leading-relaxed">
-          {settings.siteDescription || 'Site şu anda bakımda. Lütfen daha sonra tekrar deneyin.'}
+          {settings.siteDescription || 'Malper niha di çêkirinê de ye. Ji kerema xwe paşê dîsa biceribîne.'}
         </p>
         
         <div className="space-y-4 text-sm text-slate-400">
           <div className="flex items-center justify-center gap-2">
             <Clock className="w-4 h-4" />
-            <span>Bakım süresi: 2-3 saat</span>
+            <span>Demê çêkirinê: 2-3 seet</span>
           </div>
           
           {settings.contactEmail && (
             <div className="flex items-center justify-center gap-2">
               <Mail className="w-4 h-4" />
-              <span>İletişim: {settings.contactEmail}</span>
+              <span>Têkilî: {settings.contactEmail}</span>
             </div>
           )}
         </div>
         
         <div className="mt-8 p-4 bg-slate-700/50 rounded-xl">
           <p className="text-slate-300 text-sm">
-            Bu süre zarfında yeni içerikler ekleniyor ve sistem iyileştirmeleri yapılıyor. 
-            Daha iyi bir deneyim için çalışıyoruz! 🚀
+            Di vê demê de naverokên nû têne zêdekirin û çêkirinên sîstemê têne kirin. 
+            Ji bo ezmûnek baştir dixebitin! 🚀
           </p>
         </div>
       </motion.div>

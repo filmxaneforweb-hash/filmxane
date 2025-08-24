@@ -11,6 +11,27 @@ if (!process.env.JWT_SECRET) {
   process.env.JWT_SECRET = 'filmxane_super_secret_key_2024';
 }
 
+// Process protection - prevent crashes
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  // Don't exit, just log and continue
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit, just log and continue
+});
+
+process.on('SIGTERM', () => {
+  console.log('🔄 SIGTERM received, shutting down gracefully...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('🔄 SIGINT received, shutting down gracefully...');
+  process.exit(0);
+});
+
 // Create uploads directories
 const createUploadsDirectories = () => {
   const uploadsDir = path.join(process.cwd(), 'uploads');

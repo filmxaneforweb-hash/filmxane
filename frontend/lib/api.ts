@@ -16,6 +16,8 @@ export interface User {
   id: string
   email: string
   name: string
+  firstName?: string
+  lastName?: string
   avatar?: string
   role: 'user' | 'admin' | 'moderator'
   createdAt: string
@@ -25,7 +27,6 @@ export interface User {
 export interface AuthResponse {
   user: User
   token: string
-  refreshToken: string
 }
 
 // Content Types
@@ -244,10 +245,14 @@ class ApiClient {
 
       const data = await response.json()
       console.log('✅ API Response data:', data)
+      console.log('🔍 DEBUG: Response data type:', typeof data)
+      console.log('🔍 DEBUG: Response data keys:', Object.keys(data))
+      console.log('🔍 DEBUG: Response data.data:', data.data)
+      console.log('🔍 DEBUG: Response data.success:', data.success)
       
       return {
         success: true,
-        data: data
+        data: data.data || data  // Backend'den gelen data.data'yı al
       }
     } catch (error) {
       console.error('❌ API request failed:', error)
@@ -371,7 +376,7 @@ class ApiClient {
       })
     }
 
-    return this.request<SearchResponse>(`/search?${params.toString()}`)
+    return this.request<SearchResponse>(`/videos/search/filter?${params.toString()}`)
   }
 
   // User Content APIs
@@ -454,6 +459,58 @@ class ApiClient {
     totalViews: number
   }>> {
     return this.request('/admin/stats')
+  }
+
+  // Gelişmiş filtreleme ve arama
+  async searchWithFilters(filters: {
+    query?: string;
+    genre?: string;
+    year?: string;
+    type?: string;
+    rating?: string;
+    duration?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+    page?: number;
+    limit?: number;
+  }): Promise<ApiResponse<{
+    items: (Movie | Series)[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  }>> {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+    
+    return this.request(`/videos/search/filter?${params.toString()}`);
+  }
+
+  // Tüm genre'leri getir
+  async getAllGenres(): Promise<ApiResponse<string[]>> {
+    return this.request('/videos/genres/all');
+  }
+
+  // Tüm yılları getir
+  async getAllYears(): Promise<ApiResponse<number[]>> {
+    return this.request('/videos/years/all');
+  }
+
+  // İstatistik genel bakış
+  async getStatsOverview(): Promise<ApiResponse<{
+    totalVideos: number;
+    totalMovies: number;
+    totalSeries: number;
+    featuredCount: number;
+    newCount: number;
+  }>> {
+    return this.request('/videos/stats/overview');
   }
 }
 

@@ -79,7 +79,7 @@ export default function Loading() {
           className="mb-12"
         >
           <h2 className="text-3xl font-bold text-white mb-6 text-center">
-            🎬 {randomCategory} Kategorisi
+            🎬 Kategoriya {randomCategory}
           </h2>
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -94,8 +94,8 @@ export default function Loading() {
                   <div className="w-full h-32 bg-gradient-to-br from-red-500/20 to-blue-500/20 rounded-md mb-3 flex items-center justify-center">
                     <span className="text-4xl">🎭</span>
                   </div>
-                  <h3 className="text-white font-semibold mb-2">Film {i}</h3>
-                  <p className="text-gray-400 text-sm">Bu kategoride harika bir film</p>
+                  <h3 className="text-white font-semibold mb-2">Fîlm {i}</h3>
+                  <p className="text-gray-400 text-sm">Fîlmeke xweş di vê kategoriyê de</p>
                 </motion.div>
               ))}
             </div>
@@ -109,7 +109,7 @@ export default function Loading() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-center mb-12"
         >
-          <h3 className="text-2xl font-bold text-white mb-4">⭐ Öne Çıkan Film</h3>
+          <h3 className="text-2xl font-bold text-white mb-4">⭐ Fîlma Taybet</h3>
           <div className="max-w-2xl mx-auto bg-gradient-to-r from-red-500/20 to-blue-500/20 backdrop-blur-sm rounded-xl p-6 border border-red-500/30">
             <h4 className="text-2xl font-bold text-white mb-2">{randomMovie.title}</h4>
             <div className="flex justify-center space-x-6 text-gray-300 mb-4">
@@ -117,7 +117,7 @@ export default function Loading() {
               <span>📅 {randomMovie.year}</span>
               <span>⭐ {randomMovie.rating}</span>
             </div>
-            <p className="text-gray-300">Bu filmi mutlaka izlemelisiniz!</p>
+            <p className="text-gray-300">Divê vê fîlmê bixwînin!</p>
           </div>
         </motion.div>
 
@@ -134,14 +134,14 @@ export default function Loading() {
               whileTap={{ scale: 0.95 }}
               className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
             >
-              🎬 Filmleri Keşfet
+              🎬 Fîlmên Keşf Bike
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-6 py-3 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition-colors"
             >
-              📺 Dizileri İncele
+              📺 Rêzefîlmên Lêkolîne
             </motion.button>
           </div>
         </motion.div>
@@ -163,7 +163,7 @@ export default function Loading() {
               />
             ))}
           </div>
-          <p className="text-gray-400 mt-2">İçerik yükleniyor...</p>
+          <p className="text-gray-400 mt-2">Naverok tê barkirin...</p>
         </motion.div>
       </div>
     </div>

@@ -14,29 +14,44 @@ export default function MoviesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [selectedYear, setSelectedYear] = useState('all')
+  const [selectedRating, setSelectedRating] = useState('all')
+  const [currentPage, setCurrentPage] = useState(1)
   const [movies, setMovies] = useState<any[]>([])
+  const [allGenres, setAllGenres] = useState<string[]>([])
+  const [allYears, setAllYears] = useState<number[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [totalResults, setTotalResults] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
 
   // Watch movie function
   const handleWatchMovie = (movieId: string) => {
     router.push(`/videos/${movieId}`)
   }
 
-  // Fetch movies from API
+  // Fetch movies from API with filters
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         setLoading(true)
-        console.log('🔍 Fetching movies...')
-        const response = await apiClient.getMovies()
+        console.log('🔍 Fetching movies with filters...')
+        
+        const response = await apiClient.searchWithFilters({
+          type: 'movie',
+          query: searchQuery || undefined,
+          genre: selectedGenre !== 'all' ? selectedGenre : undefined,
+          year: selectedYear !== 'all' ? selectedYear : undefined,
+          rating: selectedRating !== 'all' ? selectedRating : undefined,
+          page: currentPage,
+          limit: 20
+        })
+        
         console.log('📊 Movies response:', response)
         
         if (response.success && response.data) {
-          // Backend'den gelen veriyi düzenle
-          const formattedMovies = response.data.items || response.data || []
-          console.log('🎬 Formatted movies:', formattedMovies)
-          setMovies(formattedMovies)
+          setMovies(response.data.items)
+          setTotalResults(response.data.total)
+          setTotalPages(response.data.totalPages)
         } else {
           console.error('❌ Failed to fetch movies:', response.error)
           setError(response.error || 'Failed to fetch movies')
@@ -49,336 +64,341 @@ export default function MoviesPage() {
       }
     }
 
-    fetchMovies()
+    // Debounce search query - wait 500ms after user stops typing
+    const timeoutId = setTimeout(() => {
+      fetchMovies()
+    }, 500)
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery, selectedGenre, selectedYear, selectedRating, currentPage])
+
+  // Fetch all genres and years on component mount
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        // Fetch genres
+        const genresResponse = await apiClient.getAllGenres()
+        if (genresResponse.success && genresResponse.data) {
+          setAllGenres(genresResponse.data)
+        }
+        
+        // Fetch years
+        const yearsResponse = await apiClient.getAllYears()
+        if (yearsResponse.success && yearsResponse.data) {
+          setAllYears(yearsResponse.data)
+        }
+      } catch (error) {
+        console.error('❌ Error fetching filters:', error)
+      }
+    }
+
+    fetchFilters()
   }, [])
 
-  // Get unique genres and years from movies
-  const genres = ['all', ...Array.from(new Set(
-    movies
-      .map(movie => {
-        // Genre'yi parse et (JSON string veya array olabilir)
-        if (typeof movie.genre === 'string') {
-          try {
-            return JSON.parse(movie.genre)
-          } catch {
-            return [movie.genre]
-          }
-        }
-        return movie.genre || []
-      })
-      .flat()
-      .filter(Boolean)
-      .filter(genre => genre !== 'all') // 'all' seçeneğini tekrar ekleme
-  ))]
+  // Use backend data for genres and years
+  const genres = ['all', ...allGenres]
+  const years = ['all', ...allYears]
 
-  const years = ['all', ...Array.from(new Set(
-    movies
-      .map(movie => movie.year || movie.releaseYear)
-      .filter(Boolean)
-  )).sort((a, b) => b - a)]
-
-  // Filter movies based on search and filters
-  const filteredMovies = movies.filter(movie => {
-    const movieGenre = typeof movie.genre === 'string' 
-      ? (() => {
-          try { return JSON.parse(movie.genre) } 
-          catch { return [movie.genre] }
-        })()
-      : (movie.genre || [])
-    
-    const matchesSearch = movie.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         movie.description?.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesGenre = selectedGenre === 'all' || movieGenre.includes(selectedGenre)
-    const matchesYear = selectedYear === 'all' || 
-                       (movie.year?.toString() === selectedYear || 
-                        movie.releaseYear?.toString() === selectedYear)
-    
-    return matchesSearch && matchesGenre && matchesYear
-  })
+  // Movies are already filtered by backend
+  const filteredMovies = movies
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
   }
 
-  const handleGenreChange = (genre: string) => {
-    setSelectedGenre(genre)
+  const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedGenre(e.target.value)
   }
 
-  const handleYearChange = (year: string) => {
-    setSelectedYear(year)
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedYear(e.target.value)
+    setCurrentPage(1) // Reset to first page
   }
 
-  const clearFilters = () => {
+  const handleRatingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedRating(e.target.value)
+    setCurrentPage(1)
+  }
+
+
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
+
+  const resetFilters = () => {
     setSearchQuery('')
     setSelectedGenre('all')
     setSelectedYear('all')
+    setSelectedRating('all')
+    setCurrentPage(1)
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-white text-lg">Fîlm tê barkirin...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">❌</div>
+          <h1 className="text-2xl font-bold text-white mb-2">Çewtiyek çêbû</h1>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Dîsa biceribîne
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black pt-20">
-      {/* Hero Section */}
-      <section className="py-16 px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <motion.h1 
-            className="text-5xl md:text-6xl font-bold text-white mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="bg-gradient-to-r from-white via-red-100 to-red-200 bg-clip-text text-transparent">
-              Fîlmên Kurdî
+    <div className="min-h-screen bg-black pt-20">
+      {/* Header */}
+      <div className="container mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
+            <span className="bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
+              Fîlmên
             </span>
-          </motion.h1>
-          <motion.p 
-            className="text-xl text-slate-400 max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Fîlmên herî baş û nû yên kurdî yên ku tu dixwazî bibînî
-          </motion.p>
-        </div>
-      </section>
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            Fîlmên herî baş û nû yên cîhanê bibînin û bixwînin
+          </p>
+        </motion.div>
 
-      {/* Search and Filters Section */}
-      <section className="py-8 px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div 
-            className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-6 border border-slate-600/30"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            {/* Search Bar */}
-            <div className="relative mb-6">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Fîlmeke lêbigere..."
-                value={searchQuery}
-                onChange={handleSearch}
-                className="w-full pl-12 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              />
+        {/* Search and Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 mb-8"
+        >
+          {/* Search Bar */}
+          <div className="relative mb-6">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Fîlmek bigere..."
+              value={searchQuery}
+              onChange={handleSearch}
+              className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            {/* Genre Filter */}
+            <div className="relative">
+              <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <select
+                value={selectedGenre}
+                onChange={handleGenreChange}
+                className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
+              >
+                {genres.map((genre) => (
+                  <option key={genre} value={genre} className="bg-gray-800 text-white">
+                    {genre === 'all' ? 'Hemû Cure' : genre}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Filters */}
-            <div className="flex flex-wrap gap-4 items-center justify-between">
-              <div className="flex flex-wrap gap-3">
-                {/* Genre Filter */}
-                <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-slate-400" />
-                  <select
-                    value={selectedGenre}
-                    onChange={(e) => handleGenreChange(e.target.value)}
-                    className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-                  >
-                    {genres.map((genre) => (
-                      <option key={genre} value={genre}>
-                        {genre === 'all' ? 'Hemû Cure' : genre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            {/* Year Filter */}
+            <div className="relative">
+              <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <select
+                value={selectedYear}
+                onChange={handleYearChange}
+                className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
+              >
+                {years.map((year) => (
+                  <option key={year} value={year} className="bg-gray-800 text-white">
+                    {year === 'all' ? 'Hemû Sal' : year}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                {/* Year Filter */}
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-slate-400" />
-                  <select
-                    value={selectedYear}
-                    onChange={(e) => handleYearChange(e.target.value)}
-                    className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-                  >
-                    {years.map((year) => (
-                      <option key={year} value={year}>
-                        {year === 'all' ? 'Hemû Sal' : year}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            {/* Rating Filter */}
+            <div className="relative">
+              <Star className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <select
+                value={selectedRating}
+                onChange={handleRatingChange}
+                className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
+              >
+                <option value="all" className="bg-gray-800 text-white">Hemû Rating</option>
+                <option value="9-10" className="bg-gray-800 text-white">9+ (Mükemmel)</option>
+                <option value="8-9" className="bg-gray-800 text-white">8+ (Çok İyi)</option>
+                <option value="7-8" className="bg-gray-800 text-white">7+ (İyi)</option>
+                <option value="6-7" className="bg-gray-800 text-white">6+ (Orta)</option>
+                <option value="5-6" className="bg-gray-800 text-white">5+ (Kabul Edilebilir)</option>
+              </select>
+            </div>
+          </div>
+
+          
+
+          {/* Reset Filters Button */}
+          <div className="flex justify-center">
+            <button
+              onClick={resetFilters}
+              className="px-6 py-3 bg-gray-700 text-white rounded-xl hover:bg-gray-600 transition-colors flex items-center gap-2"
+            >
+              <Filter className="w-4 h-4" />
+              Filtreleri Sıfırla
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Results Count */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mb-6"
+        >
+          <p className="text-gray-400">
+            {totalResults} fîlm hat dîtin
+            {searchQuery && ` ji bo "${searchQuery}"`}
+            {selectedGenre !== 'all' && ` di cureya "${selectedGenre}" de`}
+            {selectedYear !== 'all' && ` di sala "${selectedYear}" de`}
+                         {selectedRating !== 'all' && ` rating ${selectedRating}`}
+          </p>
+        </motion.div>
+
+        {/* Movies Grid */}
+        {filteredMovies.length > 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+          >
+            {filteredMovies.map((movie, index) => (
+              <motion.div
+                key={movie.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 * index }}
+              >
+                <VideoCard
+                  id={movie.id}
+                  title={movie.title || 'Untitled Movie'}
+                  description={movie.description || ''}
+                  thumbnail={movie.thumbnail}
+                  thumbnailUrl={movie.thumbnailUrl}
+                  posterUrl={movie.posterUrl}
+                  duration={movie.duration}
+                  rating={movie.rating}
+                  onWatch={() => handleWatchMovie(movie.id)}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="text-center py-16"
+          >
+            <div className="text-gray-400 text-6xl mb-4">🔍</div>
+            <h3 className="text-2xl font-bold text-white mb-2">Fîlm nehat dîtin</h3>
+            <p className="text-gray-400 mb-6">
+              {searchQuery 
+                ? `Ji bo "${searchQuery}" fîlm nehat dîtin.` 
+                : 'Di vê kategoriyê de fîlm tune ne.'
+              }
+            </p>
+            <button
+              onClick={resetFilters}
+              className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Hemû Fîlmên Bibînin
+            </button>
+          </motion.div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="mt-12 flex justify-center"
+          >
+            <div className="flex items-center space-x-2">
+              {/* Previous Page */}
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                ← Önceki
+              </button>
+
+              {/* Page Numbers */}
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-2 rounded-lg transition-colors ${
+                        currentPage === pageNum
+                          ? 'bg-red-600 text-white'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* Clear Filters */}
+              {/* Next Page */}
               <button
-                onClick={clearFilters}
-                className="px-4 py-2 text-slate-400 hover:text-white border border-slate-600 hover:border-slate-500 rounded-lg transition-all duration-200 text-sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                Filtreyan Paqij Bike
+                Sonraki →
               </button>
-            </div>
-
-            {/* Results Count */}
-            <div className="mt-4 text-sm text-slate-400">
-              {filteredMovies.length} fîlm hat dîtin
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Movies Grid */}
-      <section className="py-16 px-8">
-        <div className="max-w-7xl mx-auto">
-          {loading ? (
-            <motion.div 
-              className="text-center py-20"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="animate-spin w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full mx-auto mb-6"></div>
-              <h3 className="text-2xl font-bold text-slate-400 mb-4">
-                Fîlmên yên dîtin
-              </h3>
-              <p className="text-slate-500 mb-8">
-                Ji kerema xwe pêşniyareke din lêbigere an jî filtreyan guherîne
-              </p>
-            </motion.div>
-          ) : error ? (
-            <motion.div 
-              className="text-center py-20"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
-            >
-              <h3 className="text-2xl font-bold text-red-400 mb-4">
-                {error}
-              </h3>
-              <p className="text-slate-500 mb-8">
-                Ji kerema xwe pêşniyareke din lêbigere an jî filtreyan guherîne
-              </p>
-            </motion.div>
-          ) : filteredMovies.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredMovies.map((movie, index) => {
-                // Genre'yi parse et
-                const movieGenre = typeof movie.genre === 'string' 
-                  ? (() => {
-                      try { return JSON.parse(movie.genre) } 
-                      catch { return [movie.genre] }
-                    })()
-                  : (movie.genre || [])
-                
-                const displayGenre = Array.isArray(movieGenre) ? movieGenre[0] : movieGenre
-                
-                return (
-                  <motion.div
-                    key={movie.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                    className="bg-slate-800/40 backdrop-blur-sm rounded-2xl overflow-hidden border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300 group hover:scale-105"
-                  >
-                    {/* Thumbnail */}
-                    <div className="relative aspect-video bg-slate-700/50 flex items-center justify-center overflow-hidden">
-                      {movie.thumbnailUrl ? (
-                        <img 
-                          src={getSafeImageUrl(movie.thumbnailUrl, 400, 225, 'thumbnail')} 
-                          alt={movie.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            // Resim yüklenemezse placeholder göster
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            const placeholder = target.nextElementSibling as HTMLElement;
-                            if (placeholder) {
-                              placeholder.classList.remove('hidden');
-                            }
-                          }}
-                        />
-                      ) : (
-                        // Test için basit placeholder resim
-                        <img 
-                          src={`https://via.placeholder.com/400x225/1f1f1f/ffffff?text=${encodeURIComponent(movie.title)}`}
-                          alt={movie.title}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                      
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      
-                      {/* Genre Badge */}
-                      {displayGenre && (
-                        <div className="absolute top-3 left-3">
-                          <span className="px-2 py-1 bg-red-500/80 text-white text-xs rounded-full font-medium">
-                            {displayGenre}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-400 transition-colors duration-300">
-                        {movie.title}
-                      </h3>
-                      <p className="text-slate-400 text-sm mb-4 leading-relaxed">
-                        {movie.description}
-                      </p>
-
-                      {/* Meta Info */}
-                      <div className="flex items-center justify-between text-sm mb-4">
-                        <div className="flex items-center gap-4">
-                          {movie.duration && (
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4 text-blue-400" />
-                              <span className="text-slate-300">
-                                {Math.floor(movie.duration / 60)}d
-                              </span>
-                            </div>
-                          )}
-                          {movie.rating && (
-                            <div className="flex items-center gap-2">
-                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                              <span className="text-slate-300">{movie.rating}</span>
-                            </div>
-                          )}
-                        </div>
-                        <span className="text-slate-400">
-                          {movie.year || movie.releaseYear}
-                        </span>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex gap-3">
-                        <button 
-                          onClick={() => handleWatchMovie(movie.id)}
-                          className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
-                        >
-                          <Play className="w-4 h-4" />
-                          Temaşe Bike
-                        </button>
-                        <button className="px-4 py-2 border border-slate-600 text-slate-300 hover:text-white hover:border-slate-500 rounded-lg transition-all duration-200">
-                          <Heart className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )
-              })}
-            </div>
-          ) : (
-            <motion.div 
-              className="text-center py-20"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
-            >
-              <Search className="w-24 h-24 text-slate-600 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-slate-400 mb-4">
-                Fîlm hat dîtin
-              </h3>
-              <p className="text-slate-500 mb-8">
-                Ji kerema xwe pêşniyareke din lêbigere an jî filtreyan guherîne
-              </p>
-              <button 
-                onClick={clearFilters}
-                className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
-              >
-                Hemû Fîlmên Bibîne
-              </button>
-            </motion.div>
-          )}
-        </div>
-      </section>
-    </main>
+        )}
+      </div>
+    </div>
   )
 }

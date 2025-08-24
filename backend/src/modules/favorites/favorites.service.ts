@@ -70,11 +70,26 @@ export class FavoritesService {
   }
 
   async getUserFavorites(userId: string): Promise<Favorite[]> {
-    return await this.favoritesRepository.find({
+    console.log('🔍 getUserFavorites called for userId:', userId)
+    
+    const favorites = await this.favoritesRepository.find({
       where: { userId, isActive: true },
       relations: ['video'],
       order: { createdAt: 'DESC' }
     })
+    
+    console.log('🔍 Found favorites:', favorites.length)
+    favorites.forEach(fav => {
+      console.log('🔍 Favorite video data:', {
+        id: fav.video?.id,
+        title: fav.video?.title,
+        thumbnailUrl: fav.video?.thumbnailUrl,
+        posterUrl: fav.video?.posterUrl,
+        thumbnailPath: fav.video?.thumbnailPath
+      })
+    })
+    
+    return favorites
   }
 
   async getFavoriteCount(videoId: string): Promise<number> {

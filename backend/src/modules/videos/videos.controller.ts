@@ -10,7 +10,8 @@ import {
   UploadedFiles,
   ParseFilePipe,
   FileTypeValidator,
-  MaxFileSizeValidator
+  MaxFileSizeValidator,
+  Query
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { VideosService } from './videos.service';
@@ -65,6 +66,57 @@ export class VideosController {
   @Get('new/new')
   findNew() {
     return this.videosService.findNew();
+  }
+
+  @Get('search/filter')
+  async searchWithFilters(
+    @Query('query') query?: string,
+    @Query('genre') genre?: string,
+    @Query('year') year?: string,
+    @Query('type') type?: string,
+    @Query('rating') rating?: string,
+    @Query('duration') duration?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'ASC' | 'DESC',
+    @Query('page') page?: string,
+    @Query('limit') limit?: string
+  ) {
+    return this.videosService.searchWithFilters({
+      query,
+      genre,
+      year,
+      type,
+      rating,
+      duration,
+      sortBy,
+      sortOrder: sortOrder || 'DESC',
+      page: page ? parseInt(page) : 1,
+      limit: limit ? parseInt(limit) : 20
+    });
+  }
+
+  @Get('genres/all')
+  async getAllGenres() {
+    return this.videosService.getAllGenres();
+  }
+
+  @Get('watch-time')
+  async getWatchTime() {
+    // Şimdilik basit bir hesaplama - gelecekte gerçek izleme verileri eklenebilir
+    return {
+      totalMinutes: 0,
+      message: 'İzlenme süresi henüz takip edilmiyor'
+    };
+  }
+
+  @Get('years/all')
+  async getAllYears() {
+    return this.videosService.getAllYears();
+  }
+
+  @Get('stats/overview')
+  async getStatsOverview() {
+    return this.videosService.getStatsOverview();
   }
 
   @Patch(':id')

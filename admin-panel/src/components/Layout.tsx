@@ -101,7 +101,7 @@ const Layout: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search anything..."
+                  placeholder="Tiştek bigere..."
                   className={`pl-10 pr-4 py-2.5 w-80 border ${darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400`}
                 />
               </div>
@@ -161,7 +161,7 @@ const Layout: React.FC = () => {
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
-              Dashboard
+              Serê Rûpelê
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}

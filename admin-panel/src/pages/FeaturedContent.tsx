@@ -145,9 +145,12 @@ const FeaturedContent: React.FC = () => {
   }
 
   const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
+    // Float değerleri yuvarla ve negatif değerleri kontrol et
+    const safeSeconds = Math.max(0, Math.round(seconds))
+    
+    const hours = Math.floor(safeSeconds / 3600)
+    const minutes = Math.floor((safeSeconds % 3600) / 60)
+    const secs = safeSeconds % 60
     
     if (hours > 0) {
       return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`

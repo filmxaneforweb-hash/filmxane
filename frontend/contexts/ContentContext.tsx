@@ -136,11 +136,20 @@ export const ContentProvider: React.FC<ContentProviderProps> = ({ children }) =>
     if (!category) return []
 
     const allContent = [...(movies || []), ...(series || [])]
-    return allContent.filter(content => 
-      content.genre.some(genre => 
+    return allContent.filter(content => {
+      if (!content.genre) return false
+      
+      // Genre'ları güvenli şekilde işle
+      const contentGenres = Array.isArray(content.genre) 
+        ? content.genre 
+        : typeof content.genre === 'string' 
+          ? JSON.parse(content.genre) 
+          : []
+      
+      return contentGenres.some(genre => 
         genre.toLowerCase() === category.name.toLowerCase()
       )
-    )
+    })
   }
 
   // Get related content
@@ -157,11 +166,25 @@ export const ContentProvider: React.FC<ContentProviderProps> = ({ children }) =>
         if (content.id === contentId) return false
         if (!content.genre || !currentContent.genre) return false
         
-        // Genre'ları parse et (JSON string olarak saklanıyor)
-        const contentGenres = typeof content.genre === 'string' ? JSON.parse(content.genre) : content.genre
-        const currentGenres = typeof currentContent.genre === 'string' ? JSON.parse(currentContent.genre) : currentContent.genre
-        
-        return contentGenres.some(genre => currentGenres.includes(genre))
+        try {
+          // Genre'ları güvenli şekilde parse et
+          const contentGenres = Array.isArray(content.genre) 
+            ? content.genre 
+            : typeof content.genre === 'string' 
+              ? JSON.parse(content.genre) 
+              : []
+          
+          const currentGenres = Array.isArray(currentContent.genre) 
+            ? currentContent.genre 
+            : typeof currentContent.genre === 'string' 
+              ? JSON.parse(currentContent.genre) 
+              : []
+          
+          return contentGenres.some(genre => currentGenres.includes(genre))
+        } catch (error) {
+          console.error('❌ Error parsing genre:', error)
+          return false
+        }
       })
       .slice(0, 6) // Return max 6 related items
   }

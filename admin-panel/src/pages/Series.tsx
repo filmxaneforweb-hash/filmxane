@@ -165,8 +165,8 @@ const Series: React.FC = () => {
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Series Management</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage all TV series in your Filmxane library</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Birêvebirina Rêzefîlman</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Hemû rêzefîlmên di pirtûkxaneya Filmxane de birêvebire</p>
         </div>
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -175,7 +175,7 @@ const Series: React.FC = () => {
           className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl"
         >
           <Plus className="w-5 h5 mr-2" />
-          Add New Series
+          Rêzefîlmeke Nû Zêde Bike
         </motion.button>
 
       </motion.div>
@@ -183,12 +183,12 @@ const Series: React.FC = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         {[
-          { label: 'Total Series', value: stats.total, icon: Tv, color: 'from-green-500 to-green-600' },
-          { label: 'Featured', value: stats.featured, icon: Star, color: 'from-yellow-500 to-yellow-600' },
-          { label: 'New Releases', value: stats.new, icon: TrendingUp, color: 'from-blue-500 to-blue-600' },
-          { label: 'Total Views', value: stats.totalViews.toLocaleString(), icon: Users, color: 'from-purple-500 to-purple-600' },
-          { label: 'Total Seasons', value: stats.totalSeasons, icon: ListVideo, color: 'from-indigo-500 to-indigo-600' },
-          { label: 'Total Episodes', value: stats.totalEpisodes, icon: Video, color: 'from-pink-500 to-pink-600' }
+          { label: 'Hemû Rêzefîlm', value: stats.total, icon: Tv, color: 'from-green-500 to-green-600' },
+          { label: 'Taybet', value: stats.featured, icon: Star, color: 'from-yellow-500 to-yellow-600' },
+          { label: 'Nû Hat', value: stats.new, icon: TrendingUp, color: 'from-blue-500 to-blue-600' },
+          { label: 'Hemû Temaşe', value: stats.totalViews.toLocaleString(), icon: Users, color: 'from-purple-500 to-purple-600' },
+          { label: 'Hemû Sezon', value: stats.totalSeasons, icon: ListVideo, color: 'from-indigo-500 to-indigo-600' },
+          { label: 'Hemû Epîzod', value: stats.totalEpisodes, icon: Video, color: 'from-pink-500 to-pink-600' }
         ].map((stat, index) => (
           <motion.div
             key={stat.label}
@@ -222,7 +222,7 @@ const Series: React.FC = () => {
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search series by title..."
+              placeholder="Rêzefîlmek bi navê bigere..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200"
@@ -236,7 +236,7 @@ const Series: React.FC = () => {
             >
               {genres.map(genre => (
                 <option key={genre} value={genre}>
-                  {genre === 'all' ? 'All Genres' : genre}
+                  {genre === 'all' ? 'Hemû Cure' : genre}
                 </option>
               ))}
             </select>
@@ -247,7 +247,7 @@ const Series: React.FC = () => {
             >
               {statuses.map(status => (
                 <option key={status} value={status}>
-                  {status === 'all' ? 'All Status' : getStatusText(status)}
+                  {status === 'all' ? 'Hemû Rewş' : getStatusText(status)}
                 </option>
               ))}
             </select>
@@ -326,7 +326,7 @@ const Series: React.FC = () => {
                         animate={{ scale: 1 }}
                         className="px-3 py-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-xs font-medium rounded-full shadow-lg"
                       >
-                        Featured
+                        Taybet
                       </motion.span>
                     )}
                     {series.isNew && (
@@ -336,7 +336,7 @@ const Series: React.FC = () => {
                         transition={{ delay: 0.1 }}
                         className="px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-medium rounded-full shadow-lg"
                       >
-                        New
+                        Nû
                       </motion.span>
                     )}
                   </div>

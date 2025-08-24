@@ -124,7 +124,7 @@ const Login: React.FC = () => {
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
+                  Navnîşana Emailê
                 </label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
@@ -134,7 +134,7 @@ const Login: React.FC = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
+                    placeholder="Emaila xwe binivîse"
                     className="w-full pl-12 pr-4 py-4 border border-gray-300/50 rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm placeholder-gray-400 hover:bg-white/70 focus:bg-white"
                   />
                 </div>
@@ -147,7 +147,7 @@ const Login: React.FC = () => {
                 transition={{ duration: 0.5, delay: 0.5 }}
               >
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
+                  Şîfre
                 </label>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
@@ -157,7 +157,7 @@ const Login: React.FC = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder="Şîfreya xwe binivîse"
                     className="w-full pl-12 pr-12 py-4 border border-gray-300/50 rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm placeholder-gray-400 hover:bg-white/70 focus:bg-white"
                   />
                   <motion.button
@@ -184,7 +184,7 @@ const Login: React.FC = () => {
                     type="checkbox"
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 transition-colors"
                   />
-                  <span className="ml-2 text-sm text-gray-600 group-hover:text-gray-800 transition-colors">Remember me</span>
+                  <span className="ml-2 text-sm text-gray-600 group-hover:text-gray-800 transition-colors">Min bi bîr bîne</span>
                 </label>
                 <motion.button
                   type="button"
@@ -192,7 +192,7 @@ const Login: React.FC = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Forgot password?
+                  Şîfreya xwe ji bîr kir?
                 </motion.button>
               </motion.div>
 
@@ -207,12 +207,12 @@ const Login: React.FC = () => {
                 {isLoading ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Signing in...</span>
+                    <span>Têkeve...</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center space-x-2">
                     <Sparkles className="w-5 h-5" />
-                    <span>Sign in</span>
+                    <span>Têkeve</span>
                   </div>
                 )}
               </motion.button>
@@ -229,7 +229,7 @@ const Login: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="text-center text-sm text-gray-500"
         >
-          <p>© 2024 Filmxane. All rights reserved.</p>
+          <p>© 2024 Filmxane. Hemû mafên parastî ne.</p>
         </motion.div>
       </div>
     </div>

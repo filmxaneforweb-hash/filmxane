@@ -19,10 +19,18 @@ interface HeroProps {
 
 export function Hero({ featuredVideo }: HeroProps) {
   const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`
+  // Float değerleri yuvarla ve negatif değerleri kontrol et
+  const safeSeconds = Math.max(0, Math.round(seconds))
+  
+  const hours = Math.floor(safeSeconds / 3600)
+  const minutes = Math.floor((safeSeconds % 3600) / 60)
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`
+  } else {
+    return `${minutes}m`
   }
+}
 
   return (
     <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">

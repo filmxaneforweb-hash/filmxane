@@ -273,8 +273,8 @@ const Movies: React.FC = () => {
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Movies Management</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage all movies in your Filmxane library</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Birêvebirina Fîlman</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Hemû fîlmên di pirtûkxaneya Filmxane de birêvebire</p>
         </div>
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -283,7 +283,7 @@ const Movies: React.FC = () => {
           className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl"
         >
           <Plus className="w-5 h-5 mr-2" />
-          Add New Movie
+          Fîlmeke Nû Zêde Bike
         </motion.button>
 
       </motion.div>
@@ -291,10 +291,10 @@ const Movies: React.FC = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: 'Total Movies', value: stats.total, icon: Play, color: 'from-blue-500 to-blue-600' },
-          { label: 'Featured', value: stats.featured, icon: Star, color: 'from-yellow-500 to-yellow-600' },
-          { label: 'New Releases', value: stats.new, icon: TrendingUp, color: 'from-green-500 to-green-600' },
-          { label: 'Total Views', value: stats.totalViews.toLocaleString(), icon: Users, color: 'from-purple-500 to-purple-600' }
+          { label: 'Hemû Fîlm', value: stats.total, icon: Play, color: 'from-blue-500 to-blue-600' },
+          { label: 'Taybet', value: stats.featured, icon: Star, color: 'from-yellow-500 to-yellow-600' },
+          { label: 'Nû Hat', value: stats.new, icon: TrendingUp, color: 'from-green-500 to-green-600' },
+          { label: 'Hemû Temaşe', value: stats.totalViews.toLocaleString(), icon: Users, color: 'from-purple-500 to-purple-600' }
         ].map((stat, index) => (
           <motion.div
             key={stat.label}
@@ -328,7 +328,7 @@ const Movies: React.FC = () => {
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search movies by title..."
+              placeholder="Fîlmek bi navê bigere..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200"
@@ -342,7 +342,7 @@ const Movies: React.FC = () => {
             >
               {genres.map(genre => (
                 <option key={genre} value={genre}>
-                  {genre === 'all' ? 'All Genres' : genre}
+                  {genre === 'all' ? 'Hemû Cure' : genre}
                 </option>
               ))}
             </select>

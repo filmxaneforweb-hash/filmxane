@@ -182,4 +182,181 @@ export class VideosService {
     
     return { updated: updatedCount, total: videos.length };
   }
+
+  // Gelişmiş filtreleme ve arama
+  async searchWithFilters(filters: {
+    query?: string;
+    genre?: string;
+    year?: string;
+    type?: string;
+    rating?: string;
+    duration?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+    page?: number;
+    limit?: number;
+  }) {
+    const queryBuilder = this.videosRepository.createQueryBuilder('video')
+      .where('video.status = :status', { status: VideoStatus.PUBLISHED });
+
+    // Arama sorgusu
+    if (filters.query) {
+      queryBuilder.andWhere(
+        '(video.title LIKE :query OR video.description LIKE :query)',
+        { query: `%${filters.query}%` }
+      );
+    }
+
+    // Tür filtresi
+    if (filters.type) {
+      queryBuilder.andWhere('video.type = :type', { type: filters.type });
+    }
+
+    // Yıl filtresi
+    if (filters.year && filters.year !== 'all') {
+      queryBuilder.andWhere('video.year = :year', { year: parseInt(filters.year) });
+    }
+
+    // Rating filtresi
+    if (filters.rating && filters.rating !== 'all') {
+      const [minRating, maxRating] = filters.rating.split('-').map(r => parseFloat(r));
+      if (maxRating) {
+        queryBuilder.andWhere('video.rating BETWEEN :minRating AND :maxRating', { minRating, maxRating });
+      } else {
+        queryBuilder.andWhere('video.rating >= :minRating', { minRating });
+      }
+    }
+
+    // Süre filtresi
+    if (filters.duration && filters.duration !== 'all') {
+      const [minDuration, maxDuration] = filters.duration.split('-').map(d => parseInt(d));
+      if (maxDuration) {
+        queryBuilder.andWhere('video.duration BETWEEN :minDuration AND :maxDuration', { minDuration, maxDuration });
+      } else {
+        queryBuilder.andWhere('video.duration >= :minDuration', { minDuration });
+      }
+    }
+
+    // Genre filtresi (JSON string içinde arama)
+    if (filters.genre && filters.genre !== 'all') {
+      queryBuilder.andWhere('video.genre LIKE :genre', { genre: `%${filters.genre}%` });
+    }
+
+    // Sıralama
+    const sortBy = filters.sortBy || 'createdAt';
+    const sortOrder = filters.sortOrder || 'DESC';
+    queryBuilder.orderBy(`video.${sortBy}`, sortOrder);
+
+    // Sayfalama
+    const page = filters.page || 1;
+    const limit = filters.limit || 20;
+    const offset = (page - 1) * limit;
+
+    const [items, total] = await queryBuilder
+      .skip(offset)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      success: true,
+      data: {
+        items,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNext: page < Math.ceil(total / limit),
+        hasPrev: page > 1
+      }
+    };
+  }
+
+  // Tüm genre'leri getir
+  async getAllGenres() {
+    const videos = await this.videosRepository.find({
+      where: { status: VideoStatus.PUBLISHED },
+      select: ['genre']
+    });
+
+    const allGenres = new Set<string>();
+    videos.forEach(video => {
+      if (video.genre) {
+        try {
+          const genres = JSON.parse(video.genre);
+          if (Array.isArray(genres)) {
+            genres.forEach(genre => allGenres.add(genre));
+          }
+        } catch {
+          if (video.genre) allGenres.add(video.genre);
+        }
+      }
+    });
+
+    return {
+      success: true,
+      data: Array.from(allGenres).sort()
+    };
+  }
+
+  // Tüm yılları getir
+  async getAllYears() {
+    const years = await this.videosRepository
+      .createQueryBuilder('video')
+      .select('DISTINCT video.year', 'year')
+      .where('video.status = :status', { status: VideoStatus.PUBLISHED })
+      .andWhere('video.year IS NOT NULL')
+      .orderBy('video.year', 'DESC')
+      .getRawMany();
+
+    return {
+      success: true,
+      data: years.map(y => y.year).filter(Boolean)
+    };
+  }
+
+  // İstatistik genel bakış
+  async getStatsOverview() {
+    const totalVideos = await this.videosRepository.count({
+      where: { status: VideoStatus.PUBLISHED }
+    });
+
+    const totalMovies = await this.videosRepository.count({
+      where: { 
+        type: VideoType.MOVIE,
+        status: VideoStatus.PUBLISHED
+      }
+    });
+
+    const totalSeries = await this.videosRepository.count({
+      where: { 
+        type: VideoType.SERIES,
+        status: VideoStatus.PUBLISHED
+      }
+    });
+
+    const featuredCount = await this.videosRepository.count({
+      where: { 
+        isFeatured: true,
+        status: VideoStatus.PUBLISHED
+      }
+    });
+
+    const newCount = await this.videosRepository.count({
+      where: { 
+        isNew: true,
+        status: VideoStatus.PUBLISHED
+      }
+    });
+
+    return {
+      success: true,
+      data: {
+        totalVideos,
+        totalMovies,
+        totalSeries,
+        featuredCount,
+        newCount
+      }
+    };
+  }
 }
