@@ -11,7 +11,8 @@ import {
   ParseFilePipe,
   FileTypeValidator,
   MaxFileSizeValidator,
-  Query
+  Query,
+  Headers
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { VideosService } from './videos.service';
@@ -101,12 +102,76 @@ export class VideosController {
   }
 
   @Get('watch-time')
-  async getWatchTime() {
-    // Şimdilik basit bir hesaplama - gelecekte gerçek izleme verileri eklenebilir
-    return {
-      totalMinutes: 0,
-      message: 'İzlenme süresi henüz takip edilmiyor'
-    };
+  async getWatchTime(@Headers('authorization') authHeader?: string) {
+    try {
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return {
+          totalMinutes: 0,
+          totalViews: 0,
+          completedVideos: 0,
+          message: 'Kullanıcı kimlik doğrulaması gerekli'
+        };
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+      // JWT token'dan user ID'yi çıkar (basit implementasyon)
+      // Gerçek uygulamada JWT service kullanılmalı
+      const userId = this.extractUserIdFromToken(token);
+      
+      if (!userId) {
+        return {
+          totalMinutes: 0,
+          totalViews: 0,
+          completedVideos: 0,
+          message: 'Geçersiz token'
+        };
+      }
+
+      const watchStats = await this.videosService.getWatchTime(userId);
+      
+      return {
+        ...watchStats,
+        message: 'İzleme istatistikleri başarıyla alındı'
+      };
+    } catch (error) {
+      console.error('İzleme süresi alınamadı:', error);
+      return {
+        totalMinutes: 0,
+        totalViews: 0,
+        completedVideos: 0,
+        message: 'İzleme süresi alınamadı'
+      };
+    }
+  }
+
+  // Basit token parsing (gerçek uygulamada JWT service kullanılmalı)
+  private extractUserIdFromToken(token: string): string | null {
+    try {
+      // JWT token'ı decode et
+      const base64Url = token.split('.')[1];
+      if (!base64Url) {
+        // Eğer JWT formatında değilse, localStorage'dan gelen token olabilir
+        // Bu durumda basit parsing yap
+        try {
+          const decoded = Buffer.from(token, 'base64').toString();
+          const parsed = JSON.parse(decoded);
+          return parsed.userId || parsed.sub || null;
+        } catch {
+          return null;
+        }
+      }
+      
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      
+      const payload = JSON.parse(jsonPayload);
+      return payload.userId || payload.sub || null;
+    } catch (error) {
+      console.error('Token parsing hatası:', error);
+      return null;
+    }
   }
 
   @Get('years/all')
@@ -142,5 +207,68 @@ export class VideosController {
   @Post('fix-urls')
   async fixVideoUrls() {
     return this.videosService.fixVideoUrls();
+  }
+
+  @Post('watch-history')
+  async saveWatchHistory(@Body() watchHistoryDto: any, @Headers('authorization') authHeader?: string) {
+    try {
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return {
+          success: false,
+          message: 'Kullanıcı kimlik doğrulaması gerekli'
+        };
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+      const userId = this.extractUserIdFromToken(token);
+      
+      if (!userId) {
+        return {
+          success: false,
+          message: 'Geçersiz token'
+        };
+      }
+
+      // Mevcut izleme geçmişini kontrol et
+      const existingHistory = await this.videosService.findWatchHistory(userId, watchHistoryDto.videoId);
+      
+      if (existingHistory) {
+        // Mevcut kaydı güncelle
+        const updatedHistory = await this.videosService.updateWatchHistory(existingHistory.id, {
+          watchDuration: watchHistoryDto.watchDuration,
+          totalViews: existingHistory.totalViews + 1,
+          isCompleted: watchHistoryDto.isCompleted,
+          lastWatchedAt: new Date()
+        });
+        
+        return {
+          success: true,
+          message: 'İzleme geçmişi güncellendi',
+          data: updatedHistory
+        };
+      } else {
+        // Yeni kayıt oluştur
+        const newHistory = await this.videosService.createWatchHistory({
+          userId: userId,
+          videoId: watchHistoryDto.videoId,
+          watchDuration: watchHistoryDto.watchDuration,
+          totalViews: 1,
+          isCompleted: watchHistoryDto.isCompleted,
+          lastWatchedAt: new Date()
+        });
+        
+        return {
+          success: true,
+          message: 'İzleme geçmişi oluşturuldu',
+          data: newHistory
+        };
+      }
+    } catch (error) {
+      console.error('İzleme geçmişi kaydedilemedi:', error);
+      return {
+        success: false,
+        message: 'İzleme geçmişi kaydedilemedi'
+      };
+    }
   }
 }

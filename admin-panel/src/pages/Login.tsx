@@ -27,23 +27,63 @@ const Login: React.FC = () => {
     setError('')
 
     try {
+      console.log('🔐 Admin login attempt:', { email, passwordLength: password?.length })
+      
       const response = await fetch(`${API_BASE_URL}/auth/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       })
       
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Login failed')
-      }
+      console.log('📡 Response status:', response.status)
+      console.log('📡 Response ok:', response.ok)
       
       const data = await response.json()
-      localStorage.setItem('filmxane_admin_token', data.token)
+      console.log('📡 Response data:', data)
+      
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'Login failed')
+      }
+      
+      // Check if login was successful
+      if (!data.success) {
+        throw new Error(data.error || 'Login failed')
+      }
+      
+      // Extract user and token from response
+      const userData = data.data || data
+      const token = userData.token
+      const user = userData.user
+      
+      console.log('✅ Login successful:', { token: token ? 'EXISTS' : 'MISSING', user: user ? 'EXISTS' : 'MISSING' })
+      
+      if (!token) {
+        throw new Error('Token not received from server')
+      }
+      
+      // Admin token'ını kaydet
+      localStorage.setItem('filmxane_admin_token', token)
+      
+      // User bilgilerini de kaydet (AdminRoute için gerekli)
+      if (user) {
+        localStorage.setItem('filmxane_user_email', user.email || email)
+        localStorage.setItem('filmxane_user_role', user.role || 'admin')
+        localStorage.setItem('filmxane_user_firstName', user.firstName || '')
+        localStorage.setItem('filmxane_user_lastName', user.lastName || '')
+      } else {
+        // Fallback values if user data is not provided
+        localStorage.setItem('filmxane_user_email', email)
+        localStorage.setItem('filmxane_user_role', 'admin')
+        localStorage.setItem('filmxane_user_firstName', 'Admin')
+        localStorage.setItem('filmxane_user_lastName', 'User')
+      }
+      
+      console.log('💾 LocalStorage updated with admin data')
       
       // Navigate to admin dashboard
       navigate('/admin/dashboard')
     } catch (error) {
+      console.error('❌ Login error:', error)
       setError(error instanceof Error ? error.message : 'Login failed')
     } finally {
       setIsLoading(false)

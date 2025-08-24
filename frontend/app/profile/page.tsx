@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navigation } from '@/components/Navigation'
-import { User, Heart, Clock, Calendar, RefreshCw } from 'lucide-react'
+import { User, Heart, Clock, Calendar, RefreshCw, Eye, CheckCircle } from 'lucide-react'
 
 interface UserStats {
   favoritesCount: number
   totalWatchTime: number
+  totalViews: number
+  completedVideos: number
   joinDate: string
 }
 
@@ -17,6 +19,8 @@ export default function ProfilePage() {
   const [stats, setStats] = useState<UserStats>({
     favoritesCount: 0,
     totalWatchTime: 0,
+    totalViews: 0,
+    completedVideos: 0,
     joinDate: ''
   })
   const [loading, setLoading] = useState(true)
@@ -62,9 +66,13 @@ export default function ProfilePage() {
         
         if (watchTimeResponse.ok) {
           const watchTimeData = await watchTimeResponse.json()
+          console.log('📺 İzlenme verileri:', watchTimeData)
+          
           setStats(prev => ({
             ...prev,
-            totalWatchTime: watchTimeData.totalMinutes || 0
+            totalWatchTime: watchTimeData.totalMinutes || 0,
+            totalViews: watchTimeData.totalViews || 0,
+            completedVideos: watchTimeData.completedVideos || 0
           }))
         }
       } catch (error) {
@@ -111,10 +119,11 @@ export default function ProfilePage() {
 
   // Favori sayısını gerçek zamanlı güncelle - Basit polling sistemi
   useEffect(() => {
-    // Her 5 saniyede bir favori sayısını kontrol et
+    // Her 3 saniyede bir favori sayısını ve izleme süresini kontrol et
     const interval = setInterval(() => {
       const token = localStorage.getItem('filmxane_token')
       if (token) {
+        // Favori sayısını kontrol et
         fetch('http://localhost:3005/api/favorites/my-favorites', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -134,11 +143,35 @@ export default function ProfilePage() {
         .catch(error => {
           console.log('Favori sayısı kontrol edilemedi:', error)
         })
+
+        // İzleme süresini kontrol et
+        fetch('http://localhost:3005/api/videos/watch-time', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.totalMinutes !== stats.totalWatchTime || 
+              data.totalViews !== stats.totalViews || 
+              data.completedVideos !== stats.completedVideos) {
+            console.log('🔄 İzleme verileri değişti:', data)
+            setStats(prev => ({
+              ...prev,
+              totalWatchTime: data.totalMinutes || 0,
+              totalViews: data.totalViews || 0,
+              completedVideos: data.completedVideos || 0
+            }))
+          }
+        })
+        .catch(error => {
+          console.log('İzleme süresi kontrol edilemedi:', error)
+        })
       }
-    }, 5000) // 5 saniye
+    }, 3000) // 3 saniye
 
     return () => clearInterval(interval)
-  }, [stats.favoritesCount])
+  }, [stats.favoritesCount, stats.totalWatchTime, stats.totalViews, stats.completedVideos])
 
   // İlk yükleme
   useEffect(() => {
@@ -264,6 +297,30 @@ export default function ProfilePage() {
                     <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
                   ) : (
                     stats.totalWatchTime > 0 ? `${stats.totalWatchTime} dk` : '0 dk'
+                  )}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
+                <Eye className="w-5 h-5 text-purple-500" />
+                <span className="text-white">Toplam İzlenme</span>
+                <span className="ml-auto text-gray-400">
+                  {statsLoading ? (
+                    <div className="animate-spin w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full"></div>
+                  ) : (
+                    stats.totalViews > 0 ? stats.totalViews : '0'
+                  )}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-green-500" />
+                <span className="text-white">Tamamlanan</span>
+                <span className="ml-auto text-gray-400">
+                  {statsLoading ? (
+                    <div className="animate-spin w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full"></div>
+                  ) : (
+                    stats.completedVideos > 0 ? stats.completedVideos : '0'
                   )}
                 </span>
               </div>

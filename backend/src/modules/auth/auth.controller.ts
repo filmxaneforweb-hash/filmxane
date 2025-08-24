@@ -10,9 +10,11 @@ import {
   Param,
   ConflictException,
   UnauthorizedException,
+  Headers,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtService } from '@nestjs/jwt';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -21,11 +23,18 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AdminLoginDto } from './dto/admin-login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { UsersService } from '../users/users.service';
+import { User } from '../../entities/user.entity';
+import { UserRole } from '../../entities/user.entity';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly jwtService: JwtService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Hesap oluşturma' })
@@ -128,6 +137,61 @@ export class AuthController {
   async verifyEmail(@Param('token') token: string) {
     await this.authService.verifyEmail(token);
     return { message: 'Email başarıyla doğrulandı' };
+  }
+
+  @Post('verify-admin')
+  async verifyAdmin(@Body() body: { email: string }, @Headers('authorization') authHeader: string) {
+    try {
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return {
+          success: false,
+          error: 'Token bulunamadı'
+        };
+      }
+
+      const token = authHeader.substring(7);
+      
+      // Token'ı doğrula
+      const decoded = this.jwtService.verify(token);
+      
+      // Kullanıcıyı bul
+      const user = await this.usersService.findByEmail(body.email);
+      
+      if (!user) {
+        return {
+          success: false,
+          error: 'Kullanıcı bulunamadı'
+        };
+      }
+
+      // Admin rolünü kontrol et
+      if (user.role !== UserRole.ADMIN) {
+        return {
+          success: false,
+          error: 'Admin yetkisi yok',
+          isAdmin: false
+        };
+      }
+
+      return {
+        success: true,
+        isAdmin: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role
+        }
+      };
+
+    } catch (error) {
+      console.error('Admin verification error:', error);
+      return {
+        success: false,
+        error: 'Token doğrulanamadı'
+      };
+    }
   }
 
   @Post('refresh')

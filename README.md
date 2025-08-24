@@ -14,14 +14,18 @@ Netflix tarzı modern bir streaming platformu. Akademik Kürtçe dil desteği il
 - ✅ Kapak fotoğrafları ve thumbnail desteği
 - ✅ Video izleme sayfası
 - ✅ Responsive tasarım
+- ✅ İzleme geçmişi ve istatistikler
+- ✅ Gerçek zamanlı profil güncellemeleri
 
 ### Admin Özellikleri
-- ✅ Video upload ve yönetim
+- ✅ Video upload ve yönetim (Film/Series)
 - ✅ Kapak fotoğrafı yükleme
 - ✅ Kullanıcı yönetimi
 - ✅ Abonelik ve ödeme takibi
 - ✅ İçerik moderasyonu
 - ✅ WebSocket gerçek zamanlı güncellemeler
+- ✅ Admin dashboard istatistikleri
+- ✅ Kullanıcı rol yönetimi
 
 ## 🛠️ Teknoloji Stack
 
@@ -34,15 +38,16 @@ Netflix tarzı modern bir streaming platformu. Akademik Kürtçe dil desteği il
 
 ### Backend
 - **NestJS** - Node.js enterprise framework
-- **PostgreSQL** - Ana veritabanı
+- **SQLite** - Ana veritabanı (Production için PostgreSQL hazır)
 - **TypeORM** - ORM
 - **JWT** - Authentication
 - **WebSocket** - Gerçek zamanlı iletişim
+- **bcryptjs** - Şifre hashleme
 
 ### Video Streaming
 - **HLS (HTTP Live Streaming)** - Video streaming protokolü
 - **Static File Serving** - Kapak fotoğrafları için
-- **Upload System** - Dosya yükleme sistemi
+- **Upload System** - Dosya yükleme sistemi (5GB'a kadar)
 
 ## 📁 Proje Yapısı
 
@@ -67,7 +72,7 @@ filmxane/
 
 ### Gereksinimler
 - Node.js 18+
-- PostgreSQL 14+
+- SQLite (varsayılan) veya PostgreSQL 14+
 
 ### Adımlar
 
@@ -91,25 +96,14 @@ cd ../admin-panel && npm install
 
 3. **Veritabanını kurun**
 ```bash
-# PostgreSQL'de veritabanı oluşturun
-createdb filmxane_db
-
-# Migration'ları çalıştırın
+# SQLite otomatik oluşturulur
 cd backend
-npm run migration:run
 
-# Seed verilerini yükleyin
-npm run seed
+# Admin kullanıcısı oluşturun
+node create-admin.js
 ```
 
-4. **Environment değişkenlerini ayarlayın**
-```bash
-# Backend .env
-cp backend/env.example backend/.env
-# .env dosyasını düzenleyin
-```
-
-5. **Uygulamayı başlatın**
+4. **Uygulamayı başlatın**
 ```bash
 # Backend (Terminal 1)
 cd backend && npm run start:dev
@@ -128,26 +122,38 @@ cd admin-panel && npm run dev
 - **Admin Panel**: http://localhost:5173
 - **API Docs**: http://localhost:3005/api/docs
 
+## 🔑 Admin Giriş Bilgileri
+
+- **📧 Email:** `admin@filmxane.com`
+- **🔑 Şifre:** `admin123`
+- **👤 Rol:** Admin
+
 ## 📝 API Endpoints
 
 ### Auth
 - `POST /auth/register` - Kullanıcı kaydı
 - `POST /auth/login` - Kullanıcı girişi
 - `POST /auth/admin/login` - Admin girişi
+- `POST /auth/verify-admin` - Admin yetkisi doğrulama
 
 ### Videos
 - `GET /videos` - Tüm videolar
 - `GET /videos/:id` - Video detayı
 - `POST /videos` - Video yükleme (Admin)
 - `PUT /videos/:id` - Video güncelleme (Admin)
+- `POST /videos/watch-history` - İzleme geçmişi kaydetme
+- `GET /videos/search/filter` - Gelişmiş arama ve filtreleme
 
-### Categories
-- `GET /categories` - Tüm kategoriler
-- `POST /categories` - Kategori oluşturma (Admin)
+### Admin
+- `POST /admin/videos` - Video yükleme (Admin)
+- `GET /admin/stats` - Dashboard istatistikleri
+- `GET /admin/users` - Kullanıcı listesi
+- `DELETE /admin/users/:id` - Kullanıcı silme
 
-### Users
-- `GET /users` - Kullanıcı listesi (Admin)
-- `PUT /users/:id` - Kullanıcı güncelleme
+### Favorites
+- `POST /favorites` - Favori ekleme/çıkarma
+- `GET /favorites/my-favorites` - Kullanıcı favorileri
+- `GET /favorites/check` - Favori durumu kontrolü
 
 ## 🔧 Geliştirme
 
@@ -158,8 +164,7 @@ cd admin-panel && npm run dev
 cd backend
 npm run start:dev    # Development server
 npm run build        # Production build
-npm run migration:run # Migration çalıştır
-npm run seed         # Seed verilerini yükle
+node create-admin.js # Admin kullanıcısı oluştur
 
 # Frontend
 cd frontend
@@ -175,42 +180,50 @@ npm run build        # Production build
 ### Veritabanı
 
 ```bash
-# Migration oluştur
+# Admin kullanıcısı oluştur
 cd backend
-npm run migration:generate -- src/migrations/MigrationName
+node create-admin.js
 
-# Migration çalıştır
-npm run migration:run
-
-# Migration geri al
-npm run migration:revert
-
-# Seed verilerini yükle
-npm run seed
+# Veritabanı kontrolü
+node check-admin.js
+node list-all-users.js
 ```
 
 ## 🐛 Son Düzeltmeler
 
-### ✅ Kapak Fotoğrafları
-- Tüm sayfalarda kapak fotoğrafları düzgün görünüyor
-- `getSafeImageUrl` utility fonksiyonu eklendi
-- Fallback mekanizması ile placeholder görseller
-- Hero, Movies, Series, Videos sayfalarında düzeltildi
-
-### ✅ Video İzleme
-- Watch butonları doğru sayfalara yönlendiriyor
-- `/videos/[id]` sayfası düzgün çalışıyor
-- VideoCard component'i güncellendi
-
-### ✅ TypeScript Düzeltmeleri
-- Interface'ler güncellendi (`thumbnailUrl`, `posterUrl`)
-- Type safety iyileştirildi
-- Component prop'ları düzeltildi
+### ✅ Video Yükleme Sistemi
+- **Film/Series Type Düzeltmesi:** Artık dizi yüklerken doğru şekilde series olarak kaydediliyor
+- **Dosya Boyutu Limiti:** 100MB → 5GB'a çıkarıldı
+- **Type Validation:** Backend'de type field'ı DTO'dan alınıyor
+- **Series Alanları:** Season Number, Episode Number, Series ID desteği
 
 ### ✅ Admin Panel
-- Video yükleme sistemi çalışıyor
-- Kapak fotoğrafı yükleme aktif
-- WebSocket bağlantısı kuruldu
+- **Admin Kullanıcısı:** `admin@filmxane.com` / `admin123` ile giriş
+- **Video Upload:** Film ve dizi yükleme sistemi
+- **Type Seçimi:** Movie/Series radio button'ları
+- **Form Validation:** Gerekli alanlar kontrol ediliyor
+
+### ✅ Kullanıcı Sistemi
+- **Profil Sayfası:** İzleme süresi, favori sayısı, katılım tarihi
+- **Gerçek Zamanlı Güncellemeler:** WebSocket ile anlık güncellemeler
+- **İzleme Geçmişi:** WatchHistory entity ile takip
+- **Favori Sistemi:** Backend'e bağlı favori ekleme/çıkarma
+
+### ✅ Arama ve Filtreleme
+- **Gelişmiş Arama:** Genre, yıl, rating, süre filtreleri
+- **Debounce:** Arama çubuğunda 500ms gecikme
+- **Pagination:** Sayfalama sistemi
+- **Backend Entegrasyonu:** Tüm filtreler backend'e bağlı
+
+### ✅ Video Player
+- **Süre Gösterimi:** Float değerler yerine saniye saniye ilerleme
+- **İzleme Takibi:** Her 10 saniyede bir backend'e kayıt
+- **Progress Bar:** Doğru süre gösterimi
+
+### ✅ Kapak Fotoğrafları
+- **Thumbnail Desteği:** Tüm sayfalarda kapak fotoğrafları
+- **Fallback Sistemi:** Fotoğraf yüklenemezse placeholder
+- **Static File Serving:** Backend'den dosya servisi
 
 ## 🧪 Test
 
@@ -262,7 +275,7 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 
 - **Geliştirici**: Filmxane Team
 - **Dil Desteği**: Akademik Kürtçe
-- **Versiyon**: 1.1.0
+- **Versiyon**: 1.2.0
 
 ## 📞 İletişim
 
@@ -274,7 +287,18 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 
 ## 🎯 Son Güncellemeler
 
-### v1.1.0 (Güncel)
+### v1.2.0 (Güncel)
+- ✅ **Video Type Düzeltmesi:** Film/Series doğru kayıt
+- ✅ **Dosya Boyutu:** 5GB'a kadar video yükleme
+- ✅ **Admin Panel:** Tam fonksiyonel admin sistemi
+- ✅ **İzleme Geçmişi:** WatchHistory entity ile takip
+- ✅ **Profil Sistemi:** Gerçek zamanlı istatistikler
+- ✅ **Arama Sistemi:** Gelişmiş filtreleme ve debounce
+- ✅ **Video Player:** Doğru süre gösterimi ve izleme takibi
+- ✅ **Favori Sistemi:** Backend entegrasyonu
+- ✅ **Kapak Fotoğrafları:** Tüm sayfalarda thumbnail desteği
+
+### v1.1.0
 - ✅ Kapak fotoğrafları tüm sayfalarda düzeltildi
 - ✅ Video izleme sistemi tamamlandı
 - ✅ TypeScript hataları giderildi

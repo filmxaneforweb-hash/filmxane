@@ -125,6 +125,35 @@ export default function VideoPlayerPage() {
     }
   }
 
+  // İzleme geçmişini backend'e kaydet
+  const saveWatchHistory = async (watchDuration: number, isCompleted: boolean = false) => {
+    try {
+      const token = localStorage.getItem('filmxane_token')
+      if (!token) return
+
+      const response = await fetch('http://localhost:3005/api/videos/watch-history', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          videoId: videoId,
+          watchDuration: Math.round(watchDuration / 60), // Saniyeyi dakikaya çevir
+          isCompleted: isCompleted
+        })
+      })
+      
+      if (response.ok) {
+        console.log('✅ İzleme geçmişi kaydedildi')
+      } else {
+        console.error('❌ İzleme geçmişi kaydedilemedi:', response.status)
+      }
+    } catch (error) {
+      console.error('❌ İzleme geçmişi kaydedilemedi:', error)
+    }
+  }
+
   const handlePlay = () => {
     setIsPlaying(true)
     // Video oynatıldığında view count'ı artır
@@ -135,6 +164,12 @@ export default function VideoPlayerPage() {
     // Süreyi yuvarla ve negatif değerleri engelle
     const safeTime = Math.max(0, Math.round(state.playedSeconds * 100) / 100)
     setCurrentTime(safeTime)
+    
+    // Her 10 saniyede bir izleme geçmişini kaydet
+    if (Math.round(safeTime) % 10 === 0 && safeTime > 0) {
+      console.log('📺 İzleme geçmişi kaydediliyor:', safeTime, 'saniye')
+      saveWatchHistory(safeTime, false)
+    }
   }
   const handleDuration = (duration: number) => {
     // Toplam süreyi yuvarla ve negatif değerleri engelle
@@ -156,6 +191,15 @@ export default function VideoPlayerPage() {
     }
   }
 
+  // Video tamamlandığında
+  const handleEnded = () => {
+    setIsPlaying(false)
+    // Video tamamlandı olarak işaretle
+    if (duration > 0) {
+      saveWatchHistory(duration, true)
+    }
+  }
+
   // Favori ekleme/çıkarma işlevi
   const toggleFavorite = async () => {
     if (!video) return
@@ -163,7 +207,7 @@ export default function VideoPlayerPage() {
     try {
       setIsLoadingFavorite(true)
       const response = await fetch(`http://localhost:3005/api/favorites`, {
-        method: isFavorite ? 'DELETE' : 'POST',
+        method: isMovie ? 'DELETE' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -301,6 +345,7 @@ export default function VideoPlayerPage() {
             onPause={handlePause}
             onProgress={handleProgress}
             onDuration={handleDuration}
+            onEnded={handleEnded}
             controls={false}
             style={{ objectFit: 'cover' }}
             fallback={

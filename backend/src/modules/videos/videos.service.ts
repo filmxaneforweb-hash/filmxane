@@ -1,19 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Video } from '../../entities/video.entity';
+import { Repository, In } from 'typeorm';
+import { Video, VideoType, VideoQuality, VideoStatus } from '../../entities/video.entity';
+import { WatchHistory } from '../../entities/watch-history.entity';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { VideoType, VideoStatus } from '../../entities/video.entity';
 
 @Injectable()
 export class VideosService {
   constructor(
     @InjectRepository(Video)
     private videosRepository: Repository<Video>,
+    @InjectRepository(WatchHistory)
+    private watchHistoryRepository: Repository<WatchHistory>,
   ) {}
 
   async create(createVideoDto: CreateVideoDto, videoFile: Express.Multer.File, thumbnailFile?: Express.Multer.File): Promise<Video> {
@@ -358,5 +360,71 @@ export class VideosService {
         newCount
       }
     };
+  }
+
+  async getWatchTime(userId: string): Promise<{ totalMinutes: number; totalViews: number; completedVideos: number }> {
+    try {
+      // Kullanıcının izleme geçmişini getir
+      const watchHistory = await this.watchHistoryRepository.find({
+        where: { userId },
+        relations: ['video']
+      });
+
+      let totalMinutes = 0;
+      let totalViews = 0;
+      let completedVideos = 0;
+
+      watchHistory.forEach(record => {
+        totalMinutes += record.watchDuration || 0;
+        totalViews += record.totalViews || 0;
+        if (record.isCompleted) {
+          completedVideos++;
+        }
+      });
+
+      return {
+        totalMinutes,
+        totalViews,
+        completedVideos
+      };
+    } catch (error) {
+      console.error('İzleme süresi hesaplanamadı:', error);
+      return {
+        totalMinutes: 0,
+        totalViews: 0,
+        completedVideos: 0
+      };
+    }
+  }
+
+  async findWatchHistory(userId: string, videoId: string): Promise<WatchHistory | null> {
+    try {
+      return await this.watchHistoryRepository.findOne({
+        where: { userId, videoId }
+      });
+    } catch (error) {
+      console.error('İzleme geçmişi bulunamadı:', error);
+      return null;
+    }
+  }
+
+  async updateWatchHistory(id: string, updateData: Partial<WatchHistory>): Promise<WatchHistory> {
+    try {
+      await this.watchHistoryRepository.update(id, updateData);
+      return await this.watchHistoryRepository.findOne({ where: { id } });
+    } catch (error) {
+      console.error('İzleme geçmişi güncellenemedi:', error);
+      throw error;
+    }
+  }
+
+  async createWatchHistory(createData: Partial<WatchHistory>): Promise<WatchHistory> {
+    try {
+      const watchHistory = this.watchHistoryRepository.create(createData);
+      return await this.watchHistoryRepository.save(watchHistory);
+    } catch (error) {
+      console.error('İzleme geçmişi oluşturulamadı:', error);
+      throw error;
+    }
   }
 }

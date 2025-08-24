@@ -100,7 +100,7 @@ export class AdminController {
   }
 
   @Post('videos')
-  @UseInterceptors(FilesInterceptor('files', 2))
+  @UseInterceptors(FilesInterceptor('files', 2)) // video + thumbnail
   async createVideo(
     @Body() createVideoDto: CreateVideoDto,
     @UploadedFiles(
@@ -108,33 +108,34 @@ export class AdminController {
         validators: [
           // Allow both video and image files
           new FileTypeValidator({ fileType: '.(mp4|avi|mov|mkv|jpg|jpeg|png|gif)' }),
-          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 100 }) // 100MB
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 1024 * 5 }) // 5GB (5 * 1024^3 bytes)
         ],
         fileIsRequired: true, // Video file is required
       }),
     ) files: Express.Multer.File[],
   ) {
     try {
-      console.log('🎬 Admin video upload started');
-      console.log('Files received:', files?.length || 0);
-      console.log('📝 Raw DTO:', createVideoDto);
-      console.log('📝 DTO type:', typeof createVideoDto);
-      console.log('📝 DTO keys:', Object.keys(createVideoDto || {}));
+      console.log('🎬 Creating video with data:', createVideoDto)
+      console.log('📁 Files received:', files?.length || 0)
       
       // Validate required fields
-      console.log('🔍 Validating fields...')
-      
-      if (!createVideoDto.title || !createVideoDto.title.trim()) {
+      if (!createVideoDto.title || createVideoDto.title.trim().length === 0) {
         console.log('❌ Title validation failed:', createVideoDto.title)
         throw new HttpException('Title is required', HttpStatus.BAD_REQUEST);
       }
       console.log('✅ Title:', createVideoDto.title)
       
-      if (!createVideoDto.description || !createVideoDto.description.trim()) {
+      if (!createVideoDto.description || createVideoDto.description.trim().length === 0) {
         console.log('❌ Description validation failed:', createVideoDto.description)
         throw new HttpException('Description is required', HttpStatus.BAD_REQUEST);
       }
       console.log('✅ Description:', createVideoDto.description)
+      
+      if (!createVideoDto.genre || !Array.isArray(createVideoDto.genre) || createVideoDto.genre.length === 0) {
+        console.log('❌ Genre validation failed:', createVideoDto.genre)
+        throw new HttpException('Genre is required and must be an array', HttpStatus.BAD_REQUEST);
+      }
+      console.log('✅ Genre:', createVideoDto.genre)
       
       if (!createVideoDto.duration || createVideoDto.duration <= 0) {
         console.log('❌ Duration validation failed:', createVideoDto.duration)
@@ -179,93 +180,33 @@ export class AdminController {
         throw new HttpException('Video file is required', HttpStatus.BAD_REQUEST);
       }
       
-      console.log('✅ Video file found:', videoFile.originalname, 'type:', videoFile.mimetype, 'size:', videoFile.size);
+      console.log('✅ Video file found:', { name: videoFile.originalname, size: videoFile.size, type: videoFile.mimetype })
       if (thumbnailFile) {
-        console.log('✅ Thumbnail file found:', thumbnailFile.originalname, 'type:', thumbnailFile.mimetype, 'size:', thumbnailFile.size);
-      } else {
-        console.log('ℹ️ No thumbnail file provided');
+        console.log('✅ Thumbnail file found:', { name: thumbnailFile.originalname, size: thumbnailFile.size, type: thumbnailFile.mimetype })
       }
       
-      // Parse genre from JSON string if it's a string
-      console.log('🔍 Processing genre...')
-      console.log('📝 Original genre:', createVideoDto.genre, 'type:', typeof createVideoDto.genre)
-      
-      if (typeof createVideoDto.genre === 'string') {
-        try {
-          createVideoDto.genre = JSON.parse(createVideoDto.genre);
-          console.log('✅ Genre parsed from JSON:', createVideoDto.genre)
-        } catch (error) {
-          console.log('⚠️ Failed to parse genre JSON, using empty array')
-          createVideoDto.genre = [];
-        }
-      }
-      
-      // Ensure genre is an array
-      if (!Array.isArray(createVideoDto.genre)) {
-        console.log('⚠️ Genre is not an array, converting to empty array')
-        createVideoDto.genre = [];
-      }
-      
-      // Convert other fields to proper types
-      if (typeof createVideoDto.year === 'string') {
-        createVideoDto.year = parseInt(createVideoDto.year) || new Date().getFullYear()
-      }
-      
-      if (typeof createVideoDto.rating === 'string') {
-        createVideoDto.rating = parseFloat(createVideoDto.rating) || 0
-      }
-      
-      if (typeof createVideoDto.duration === 'string') {
-        createVideoDto.duration = parseInt(createVideoDto.duration) || 0
-      }
-      
-      if (typeof createVideoDto.isFeatured === 'string') {
-        createVideoDto.isFeatured = createVideoDto.isFeatured === 'true'
-      }
-      
-      if (typeof createVideoDto.isNew === 'string') {
-        createVideoDto.isNew = createVideoDto.isNew === 'true'
-      }
-      
-      // Convert episodeNumber and seasonNumber to numbers
-      if (typeof createVideoDto.episodeNumber === 'string') {
-        const parsed = parseInt(createVideoDto.episodeNumber)
-        createVideoDto.episodeNumber = isNaN(parsed) ? null : parsed
-      }
-      
-      if (typeof createVideoDto.seasonNumber === 'string') {
-        const parsed = parseInt(createVideoDto.seasonNumber)
-        createVideoDto.seasonNumber = isNaN(parsed) ? null : parsed
-      }
-      
-      console.log('✅ Final processed data:')
-      console.log('  genre:', createVideoDto.genre, 'type:', typeof createVideoDto.genre)
-      console.log('  year:', createVideoDto.year, 'type:', typeof createVideoDto.year)
-      console.log('  rating:', createVideoDto.rating, 'type:', typeof createVideoDto.rating)
-      console.log('  duration:', createVideoDto.duration, 'type:', typeof createVideoDto.duration)
-      console.log('  isFeatured:', createVideoDto.isFeatured, 'type:', typeof createVideoDto.isFeatured)
-      console.log('  isNew:', createVideoDto.isNew, 'type:', typeof createVideoDto.isNew)
-      console.log('  episodeNumber:', createVideoDto.episodeNumber, 'type:', typeof createVideoDto.episodeNumber)
-      console.log('  seasonNumber:', createVideoDto.seasonNumber, 'type:', typeof createVideoDto.seasonNumber)
-      
-      console.log('🚀 Calling admin service...')
+      // Create video using admin service
       const result = await this.adminService.createVideo(createVideoDto, videoFile, thumbnailFile);
-      console.log('✅ Video created successfully:', result)
-      return { success: true, data: result, message: 'Video created successfully' };
-    } catch (error) {
-      console.error('❌ Error in createVideo controller:', error);
       
-      // If it's a validation error, return proper HTTP status
+      console.log('✅ Video created successfully:', result.id)
+      
+      return {
+        success: true,
+        data: result,
+        message: 'Video başarıyla oluşturuldu'
+      };
+      
+    } catch (error) {
+      console.error('❌ Error creating video:', error)
+      
       if (error instanceof HttpException) {
-        throw error; // Re-throw HttpException to get proper HTTP status
+        throw error;
       }
       
-      // Return proper error response
-      return { 
-        success: false, 
-        error: error.message || 'Failed to create video',
-        details: error.stack
-      };
+      throw new HttpException(
+        error.message || 'Video oluşturulurken bir hata oluştu',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 

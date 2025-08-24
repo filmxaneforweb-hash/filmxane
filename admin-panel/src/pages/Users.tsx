@@ -16,6 +16,7 @@ import {
   XCircle,
   Clock
 } from 'lucide-react'
+import { adminApi } from '../lib/adminApi'
 
 interface User {
   id: string
@@ -42,37 +43,61 @@ const Users: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [showUserModal, setShowUserModal] = useState(false)
 
-  const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3005/api'
-
   useEffect(() => {
     loadUsers()
   }, [])
 
   const loadUsers = async () => {
     try {
-      const token = localStorage.getItem('filmxane_admin_token')
-      if (!token) {
-        console.error('No admin token found')
-        return
-      }
-
-      const response = await fetch(`${API_BASE_URL}/admin/users`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-
-      if (response.ok) {
-        const usersData = await response.json()
-        setUsers(usersData)
-      } else {
-        console.error('Failed to load users:', response.status)
-      }
+      setIsLoading(true)
+      const usersData = await adminApi.getUsers()
+      setUsers(usersData)
     } catch (error) {
       console.error('Failed to load users:', error)
+      alert('Kullanıcılar yüklenemedi!')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // Kullanıcı silme fonksiyonu
+  const deleteUser = async (userId: string) => {
+    if (!confirm('Bikarhêner bi rastî dixwazî jê bibî? Ev kar nayê vegerandin.')) {
+      return
+    }
+
+    try {
+      await adminApi.deleteUser(userId)
+      console.log('✅ Kullanıcı başarıyla silindi')
+      // Kullanıcı listesini yenile
+      loadUsers()
+    } catch (error) {
+      console.error('❌ Kullanıcı silme hatası:', error)
+      alert('Kullanıcı silinemedi!')
+    }
+  }
+
+  // Kullanıcı durumu güncelleme
+  const updateUserStatus = async (userId: string, newStatus: string) => {
+    try {
+      await adminApi.updateUser(userId, { status: newStatus })
+      console.log('✅ Kullanıcı durumu güncellendi')
+      loadUsers()
+    } catch (error) {
+      console.error('❌ Kullanıcı durumu güncelleme hatası:', error)
+      alert('Kullanıcı durumu güncellenemedi!')
+    }
+  }
+
+  // Kullanıcı rolü güncelleme
+  const updateUserRole = async (userId: string, newRole: string) => {
+    try {
+      await adminApi.updateUser(userId, { role: newRole })
+      console.log('✅ Kullanıcı rolü güncellendi')
+      loadUsers()
+    } catch (error) {
+      console.error('❌ Kullanıcı rolü güncelleme hatası:', error)
+      alert('Kullanıcı rolü güncellenemedi!')
     }
   }
 
@@ -249,11 +274,22 @@ const Users: React.FC = () => {
                     </div>
                   </td>
                   <td className="py-4 px-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
-                      {user.status === 'active' ? 'Çalak' : 
-                       user.status === 'inactive' ? 'Neçalak' : 
-                       user.status === 'suspended' ? 'Hate Rawestandin' : 'Neçalak'}
-                    </span>
+                    <button
+                      onClick={() => {
+                        const newStatus = user.status === 'active' ? 'inactive' : 'active'
+                        if (confirm(`Rewşê ${user.firstName} ${user.lastName} bi ${newStatus === 'active' ? 'Çalak' : 'Neçalak'} biguherîne?`)) {
+                          updateUserStatus(user.id, newStatus)
+                        }
+                      }}
+                      className="cursor-pointer"
+                      title="Rewş biguherîne"
+                    >
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
+                        {user.status === 'active' ? 'Çalak' : 
+                         user.status === 'inactive' ? 'Neçalak' : 
+                         user.status === 'suspended' ? 'Hate Rawestandin' : 'Neçalak'}
+                      </span>
+                    </button>
                   </td>
                   <td className="py-4 px-4">
                     {getSubscriptionBadge(user.subscription)}
@@ -280,12 +316,19 @@ const Users: React.FC = () => {
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
+                        onClick={() => {
+                          const newRole = user.role === 'admin' ? 'user' : 'admin'
+                          if (confirm(`Rolê ${user.firstName} ${user.lastName} bi ${newRole === 'admin' ? 'Birêvebir' : 'Bikarhêner'} biguherîne?`)) {
+                            updateUserRole(user.id, newRole)
+                          }
+                        }}
                         className="p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-colors"
                         title="Bikarhêner biguherîne"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
+                        onClick={() => deleteUser(user.id)}
                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                         title="Bikarhêner jê bibe"
                       >

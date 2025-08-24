@@ -656,7 +656,7 @@ export class AdminService {
         duration: parseInt(createVideoDto.duration) || 0,
         isFeatured: Boolean(createVideoDto.isFeatured),
         isNew: Boolean(createVideoDto.isNew),
-        type: VideoType.MOVIE,
+        type: createVideoDto.type || VideoType.MOVIE, // DTO'dan type'ı al
         views: 0,
         viewCount: 0,
         rating: 0,
@@ -664,6 +664,8 @@ export class AdminService {
         thumbnailPath: thumbnailPath,
         thumbnailUrl: thumbnailPath, // thumbnailUrl'yi de set et
         episodeNumber: createVideoDto.episodeNumber || null,
+        seasonNumber: createVideoDto.seasonNumber || null, // Series için season number
+        seriesId: createVideoDto.seriesId || null, // Series için series ID
         status: VideoStatus.PUBLISHED,
         uploadedById: await this.getAdminUserId(), // Gerçek admin user ID'sini al
         createdAt: new Date(),
