@@ -70,9 +70,38 @@ filmxane/
 
 ## 🚀 Kurulum
 
+### ⚡ Quick Start (5 Dakika)
+
+```bash
+# 1. Repository'yi klonlayın
+git clone https://github.com/SerkanCtn/projectFilmxane.git
+cd filmxane
+
+# 2. Backend'i kurun ve başlatın
+cd backend && npm install
+node create-admin.js
+npm run start:dev
+
+# 3. Yeni terminal'de Frontend'i kurun
+cd ../frontend && npm install
+npm run dev
+
+# 4. Yeni terminal'de Admin Panel'i kurun
+cd ../admin-panel && npm install
+npm run dev
+```
+
+**🎯 Sonuç:** 5 dakikada çalışan bir streaming platformu!
+
+---
+
+### 📋 Detaylı Kurulum
+
 ### Gereksinimler
-- Node.js 18+
-- SQLite (varsayılan) veya PostgreSQL 14+
+- **Node.js 18+** (LTS versiyonu önerilir)
+- **npm** veya **yarn** paket yöneticisi
+- **Git** (repository klonlamak için)
+- **SQLite** (varsayılan, otomatik kurulum) veya **PostgreSQL 14+** (opsiyonel)
 
 ### Adımlar
 
@@ -82,37 +111,76 @@ git clone https://github.com/SerkanCtn/projectFilmxane.git
 cd filmxane
 ```
 
-2. **Bağımlılıkları yükleyin**
+2. **Backend kurulumu**
 ```bash
-# Frontend
-cd frontend && npm install
-
-# Backend
-cd ../backend && npm install
-
-# Admin Panel
-cd ../admin-panel && npm install
-```
-
-3. **Veritabanını kurun**
-```bash
-# SQLite otomatik oluşturulur
 cd backend
+
+# Bağımlılıkları yükleyin
+npm install
 
 # Admin kullanıcısı oluşturun
 node create-admin.js
+
+# Backend'i başlatın
+npm run start:dev
 ```
 
-4. **Uygulamayı başlatın**
+3. **Frontend kurulumu (Yeni Terminal)**
 ```bash
-# Backend (Terminal 1)
-cd backend && npm run start:dev
+cd frontend
 
-# Frontend (Terminal 2)
-cd frontend && npm run dev
+# Bağımlılıkları yükleyin
+npm install
 
-# Admin Panel (Terminal 3)
-cd admin-panel && npm run dev
+# Frontend'i başlatın
+npm run dev
+```
+
+4. **Admin Panel kurulumu (Yeni Terminal)**
+```bash
+cd admin-panel
+
+# Bağımlılıkları yükleyin
+npm install
+
+# Admin panel'i başlatın
+npm run dev
+```
+
+### 🚨 Önemli Notlar
+
+- **Backend önce başlatılmalı** çünkü frontend ve admin panel backend'e bağlanıyor
+- **Her servis ayrı terminal'de** çalıştırılmalı
+- **Port çakışması** olursa `netstat -ano | findstr :3005` ile kontrol edin
+- **Admin kullanıcısı** sadece bir kez oluşturulmalı
+
+### 🔧 Sorun Giderme
+
+#### Backend Başlamıyor
+```bash
+cd backend
+# Port 3005'i kullanan process'i bulun
+netstat -ano | findstr :3005
+# Process'i sonlandırın (PID ile)
+taskkill /PID <PID> /F
+# Tekrar başlatın
+npm run start:dev
+```
+
+#### Bağımlılık Hataları
+```bash
+# node_modules'ı silin ve yeniden yükleyin
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### Veritabanı Sorunları
+```bash
+cd backend
+# Veritabanı durumunu kontrol edin
+node check-db.js
+# Admin kullanıcısını kontrol edin
+node check-admin.js
 ```
 
 ## 🌐 Erişim Noktaları
@@ -227,6 +295,32 @@ node list-all-users.js
 
 ## 🧪 Test
 
+### 🚀 Kurulum Sonrası Test
+
+1. **Backend Test (Port 3005)**
+```bash
+# Backend çalışıyor mu?
+curl http://localhost:3005/api/health
+# veya tarayıcıda: http://localhost:3005/api/docs
+```
+
+2. **Frontend Test (Port 3000)**
+```bash
+# Tarayıcıda açın: http://localhost:3000
+# Ana sayfa yükleniyor mu?
+# Login/Register çalışıyor mu?
+```
+
+3. **Admin Panel Test (Port 5173)**
+```bash
+# Tarayıcıda açın: http://localhost:5173
+# Admin girişi yapın:
+# Email: admin@filmxane.com
+# Şifre: admin123
+```
+
+### 🔧 Unit Testler
+
 ```bash
 # Backend testleri
 cd backend && npm run test
@@ -234,6 +328,28 @@ cd backend && npm run test
 # Frontend testleri
 cd frontend && npm run test
 ```
+
+### 📊 Manuel Test Senaryoları
+
+#### ✅ Kullanıcı Testleri
+- [ ] Kullanıcı kaydı
+- [ ] Kullanıcı girişi
+- [ ] Profil sayfası
+- [ ] Favori ekleme/çıkarma
+- [ ] İzleme geçmişi
+
+#### ✅ Admin Testleri
+- [ ] Admin girişi
+- [ ] Video yükleme (Film)
+- [ ] Video yükleme (Series)
+- [ ] Kullanıcı yönetimi
+- [ ] Dashboard istatistikleri
+
+#### ✅ Video Testleri
+- [ ] Video oynatma
+- [ ] Arama ve filtreleme
+- [ ] Kapak fotoğrafları
+- [ ] Responsive tasarım
 
 ## 📦 Deployment
 
