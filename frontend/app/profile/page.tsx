@@ -68,15 +68,27 @@ export default function ProfilePage() {
           const watchTimeData = await watchTimeResponse.json()
           console.log('📺 İzlenme verileri:', watchTimeData)
           
+          // Eğer veri yoksa varsayılan değerler kullan
+          const totalWatchTime = watchTimeData.totalMinutes || 0
+          const totalViews = watchTimeData.totalViews || 0
+          const completedVideos = watchTimeData.completedVideos || 0
+          
           setStats(prev => ({
             ...prev,
-            totalWatchTime: watchTimeData.totalMinutes || 0,
-            totalViews: watchTimeData.totalViews || 0,
-            completedVideos: watchTimeData.completedVideos || 0
+            totalWatchTime,
+            totalViews,
+            completedVideos
           }))
         }
       } catch (error) {
         console.log('İzlenme süresi endpoint\'i mevcut değil, 0 olarak ayarlandı')
+        // Varsayılan değerler
+        setStats(prev => ({
+          ...prev,
+          totalWatchTime: 0,
+          totalViews: 0,
+          completedVideos: 0
+        }))
       }
 
       // Üyelik tarihini localStorage'dan al
@@ -104,7 +116,7 @@ export default function ProfilePage() {
     fetchUserStats()
   }
 
-  // Sayfa görünür olduğunda verileri güncelle
+  // Sayfa görünür olduğunda ve focus olduğunda verileri güncelle
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
@@ -113,13 +125,23 @@ export default function ProfilePage() {
       }
     }
 
+    const handleFocus = () => {
+      console.log('🎯 Sayfa focus oldu, veriler güncelleniyor...')
+      fetchUserStats()
+    }
+
     document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('focus', handleFocus)
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('focus', handleFocus)
+    }
   }, [])
 
   // Favori sayısını gerçek zamanlı güncelle - Basit polling sistemi
   useEffect(() => {
-    // Her 3 saniyede bir favori sayısını ve izleme süresini kontrol et
+    // Her 2 saniyede bir favori sayısını ve izleme süresini kontrol et
     const interval = setInterval(() => {
       const token = localStorage.getItem('filmxane_token')
       if (token) {
@@ -152,15 +174,23 @@ export default function ProfilePage() {
         })
         .then(response => response.json())
         .then(data => {
-          if (data.totalMinutes !== stats.totalWatchTime || 
-              data.totalViews !== stats.totalViews || 
-              data.completedVideos !== stats.completedVideos) {
-            console.log('🔄 İzleme verileri değişti:', data)
+          const newWatchTime = data.totalMinutes || 0
+          const newTotalViews = data.totalViews || 0
+          const newCompletedVideos = data.completedVideos || 0
+          
+          if (newWatchTime !== stats.totalWatchTime || 
+              newTotalViews !== stats.totalViews || 
+              newCompletedVideos !== stats.completedVideos) {
+            console.log('🔄 İzleme verileri değişti:', {
+              watchTime: newWatchTime,
+              totalViews: newTotalViews,
+              completedVideos: newCompletedVideos
+            })
             setStats(prev => ({
               ...prev,
-              totalWatchTime: data.totalMinutes || 0,
-              totalViews: data.totalViews || 0,
-              completedVideos: data.completedVideos || 0
+              totalWatchTime: newWatchTime,
+              totalViews: newTotalViews,
+              completedVideos: newCompletedVideos
             }))
           }
         })
@@ -168,10 +198,25 @@ export default function ProfilePage() {
           console.log('İzleme süresi kontrol edilemedi:', error)
         })
       }
-    }, 3000) // 3 saniye
+    }, 2000) // 2 saniye
 
     return () => clearInterval(interval)
   }, [stats.favoritesCount, stats.totalWatchTime, stats.totalViews, stats.completedVideos])
+
+  // Favori işlemlerinden sonra istatistikleri güncelle
+  useEffect(() => {
+    const handleFavoriteChange = () => {
+      console.log('❤️ Favori değişikliği algılandı, istatistikler güncelleniyor...')
+      fetchUserStats()
+    }
+
+    // Custom event dinle
+    window.addEventListener('favoriteChanged', handleFavoriteChange)
+    
+    return () => {
+      window.removeEventListener('favoriteChanged', handleFavoriteChange)
+    }
+  }, [])
 
   // İlk yükleme
   useEffect(() => {
@@ -195,6 +240,18 @@ export default function ProfilePage() {
       
       if (firstName && lastName && email) {
         setUser({ firstName, lastName, email })
+        
+        // Üyelik tarihini kontrol et, yoksa bugün olarak ayarla
+        let joinDate = localStorage.getItem('filmxane_user_joinDate')
+        if (!joinDate) {
+          joinDate = new Date().toISOString()
+          localStorage.setItem('filmxane_user_joinDate', joinDate)
+        }
+        
+        setStats(prev => ({
+          ...prev,
+          joinDate
+        }))
       }
       
       setLoading(false)

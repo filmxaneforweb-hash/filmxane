@@ -16,6 +16,7 @@ interface FavoriteContent {
   rating?: number
   duration?: number
   genre?: string[] | string
+  watchProgress?: any
 }
 
 export default function MyListPage() {
@@ -23,6 +24,29 @@ export default function MyListPage() {
   const [favorites, setFavorites] = useState<FavoriteContent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Watch progress'i fetch et
+  const fetchWatchProgress = async (videoId: string) => {
+    try {
+      const token = localStorage.getItem('filmxane_token')
+      if (!token) return null
+
+      const response = await fetch(`http://localhost:3005/api/videos/watch-progress/${videoId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      const data = await response.json()
+      if (data.success && data.data && data.data.watchDuration > 0) {
+        return data.data
+      }
+      return null
+    } catch (error) {
+      console.error('Watch progress fetch error:', error)
+      return null
+    }
+  }
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -55,56 +79,60 @@ export default function MyListPage() {
           console.log('🔍 Favoriler data:', data)
           
           if (data.success && data.data) {
-                         // Favori verilerini düzenle
-             const formattedFavorites = data.data.map((favorite: any) => {
-               console.log('🔍 Raw favorite data:', favorite)
-               console.log('🔍 Video data:', favorite.video)
-               console.log('🔍 Video thumbnail fields:', {
-                 thumbnailUrl: favorite.video?.thumbnailUrl,
-                 thumbnailPath: favorite.video?.thumbnailPath,
-                 posterUrl: favorite.video?.posterUrl,
-                 thumbnail: favorite.video?.thumbnail,
-                 poster: favorite.video?.poster
-               })
-               
-               // Backend URL'lerini düzelt
-               const baseUrl = 'http://localhost:3005'
-               const thumbnailUrl = favorite.video?.thumbnailUrl || favorite.video?.thumbnailPath
-               const posterUrl = favorite.video?.posterUrl
-               
-               // Full URL oluştur
-               const fullThumbnailUrl = thumbnailUrl ? 
-                 (thumbnailUrl.startsWith('http') ? thumbnailUrl : `${baseUrl}${thumbnailUrl}`) : null
-               const fullPosterUrl = posterUrl ? 
-                 (posterUrl.startsWith('http') ? posterUrl : `${baseUrl}${posterUrl}`) : null
-               
-               console.log('🔍 URL oluşturma:', {
-                 thumbnailUrl,
-                 posterUrl,
-                 fullThumbnailUrl,
-                 fullPosterUrl
-               })
-               
-               const formatted = {
-                 id: favorite.video?.id || favorite.videoId,
-                 title: favorite.video?.title || 'Bilinmeyen Başlık',
-                 type: favorite.type || 'movie',
-                 thumbnail: fullThumbnailUrl || fullPosterUrl,
-                 poster: fullPosterUrl || fullThumbnailUrl,
-                 year: favorite.video?.year || favorite.video?.releaseYear,
-                 rating: favorite.video?.rating,
-                 duration: favorite.video?.duration,
-                 genre: Array.isArray(favorite.video?.genre) ? favorite.video.genre : 
-                        (typeof favorite.video?.genre === 'string' ? [favorite.video.genre] : [])
-               }
-               
-               console.log('🔍 Formatted content:', formatted)
-               return formatted
-             })
+            // Favori verilerini düzenle
+            const formattedFavorites = await Promise.all(data.data.map(async (favorite: any) => {
+              console.log('🔍 Raw favorite data:', favorite)
+              console.log('🔍 Video data:', favorite.video)
+              console.log('🔍 Video thumbnail fields:', {
+                thumbnailUrl: favorite.video?.thumbnailUrl,
+                thumbnailPath: favorite.video?.thumbnailPath,
+                posterUrl: favorite.video?.posterUrl,
+                thumbnail: favorite.video?.thumbnail,
+                poster: favorite.video?.poster
+              })
+              
+              // Backend URL'lerini düzelt
+              const baseUrl = 'http://localhost:3005'
+              const thumbnailUrl = favorite.video?.thumbnailUrl || favorite.video?.thumbnailPath
+              const posterUrl = favorite.video?.posterUrl
+              
+              // Full URL oluştur
+              const fullThumbnailUrl = thumbnailUrl ? 
+                (thumbnailUrl.startsWith('http') ? thumbnailUrl : `${baseUrl}${thumbnailUrl}`) : null
+              const fullPosterUrl = posterUrl ? 
+                (posterUrl.startsWith('http') ? posterUrl : `${baseUrl}${posterUrl}`) : null
+              
+              console.log('🔍 URL oluşturma:', {
+                thumbnailUrl,
+                posterUrl,
+                fullThumbnailUrl,
+                fullPosterUrl
+              })
+
+              // Watch progress'i fetch et
+              const watchProgress = await fetchWatchProgress(favorite.video?.id || favorite.videoId)
+              
+              const formatted = {
+                id: favorite.video?.id || favorite.videoId,
+                title: favorite.video?.title || 'Bilinmeyen Başlık',
+                type: favorite.type || 'movie',
+                thumbnail: fullThumbnailUrl || fullPosterUrl,
+                poster: fullPosterUrl || fullThumbnailUrl,
+                year: favorite.video?.year || favorite.video?.releaseYear,
+                rating: favorite.video?.rating,
+                duration: favorite.video?.duration,
+                genre: Array.isArray(favorite.video?.genre) ? favorite.video.genre : 
+                       (typeof favorite.video?.genre === 'string' ? [favorite.video.genre] : []),
+                watchProgress: watchProgress
+              }
+              
+              console.log('🔍 Formatted content:', formatted)
+              return formatted
+            }))
             
-                         console.log('🔍 Formatlanmış favoriler:', formattedFavorites)
-             console.log('🔍 Genre verileri:', formattedFavorites.map(f => ({ title: f.title, genre: f.genre, genreType: typeof f.genre, isArray: Array.isArray(f.genre) })))
-             setFavorites(formattedFavorites)
+            console.log('🔍 Formatlanmış favoriler:', formattedFavorites)
+            console.log('🔍 Genre verileri:', formattedFavorites.map(f => ({ title: f.title, genre: f.genre, genreType: typeof f.genre, isArray: Array.isArray(f.genre) })))
+            setFavorites(formattedFavorites)
           } else {
             console.error('Favoriler response error:', data.error)
             setError(data.error || 'Favoriler yüklenemedi')
@@ -148,6 +176,11 @@ export default function MyListPage() {
         if (data.success) {
           console.log('✅ Favori çıkarıldı')
           setFavorites(prev => prev.filter(item => item.id !== contentId))
+          
+          // Custom event tetikle - profil sayfasındaki istatistikler güncellensin
+          window.dispatchEvent(new CustomEvent('favoriteChanged', { 
+            detail: { action: 'removed', videoId: contentId } 
+          }))
         } else {
           console.error('❌ Favori çıkarma başarısız:', data.error)
         }
@@ -274,6 +307,20 @@ export default function MyListPage() {
                       </button>
                     </div>
                   </div>
+
+                  {/* Watch Progress Bar */}
+                  {content.watchProgress && (
+                    <div className="absolute bottom-2 left-2 right-2">
+                      <div className="w-full bg-black/50 rounded-full h-1.5 backdrop-blur-sm">
+                        <div 
+                          className="bg-red-500 h-1.5 rounded-full transition-all duration-300"
+                          style={{ 
+                            width: `${content.duration ? Math.min(100, Math.max(0, ((content.watchProgress.watchDuration * 60) / content.duration) * 100)) : 0}%` 
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Content Info */}
@@ -285,7 +332,7 @@ export default function MyListPage() {
                   <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      {content.duration ? `${content.duration} dk` : 'Bilinmiyor'}
+                      {content.duration ? `${Math.floor(content.duration / 60)}d ${Math.floor(content.duration % 60)}m` : 'Bilinmiyor'}
                     </span>
                     <span className="flex items-center gap-1">
                       <Star className="w-4 h4 text-yellow-500" />

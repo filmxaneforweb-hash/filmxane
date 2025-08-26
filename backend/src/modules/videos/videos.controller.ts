@@ -101,6 +101,14 @@ export class VideosController {
     return this.videosService.getAllGenres();
   }
 
+  @Get('watch-progress/:videoId')
+  async getWatchProgress(
+    @Param('videoId') videoId: string,
+    @Headers('authorization') authHeader?: string
+  ) {
+    return this.videosService.getWatchProgress(videoId, authHeader);
+  }
+
   @Get('watch-time')
   async getWatchTime(@Headers('authorization') authHeader?: string) {
     try {
@@ -271,4 +279,6 @@ export class VideosController {
       };
     }
   }
+
+
 }

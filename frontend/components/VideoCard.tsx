@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Play, Heart, Clock, MoreVertical } from 'lucide-react'
+import { Play, Heart, Clock, MoreVertical, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getSafeImageUrl } from '@/lib/utils'
@@ -21,7 +21,6 @@ interface VideoCardProps {
   views?: number
   isFavorite?: boolean
   onFavoriteToggle?: () => void
-  onWatch?: () => void
 }
 
 export function VideoCard({
@@ -37,7 +36,6 @@ export function VideoCard({
   views,
   isFavorite = false,
   onFavoriteToggle,
-  onWatch,
 }: VideoCardProps) {
   // Ensure title is always a string
   const safeTitle = typeof title === 'string' ? title : 'Untitled Video'
@@ -45,6 +43,8 @@ export function VideoCard({
   
   const [localIsFavorite, setLocalIsFavorite] = useState(isFavorite)
   const [isLoading, setIsLoading] = useState(false)
+  const [watchProgress, setWatchProgress] = useState<any>(null)
+  const [showProgressBar, setShowProgressBar] = useState(false)
 
   // Backend'den favori durumunu kontrol et
   useEffect(() => {
@@ -74,17 +74,44 @@ export function VideoCard({
     checkFavoriteStatus()
   }, [id])
 
+  // Watch progress'i fetch et
+  useEffect(() => {
+    const fetchWatchProgress = async () => {
+      try {
+        const token = localStorage.getItem('filmxane_token')
+        if (!token) return
+
+        const response = await fetch(`http://localhost:3005/api/videos/watch-progress/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        const data = await response.json()
+        if (data.success && data.data && data.data.watchDuration > 0) {
+          setWatchProgress(data.data)
+          setShowProgressBar(true)
+        }
+      } catch (error) {
+        console.error('Watch progress fetch error:', error)
+      }
+    }
+
+    fetchWatchProgress()
+  }, [id])
+
   const formatDuration = (seconds: number) => {
     // Float değerleri yuvarla ve negatif değerleri kontrol et
     const safeSeconds = Math.max(0, Math.round(seconds))
     
     const hours = Math.floor(safeSeconds / 3600)
     const minutes = Math.floor((safeSeconds % 3600) / 60)
+    const secs = safeSeconds % 60
     
     if (hours > 0) {
-      return `${hours}h ${minutes}m`
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
     } else {
-      return `${minutes}m`
+      return `${minutes}:${secs.toString().padStart(2, '0')}`
     }
   }
 
@@ -140,7 +167,11 @@ export function VideoCard({
           setLocalIsFavorite(false)
           console.log(`${safeTitle} favorilerden çıkarıldı`)
           
-          // Profil sayfası otomatik güncellenecek (5 saniye)
+          // Custom event tetikle - profil sayfasındaki istatistikler güncellensin
+          window.dispatchEvent(new CustomEvent('favoriteChanged', { 
+            detail: { action: 'removed', videoId: id } 
+          }))
+          
           console.log('✅ Favori durumu güncellendi, profil sayfası otomatik yenilenecek')
         } else {
           console.error('❌ Favori çıkarma başarısız:', data.error || data.message)
@@ -165,7 +196,11 @@ export function VideoCard({
           setLocalIsFavorite(true)
           console.log(`${safeTitle} favorilere eklendi`)
           
-          // Profil sayfası otomatik güncellenecek (5 saniye)
+          // Custom event tetikle - profil sayfasındaki istatistikler güncellensin
+          window.dispatchEvent(new CustomEvent('favoriteChanged', { 
+            detail: { action: 'added', videoId: id } 
+          }))
+          
           console.log('✅ Favori durumu güncellendi, profil sayfası otomatik yenilenecek')
         } else {
           console.error('❌ Favori ekleme başarısız:', data.error || data.message)
@@ -188,13 +223,14 @@ export function VideoCard({
   const currentFavoriteState = onFavoriteToggle ? isFavorite : localIsFavorite
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.02, y: -4 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group relative bg-slate-800/50 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer border border-slate-700/30 hover:border-slate-600/50 backdrop-blur-sm"
-    >
+    <Link href={`/videos/${id}`} className="block">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.02, y: -4 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="group relative bg-slate-800/50 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer border border-slate-700/30 hover:border-slate-600/50 backdrop-blur-sm"
+      >
       {/* Thumbnail - Netflix style */}
       <div className="relative aspect-video overflow-hidden">
         <Image
@@ -212,16 +248,13 @@ export function VideoCard({
         
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        {/* Netflix style play button */}
-        <div 
-          onClick={onWatch}
-          className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
-        >
-          <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
-            <Play className="w-6 h-6 text-black fill-black" />
-          </div>
-        </div>
+         
+         {/* Netflix style play button */}
+         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer">
+           <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
+             <Play className="w-6 h-6 text-black fill-black" />
+           </div>
+         </div>
 
         {/* Duration */}
         {duration && (
@@ -231,9 +264,27 @@ export function VideoCard({
           </div>
         )}
 
+        {/* Watch Progress Bar */}
+        {showProgressBar && watchProgress && (
+          <div className="absolute bottom-2 left-2 right-16">
+            <div className="w-full bg-black/50 rounded-full h-1.5 backdrop-blur-sm">
+              <div 
+                className="bg-red-500 h-1.5 rounded-full transition-all duration-300"
+                style={{ 
+                  width: `${duration && watchProgress.watchDuration ? Math.min(100, Math.max(0, ((watchProgress.watchDuration * 60) / duration) * 100)) : 0}%` 
+                }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Favorite button */}
         <button
-          onClick={handleFavoriteToggle}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            handleFavoriteToggle()
+          }}
           disabled={isLoading}
           className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 backdrop-blur-sm hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -248,7 +299,11 @@ export function VideoCard({
 
         {/* More options button */}
         <button
-          onClick={handleMoreOptions}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            handleMoreOptions()
+          }}
           className="absolute top-2 left-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 backdrop-blur-sm hover:scale-110 opacity-0 group-hover:opacity-100"
         >
           <MoreVertical className="w-4 h-4" />
@@ -284,5 +339,6 @@ export function VideoCard({
         </div>
       </div>
     </motion.div>
+    </Link>
   )
 }

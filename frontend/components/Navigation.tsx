@@ -2,12 +2,21 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, User, Menu, X, LogIn, UserPlus, LogOut, Settings, Heart, User as UserIcon, Film } from 'lucide-react'
+import { Search, User, Menu, X, LogIn, UserPlus, LogOut, Settings, Heart, User as UserIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useContent } from '@/contexts/ContentContext'
 import { apiClient } from '@/lib/api'
+
+// Logo PNG Component
+const FilmxaneLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <img 
+    src="/newlogo.png" 
+    alt="Filmxane Logo" 
+    className={className}
+  />
+)
 
 export function Navigation() {
   const { user, isAuthenticated, login, register, logout } = useAuth()
@@ -189,10 +198,10 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <motion.div 
-              className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-red-500/25 transition-all duration-300"
+              className="w-10 h-10 bg-black rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-black/25 transition-all duration-300"
               whileHover={{ scale: 1.05, rotate: 5 }}
             >
-              <Film className="w-6 h-6 text-white" />
+              <FilmxaneLogo className="w-6 h-6" />
             </motion.div>
             <div className="flex flex-col">
               <motion.h1 
@@ -272,7 +281,7 @@ export function Navigation() {
                                 onClick={() => setIsSearchOpen(false)}
                               >
                                 <div className="w-12 h-8 bg-slate-700 rounded flex items-center justify-center">
-                                  <Film className="w-4 h-4 text-slate-400" />
+                                  <FilmxaneLogo className="w-4 h-4" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-white text-sm font-medium truncate">

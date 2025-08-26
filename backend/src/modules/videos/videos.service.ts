@@ -150,11 +150,103 @@ export class VideosService {
   }
 
   async incrementViews(id: string): Promise<void> {
-    await this.videosRepository.increment({ id }, 'views', 1);
+    await this.videosRepository
+      .createQueryBuilder()
+      .update(Video)
+      .set({ views: () => 'views + 1' })
+      .where('id = :id', { id })
+      .execute();
   }
 
   async incrementShares(id: string): Promise<void> {
-    await this.videosRepository.increment({ id }, 'shares', 1);
+    await this.videosRepository
+      .createQueryBuilder()
+      .update(Video)
+      .set({ shares: () => 'shares + 1' })
+      .where('id = :id', { id })
+      .execute();
+  }
+
+  async getWatchProgress(videoId: string, authHeader?: string): Promise<any> {
+    try {
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return {
+          success: false,
+          message: 'Kullanıcı kimlik doğrulaması gerekli'
+        };
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+      // JWT token'dan user ID'yi çıkar
+      const userId = this.extractUserIdFromToken(token);
+      
+      if (!userId) {
+        return {
+          success: false,
+          message: 'Geçersiz token'
+        };
+      }
+
+      // Watch history'yi bul
+      const watchHistory = await this.watchHistoryRepository.findOne({
+        where: { userId, videoId }
+      });
+
+      if (!watchHistory) {
+        return {
+          success: true,
+          data: {
+            watchDuration: 0,
+            isCompleted: false,
+            lastWatchedAt: null
+          }
+        };
+      }
+
+      return {
+        success: true,
+        data: {
+          watchDuration: watchHistory.watchDuration,
+          isCompleted: watchHistory.isCompleted,
+          lastWatchedAt: watchHistory.lastWatchedAt
+        }
+      };
+    } catch (error) {
+      console.error('Watch progress alınamadı:', error);
+      return {
+        success: false,
+        message: 'Watch progress alınamadı'
+      };
+    }
+  }
+
+  // Basit token parsing (gerçek uygulamada JWT service kullanılmalı)
+  private extractUserIdFromToken(token: string): string | null {
+    try {
+      // JWT token'ı decode et
+      const base64Url = token.split('.')[1];
+      if (!base64Url) {
+        // Eğer JWT formatında değilse, localStorage'dan gelen token olabilir
+        try {
+          const decoded = Buffer.from(token, 'base64').toString();
+          const parsed = JSON.parse(decoded);
+          return parsed.userId || parsed.sub || null;
+        } catch {
+          return null;
+        }
+      }
+      
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      
+      const payload = JSON.parse(jsonPayload);
+      return payload.userId || payload.sub || null;
+    } catch (error) {
+      console.error('Token parsing hatası:', error);
+      return null;
+    }
   }
 
   async fixVideoUrls(): Promise<{ updated: number; total: number }> {

@@ -91,8 +91,8 @@ const Layout: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: 'spring', stiffness: 400 }}
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-red-500 via-pink-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-lg">F</span>
+                <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center shadow-lg">
+                  <img src="/src/assets/newlogo.png" alt="Filmxane Logo" className="w-8 h-8" />
                 </div>
                 <h1 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Filmxane Admin</h1>
               </motion.div>

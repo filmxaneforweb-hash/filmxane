@@ -91,7 +91,12 @@ export default function HomePage() {
                   <span>{movies[0]?.year}</span>
                 )}
                 {movies[0]?.duration && (
-                  <span>{Math.floor((movies[0]?.duration || 0) / 60)}d</span>
+                  <span>
+                    {movies[0]?.duration > 60 ? 
+                      `${Math.floor((movies[0]?.duration || 0) / 60)}d ${Math.floor((movies[0]?.duration || 0) % 60)}m` : 
+                      `${Math.floor((movies[0]?.duration || 0))}s`
+                    }
+                  </span>
                 )}
                 <span className="bg-gray-800 px-2 py-1 rounded text-sm">HD</span>
               </motion.div>
@@ -122,6 +127,20 @@ export default function HomePage() {
                   <span className="mr-2">▶️</span>
                   Bixwîne
                 </motion.button>
+                
+                {/* Fragman Butonu - Sadece Filmler İçin */}
+                {movies[0]?.type === 'movie' && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => window.location.href = `/videos/${movies[0]?.id}?trailer=true`}
+                    className="px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg flex items-center justify-center cursor-pointer"
+                  >
+                    <span className="mr-2">🎬</span>
+                    Fragmanê Bixwîne
+                  </motion.button>
+                )}
+                
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -348,10 +367,10 @@ export default function HomePage() {
                     {/* Description */}
                     {featuredMovie.description && (
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
-                        <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
-                          <span className="w-1 h-6 bg-blue-500 rounded-full"></span>
-                          Açıklama
-                        </h3>
+                                                 <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
+                           <span className="w-1 h-6 bg-blue-500 rounded-full"></span>
+                           Daxuyanî
+                         </h3>
                         <p className="text-gray-300 text-lg leading-relaxed">
                           {featuredMovie.description}
                         </p>
@@ -361,10 +380,10 @@ export default function HomePage() {
                     {/* Genre Tags */}
                     {featuredMovie.genre && (
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
-                        <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
-                          <Award className="w-6 h-6 text-purple-400" />
-                          Türler
-                        </h3>
+                                                 <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
+                           <Award className="w-6 h-6 text-purple-400" />
+                           Cureyên Fîlmê
+                         </h3>
                         <div className="flex flex-wrap gap-3">
                           {(typeof featuredMovie.genre === 'string' ? JSON.parse(featuredMovie.genre) : featuredMovie.genre).map((genre: any, index: any) => (
                             <span
@@ -381,20 +400,20 @@ export default function HomePage() {
                     {/* Cast & Crew */}
                     {featuredMovie.director && (
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
-                        <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
-                          <Users className="w-6 h-6 text-green-400" />
-                          Yönetmen
-                        </h3>
+                                                 <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
+                           <Users className="w-6 h-6 text-green-400" />
+                           Derhêner
+                         </h3>
                         <p className="text-gray-300 text-lg">{featuredMovie.director}</p>
                       </div>
                     )}
 
                     {featuredMovie.cast && featuredMovie.cast.length > 0 && (
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
-                        <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
-                          <Users className="w-6 h-6 text-yellow-400" />
-                          Oyuncular
-                        </h3>
+                                                 <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
+                           <Users className="w-6 h-6 text-yellow-400" />
+                           Lîstikvan
+                         </h3>
                         <div className="flex flex-wrap gap-3">
                           {featuredMovie.cast.map((actor: any, index: any) => (
                             <span
@@ -413,76 +432,76 @@ export default function HomePage() {
                   <div className="space-y-6">
                     {/* Quick Stats */}
                     <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
-                      <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-                        <Film className="w-6 h-6 text-red-400" />
-                        Hızlı Bilgiler
-                      </h3>
+                                             <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
+                         <Film className="w-6 h-6 text-red-400" />
+                         Agahiyên Bilez
+                       </h3>
                       <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-400">Tür:</span>
-                          <span className="text-white font-medium">Film</span>
-                        </div>
-                        {featuredMovie.year && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Yıl:</span>
-                            <span className="text-white font-medium">{featuredMovie.year}</span>
-                          </div>
-                        )}
-                        {featuredMovie.duration && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Süre:</span>
-                            <span className="text-white font-medium">{Math.floor(featuredMovie.duration / 60)} dakika</span>
-                          </div>
-                        )}
-                        {featuredMovie.rating && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Puan:</span>
-                            <span className="text-white font-medium flex items-center gap-2">
-                              <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                              {featuredMovie.rating}
-                            </span>
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-400">Görüntülenme:</span>
-                          <span className="text-white font-medium flex items-center gap-2">
-                            <Eye className="w-5 h-5 text-blue-400" />
-                            {featuredMovie.views || 0}
-                          </span>
-                        </div>
+                                                 <div className="flex items-center justify-between">
+                           <span className="text-gray-400">Cure:</span>
+                           <span className="text-white font-medium">Fîlm</span>
+                         </div>
+                         {featuredMovie.year && (
+                           <div className="flex items-center justify-between">
+                             <span className="text-gray-400">Sal:</span>
+                             <span className="text-white font-medium">{featuredMovie.year}</span>
+                           </div>
+                         )}
+                         {featuredMovie.duration && (
+                           <div className="flex items-center justify-between">
+                             <span className="text-gray-400">Dirêjahî:</span>
+                             <span className="text-white font-medium">{Math.floor(featuredMovie.duration / 60)} deqîqe</span>
+                           </div>
+                         )}
+                         {featuredMovie.rating && (
+                           <div className="flex items-center justify-between">
+                             <span className="text-gray-400">Nirx:</span>
+                             <span className="text-white font-medium flex items-center gap-2">
+                               <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                               {featuredMovie.rating}
+                             </span>
+                           </div>
+                         )}
+                         <div className="flex items-center justify-between">
+                           <span className="text-gray-400">Dîtin:</span>
+                           <span className="text-white font-medium flex items-center gap-2">
+                             <Eye className="w-5 h-5 text-blue-400" />
+                             {featuredMovie.views || 0}
+                           </span>
+                         </div>
                       </div>
                     </div>
 
                     {/* Technical Info */}
                     <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
-                      <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-                        <span className="w-1 h-6 bg-green-500 rounded-full"></span>
-                        Teknik Bilgiler
-                      </h3>
+                                             <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
+                         <span className="w-1 h-6 bg-green-500 rounded-full"></span>
+                         Agahiyên Teknîkî
+                       </h3>
                       <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-400">Kalite:</span>
-                          <span className="text-white font-medium bg-green-600/20 text-green-400 px-3 py-1 rounded-lg text-sm">
-                            HD
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-400">Format:</span>
-                          <span className="text-white font-medium">MP4</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-400">Çözünürlük:</span>
-                          <span className="text-white font-medium">1920x1080</span>
-                        </div>
+                                                 <div className="flex items-center justify-between">
+                           <span className="text-gray-400">Kalîte:</span>
+                           <span className="text-white font-medium bg-green-600/20 text-green-400 px-3 py-1 rounded-lg text-sm">
+                             HD
+                           </span>
+                         </div>
+                         <div className="flex items-center justify-between">
+                           <span className="text-gray-400">Format:</span>
+                           <span className="text-white font-medium">MP4</span>
+                         </div>
+                         <div className="flex items-center justify-between">
+                           <span className="text-gray-400">Çareserî:</span>
+                           <span className="text-white font-medium">1920x1080</span>
+                         </div>
                       </div>
                     </div>
 
                     {/* Action Buttons */}
                     <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
-                      <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-                        <span className="w-1 h-6 bg-red-500 rounded-full"></span>
-                        Hızlı İşlemler
-                      </h3>
+                                             <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
+                         <span className="w-1 h-6 bg-red-500 rounded-full"></span>
+                         Çalakiyên Bilez
+                       </h3>
                       <div className="space-y-3">
                         <motion.button
                           whileHover={{ scale: 1.02 }}
@@ -506,7 +525,7 @@ export default function HomePage() {
                               })
                             } else {
                               navigator.clipboard.writeText(window.location.href)
-                              alert('Link panoya kopyalandı!')
+                                                             alert('Lînk hatibe kopîkirin li panoyê!')
                             }
                           }}
                           className="w-full py-3 px-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-3"

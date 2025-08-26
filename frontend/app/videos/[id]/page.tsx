@@ -29,6 +29,13 @@ export default function VideoPlayerPage() {
   const [isLoadingFavorite, setIsLoadingFavorite] = useState(false)
   const [isLoadingShare, setIsLoadingShare] = useState(false)
   const [showInfoModal, setShowInfoModal] = useState(false)
+  const [showTrailer, setShowTrailer] = useState(false)
+  const [watchProgress, setWatchProgress] = useState<any>(null)
+  const [showResumeButton, setShowResumeButton] = useState(false)
+  const [resumeTime, setResumeTime] = useState(0)
+  const [isSeeking, setIsSeeking] = useState(false)
+  const [seekTime, setSeekTime] = useState(0)
+  const [showStartOptions, setShowStartOptions] = useState(false) // Başlangıçta false
   const playerRef = useRef<ReactPlayer>(null)
 
   useEffect(() => {
@@ -41,30 +48,37 @@ export default function VideoPlayerPage() {
           const videos = await response.json()
           const foundVideo = videos.find((v: any) => v.id === videoId)
           if (foundVideo) {
+            console.log('🔍 Video duration debug:', {
+              id: foundVideo.id,
+              title: foundVideo.title,
+              duration: foundVideo.duration,
+              durationType: typeof foundVideo.duration,
+              durationRaw: foundVideo.duration
+            })
             setVideo(foundVideo)
-            // İlgili videoları da getir
-            const related = videos
-              .filter((v: any) => {
-                if (v.id === videoId) return false
-                if (!v.genre || !foundVideo.genre) return false
-                
-                // Genre'ları parse et (JSON string olarak saklanıyor)
-                const vGenres = typeof v.genre === 'string' ? JSON.parse(v.genre) : v.genre
-                const foundGenres = typeof foundVideo.genre === 'string' ? JSON.parse(foundVideo.genre) : foundVideo.genre
-                
-                return vGenres.some((g: any) => foundGenres.includes(g))
-              })
-              .slice(0, 6)
-            setRelatedVideos(related)
-          } else {
-            setError('Video bulunamadı')
-          }
-        } else {
-          setError('Video yüklenemedi')
-        }
-      } catch (error) {
-        console.error('Error fetching video:', error)
-        setError('Video yüklenirken hata oluştu')
+                    // Vîdyoyên têkildar jî bihêle
+        const related = videos
+          .filter((v: any) => {
+            if (v.id === videoId) return false
+            if (!v.genre || !foundVideo.genre) return false
+            
+            // Genre'yan parse bike (JSON string wekî tê tomarkirin)
+            const vGenres = typeof v.genre === 'string' ? JSON.parse(v.genre) : v.genre
+            const foundGenres = typeof foundVideo.genre === 'string' ? JSON.parse(foundVideo.genre) : foundVideo.genre
+            
+            return vGenres.some((g: any) => foundGenres.includes(g))
+          })
+          .slice(0, 6)
+        setRelatedVideos(related)
+      } else {
+        setError('Vîdyo nehatibe dîtin')
+      }
+    } else {
+      setError('Vîdyo nehatibe barkirin')
+    }
+  } catch (error) {
+    console.error('Çewtiya barkirina vîdyoyê:', error)
+    setError('Di barkirina vîdyoyê de çewtiya çêbûye')
       } finally {
         setLoading(false)
       }
@@ -75,9 +89,96 @@ export default function VideoPlayerPage() {
     }
   }, [videoId])
 
+  // Watch progress'i fetch et
+  useEffect(() => {
+    const fetchWatchProgress = async () => {
+      if (!videoId || !isAuthenticated) return;
+      
+      try {
+        const response = await apiClient.getWatchProgress(videoId);
+        if (response.success && response.data) {
+          setWatchProgress(response.data);
+          
+                  // Eger berê hatibe temaşekirin û nehatibe temamkirin resume butonê nîşan bide
+        if (response.data.watchDuration > 0 && !response.data.isCompleted) {
+          setShowResumeButton(true);
+          // Deqîqeyê bi saniyeyê nû bike (backend bi deqîqeyê tê tomarkirin)
+          setResumeTime(response.data.watchDuration * 60);
+        }
+        }
+      } catch (error) {
+        console.error('Watch progress fetch error:', error);
+      }
+    };
+
+    fetchWatchProgress();
+  }, [videoId, isAuthenticated]);
+
+  // Video yüklendiğinde start options'ı göster
+  useEffect(() => {
+    // Sadece daha önce izlenmiş videolarda start options'ı göster
+    if (video && !isPlaying && watchProgress && watchProgress.watchDuration > 0) {
+      setShowStartOptions(true);
+    }
+  }, [video, isPlaying, watchProgress]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!playerRef.current) return;
+      
+      switch (event.key) {
+        case ' ':
+          event.preventDefault();
+          setIsPlaying(!isPlaying);
+          break;
+        case 'ArrowLeft':
+          event.preventDefault();
+          const newTimeLeft = Math.max(0, currentTime - 10);
+          playerRef.current.seekTo(newTimeLeft);
+          setCurrentTime(newTimeLeft);
+          // Film durmasın
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          const newTimeRight = Math.min(duration, currentTime + 10);
+          playerRef.current.seekTo(newTimeRight);
+          setCurrentTime(newTimeRight);
+          // Film durmasın
+          break;
+        case 'm':
+        case 'M':
+          event.preventDefault();
+          setIsMuted(!isMuted);
+          break;
+        case 'f':
+        case 'F':
+          event.preventDefault();
+          // Fullscreen toggle
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          } else {
+            document.documentElement.requestFullscreen();
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPlaying, currentTime, duration, isMuted]);
+
   const formatDuration = (seconds: number) => {
     // Float değerleri yuvarla ve negatif değerleri kontrol et
     const safeSeconds = Math.max(0, Math.round(seconds))
+    
+    console.log('🔍 formatDuration debug:', {
+      input: seconds,
+      safeSeconds,
+      hours: Math.floor(safeSeconds / 3600),
+      minutes: Math.floor((safeSeconds % 3600) / 60),
+      secs: safeSeconds % 60
+    })
     
     const hours = Math.floor(safeSeconds / 3600)
     const minutes = Math.floor((safeSeconds % 3600) / 60)
@@ -100,9 +201,51 @@ export default function VideoPlayerPage() {
     return count.toString()
   }
 
-  // View count'ı backend'e gönder
+  // Kaldığın yerden devam et
+  const handleResume = () => {
+    if (playerRef.current && resumeTime > 0) {
+      playerRef.current.seekTo(resumeTime);
+      setIsPlaying(true);
+      setShowResumeButton(false);
+    }
+  }
+
+  // Progress bar'a tıklayınca o noktaya atla
+  const handleProgressBarClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!duration) return;
+    
+    const progressBar = event.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const progressBarWidth = rect.width;
+    const clickPercentage = clickX / progressBarWidth;
+    const newTime = duration * clickPercentage;
+    
+    setSeekTime(newTime);
+    setIsSeeking(true);
+    
+    if (playerRef.current) {
+      playerRef.current.seekTo(newTime);
+      setCurrentTime(newTime);
+      // Film durmasın, mevcut playing state'ini koru
+      // setIsPlaying(false); // Bu satırı kaldırdık
+    }
+    
+    // Seeking state'ini kısa süre sonra sıfırla
+    setTimeout(() => {
+      setIsSeeking(false);
+    }, 100);
+  }
+
+  // View count'ı backend'e gönder - sadece bir kez
   const incrementViewCount = async () => {
     try {
+      // Eğer zaten artırıldıysa tekrar artırma
+      if (video && video.views && video.views > 0) {
+        console.log('✅ Hejmara dîtinê berê hatibe zêdekirin, dîsa nayê zêdekirin')
+        return
+      }
+
       const response = await fetch(`http://localhost:3005/api/videos/${videoId}/views`, {
         method: 'POST',
         headers: {
@@ -111,8 +254,8 @@ export default function VideoPlayerPage() {
       })
       
       if (response.ok) {
-        console.log('✅ View count incremented successfully')
-        // Local state'i de güncelle
+        console.log('✅ Hejmara dîtinê bi serkeftî hatibe zêdekirin')
+        // Local state'ê jî nû bike
         if (video) {
           setVideo({
             ...video,
@@ -121,7 +264,7 @@ export default function VideoPlayerPage() {
         }
       }
     } catch (error) {
-      console.error('❌ Failed to increment view count:', error)
+      console.error('❌ Hejmara dîtinê nehatibe zêdekirin:', error)
     }
   }
 
@@ -131,6 +274,9 @@ export default function VideoPlayerPage() {
       const token = localStorage.getItem('filmxane_token')
       if (!token) return
 
+      // Saniyeyi dakikaya çevir (doğru hesaplama)
+      const watchDurationMinutes = Math.round(watchDuration / 60)
+
       const response = await fetch('http://localhost:3005/api/videos/watch-history', {
         method: 'POST',
         headers: {
@@ -139,37 +285,44 @@ export default function VideoPlayerPage() {
         },
         body: JSON.stringify({
           videoId: videoId,
-          watchDuration: Math.round(watchDuration / 60), // Saniyeyi dakikaya çevir
+          watchDuration: watchDurationMinutes, // Dakika cinsinden
           isCompleted: isCompleted
         })
       })
       
       if (response.ok) {
-        console.log('✅ İzleme geçmişi kaydedildi')
+        console.log('✅ Dîroka temaşekirinê hatibe tomarkirin:', watchDurationMinutes, 'deqîqe')
       } else {
-        console.error('❌ İzleme geçmişi kaydedilemedi:', response.status)
+        console.error('❌ Dîroka temaşekirinê nehatibe tomarkirin:', response.status)
       }
     } catch (error) {
-      console.error('❌ İzleme geçmişi kaydedilemedi:', error)
+      console.error('❌ Dîroka temaşekirinê nehatibe tomarkirin:', error)
     }
   }
 
+  // Video oynatıldığında
   const handlePlay = () => {
     setIsPlaying(true)
-    // Video oynatıldığında view count'ı artır
-    incrementViewCount()
+    setShowStartOptions(false) // Start options'ı gizle
   }
-  const handlePause = () => setIsPlaying(false)
+
+  // Video duraklatıldığında
+  const handlePause = () => {
+    setIsPlaying(false)
+    // Start options'ı gizle - video duraklatıldığında görünmesin
+    setShowStartOptions(false)
+  }
+
   const handleProgress = (state: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) => {
     // Süreyi yuvarla ve negatif değerleri engelle
     const safeTime = Math.max(0, Math.round(state.playedSeconds * 100) / 100)
     setCurrentTime(safeTime)
     
-    // Her 10 saniyede bir izleme geçmişini kaydet
-    if (Math.round(safeTime) % 10 === 0 && safeTime > 0) {
-      console.log('📺 İzleme geçmişi kaydediliyor:', safeTime, 'saniye')
-      saveWatchHistory(safeTime, false)
-    }
+          // Her 30 saniyede bir dîroka temaşekirinê tomarke (zêde zêde tomarkirinê nehêle)
+      if (Math.round(safeTime) % 30 === 0 && safeTime > 0) {
+        console.log('📺 Dîroka temaşekirinê tê tomarkirin:', safeTime, 'saniye')
+        saveWatchHistory(safeTime, false)
+      }
   }
   const handleDuration = (duration: number) => {
     // Toplam süreyi yuvarla ve negatif değerleri engelle
@@ -194,10 +347,10 @@ export default function VideoPlayerPage() {
   // Video tamamlandığında
   const handleEnded = () => {
     setIsPlaying(false)
-    // Video tamamlandı olarak işaretle
-    if (duration > 0) {
-      saveWatchHistory(duration, true)
-    }
+            // Vîdyoyê wekî temamkirî nîşan bide
+        if (duration > 0) {
+          saveWatchHistory(duration, true)
+        }
   }
 
   // Favori ekleme/çıkarma işlevi
@@ -220,12 +373,12 @@ export default function VideoPlayerPage() {
       
       if (response.ok) {
         setIsFavorite(!isFavorite)
-        console.log(`✅ ${isFavorite ? 'Favorilerden çıkarıldı' : 'Favorilere eklendi'}`)
+        console.log(`✅ ${isFavorite ? 'Ji dilxwaziyan hatibe derxistin' : 'Bixe dilxwaziyan'}`)
       } else {
-        console.error('❌ Favori işlemi başarısız')
+        console.error('❌ Çalakiya dilxwaziyê nehatibe serkeftin')
       }
     } catch (error) {
-      console.error('❌ Favori işlemi hatası:', error)
+      console.error('❌ Çewtiya çalakiya dilxwaziyê:', error)
     } finally {
       setIsLoadingFavorite(false)
     }
@@ -248,10 +401,10 @@ export default function VideoPlayerPage() {
       } else {
         // Fallback: URL'yi panoya kopyala
         await navigator.clipboard.writeText(window.location.href)
-        alert('Video linki panoya kopyalandı!')
+        alert('Lînka vîdyoyê hatibe kopîkirin li panoyê!')
       }
       
-      // Backend'e paylaşım sayısını gönder
+      // Backend'e hejmara parvekirinê bişîne
       try {
         await fetch(`http://localhost:3005/api/videos/${video.id}/share`, {
           method: 'POST',
@@ -260,13 +413,13 @@ export default function VideoPlayerPage() {
           }
         })
       } catch (error) {
-        console.error('❌ Paylaşım sayısı güncellenemedi:', error)
+        console.error('❌ Hejmara parvekirinê nehatibe nûkirin:', error)
       }
       
     } catch (error) {
-      console.error('❌ Paylaşım hatası:', error)
+      console.error('❌ Çewtiya parvekirinê:', error)
       // Fallback: Basit alert
-      alert('Paylaşım hatası oluştu')
+      alert('Çewtiya parvekirinê çêbûye')
     } finally {
       setIsLoadingShare(false)
     }
@@ -302,6 +455,13 @@ export default function VideoPlayerPage() {
       console.error('❌ Favori durumu kontrol edilemedi:', error)
     }
   }
+
+  // Video yüklendiğinde view count'ı artır
+  useEffect(() => {
+    if (video && !loading) {
+      incrementViewCount()
+    }
+  }, [video, loading])
 
   if (loading) {
     return (
@@ -364,10 +524,8 @@ export default function VideoPlayerPage() {
                     whileTap={{ scale: 0.9 }}
                     className="bg-red-600 hover:bg-red-700 text-white rounded-full p-8 shadow-2xl transition-colors duration-300"
                     onClick={() => {
-                      if (!isPlaying) {
-                        incrementViewCount()
-                      }
                       setIsPlaying(!isPlaying)
+                      setShowStartOptions(false) // Start options'ı gizle
                     }}
                   >
                     {isPlaying ? (
@@ -414,15 +572,124 @@ export default function VideoPlayerPage() {
             }
           />
 
+          {/* Resume Button - Kaldığın yerden devam et */}
+          {showResumeButton && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute top-8 left-8 z-20"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleResume}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg flex items-center gap-2"
+              >
+                <Play className="w-5 h-5" />
+                Ji Cihê Te Bê Domandin ({formatDuration(resumeTime)})
+              </motion.button>
+            </motion.div>
+          )}
+
+          {/* Video Start Options - Filmin ortasında */}
+          {showStartOptions && (
+            <div className="absolute inset-0 flex items-center justify-center z-20">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="bg-black/80 backdrop-blur-md rounded-2xl p-8 text-center"
+              >
+                <h2 className="text-2xl font-bold text-white mb-6">Vîdyoya Temaşekirinê</h2>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {/* Baştan başla butonu */}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      if (playerRef.current) {
+                        playerRef.current.seekTo(0);
+                        setIsPlaying(true);
+                        setShowResumeButton(false);
+                        setShowStartOptions(false);
+                      }
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg flex items-center gap-3 text-lg"
+                  >
+                    <Play className="w-6 h-6" />
+                    Ji Destpêkê Dest Pêke
+                  </motion.button>
+
+                  {/* Kaldığın yerden devam et butonu */}
+                  {showResumeButton && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        handleResume();
+                        setShowStartOptions(false);
+                      }}
+                      className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg flex items-center gap-3 text-lg"
+                    >
+                      <Play className="w-6 h-6" />
+                      Ji Cihê Te Bê Domandin
+                      <span className="text-sm bg-red-700 px-2 py-1 rounded">
+                        {formatDuration(resumeTime)}
+                      </span>
+                    </motion.button>
+                  )}
+                </div>
+                
+                {/* Progress bilgisi */}
+                {watchProgress && (
+                  <div className="mt-6 p-4 bg-gray-800/50 rounded-lg">
+                    <div className="text-gray-300 text-sm mb-2">Pêşketina Temaşekirinê</div>
+                    <div className="w-full bg-gray-600 rounded-full h-3">
+                      <div 
+                        className="bg-red-500 h-3 rounded-full transition-all duration-300"
+                        style={{ 
+                          width: `${duration > 0 ? Math.min(100, Math.max(0, ((watchProgress.watchDuration * 60) / duration) * 100)) : 0}%` 
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                      <span>{formatDuration(watchProgress.watchDuration * 60)}</span>
+                      <span>{formatDuration(duration)}</span>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          )}
+
           {/* Enhanced Video Controls */}
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/60 to-transparent p-8">
             {/* Progress Bar */}
             <div className="mb-6">
-              <div className="w-full bg-gray-600/30 rounded-full h-2 mb-2">
+              <div 
+                className="w-full bg-gray-600/30 rounded-full h-2 mb-2 cursor-pointer relative group"
+                onClick={handleProgressBarClick}
+              >
                 <div 
-                  className="bg-red-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-red-600 h-2 rounded-full transition-all duration-300 group-hover:bg-red-500"
                   style={{ width: `${duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0}%` }}
                 />
+                {/* Seeking indicator */}
+                {isSeeking && (
+                  <div 
+                    className="absolute top-0 h-2 bg-white rounded-full transition-all duration-100"
+                    style={{ 
+                      width: '4px',
+                      left: `${duration > 0 ? Math.min(100, Math.max(0, (seekTime / duration) * 100)) : 0}%`,
+                      transform: 'translateX(-50%)'
+                    }}
+                  />
+                )}
+                {/* Hover tooltip */}
+                <div className="absolute bottom-4 left-0 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  Ji bo çûna wê cihê bikirtîne
+                </div>
               </div>
               <div className="flex justify-between text-white text-sm">
                 <span>{formatDuration(currentTime)}</span>
@@ -437,10 +704,8 @@ export default function VideoPlayerPage() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => {
-                    if (!isPlaying) {
-                      incrementViewCount()
-                    }
                     setIsPlaying(!isPlaying)
+                    setShowStartOptions(false) // Start options'ı gizle
                   }}
                   className="bg-white text-black rounded-full p-4 hover:bg-gray-200 transition-colors shadow-lg"
                 >
@@ -525,7 +790,7 @@ export default function VideoPlayerPage() {
                     className="flex items-center gap-2 px-4 py-2 bg-red-600/20 text-red-400 rounded-xl border border-red-500/30 hover:bg-red-600/30 transition-all duration-200"
                   >
                     <Info className="w-5 h-5" />
-                    <span className="hidden sm:inline">Detaylı Bilgi</span>
+                    <span className="hidden sm:inline">Agahiyên Detayî</span>
                   </motion.button>
                 </div>
                 
@@ -543,7 +808,9 @@ export default function VideoPlayerPage() {
                   {(video as any).duration && (
                     <div className="flex items-center gap-3">
                       <Clock className="w-7 h-7 text-green-400" />
-                      <span className="text-xl font-semibold">{formatDuration((video as any).duration)}</span>
+                      <span className="text-xl font-semibold">
+                        {formatDuration((video as any).duration)}
+                      </span>
                     </div>
                   )}
                   {video.year && (
@@ -558,7 +825,7 @@ export default function VideoPlayerPage() {
                   <div className="mb-8">
                     <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
                       <span className="w-1 h-6 bg-green-500 rounded-full"></span>
-                      Açıklama
+                      Daxuyanî
                     </h3>
                     <p className="text-gray-300 text-lg leading-relaxed">
                       {video.description}
@@ -571,7 +838,7 @@ export default function VideoPlayerPage() {
                   <div className="mb-8">
                     <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
                       <span className="w-1 h-6 bg-blue-500 rounded-full"></span>
-                      Türler
+                      Cureyên Fîlmê
                     </h3>
                     <div className="flex flex-wrap gap-3">
                       {(typeof video.genre === 'string' ? JSON.parse(video.genre) : video.genre).map((genre: any, index: any) => (
@@ -591,7 +858,7 @@ export default function VideoPlayerPage() {
                   <div className="mb-6">
                     <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
                       <span className="w-1 h-6 bg-purple-500 rounded-full"></span>
-                      Yönetmen
+                      Derhêner
                     </h3>
                     <p className="text-gray-300 text-lg">{video.director}</p>
                   </div>
@@ -601,7 +868,7 @@ export default function VideoPlayerPage() {
                   <div className="mb-6">
                     <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
                       <span className="w-1 h-6 bg-green-500 rounded-full"></span>
-                      Oyuncular
+                      Lîstikvan
                     </h3>
                     <div className="flex flex-wrap gap-3">
                       {video.cast.map((actor, index) => (
@@ -631,7 +898,7 @@ export default function VideoPlayerPage() {
                       } ${isLoadingFavorite ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                      {isFavorite ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+                      {isFavorite ? 'Ji Dilxwaziyan Bîre' : 'Bixe Dilxwaziyan'}
                     </motion.button>
                   ) : (
                     <motion.button
@@ -641,9 +908,23 @@ export default function VideoPlayerPage() {
                       className="px-8 py-4 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-500 transition-colors flex items-center gap-3"
                     >
                       <Heart className="w-5 h-5" />
-                      Giriş Yap ve Favorilere Ekle
+                      Biket Nav û Bixe Dilxwaziyan
                     </motion.button>
                   )}
+                  
+                  {/* Butona Fragmanê - Tenê ji bo Fîlman */}
+                  {isMovie && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setShowTrailer(true)}
+                      className="px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center gap-3"
+                    >
+                      <Play className="w-5 h-5" />
+                      Fragmanê Bixwîne
+                    </motion.button>
+                  )}
+                  
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -654,7 +935,7 @@ export default function VideoPlayerPage() {
                     }`}
                   >
                     <Share2 className="w-5 h-5" />
-                    {isLoadingShare ? 'Paylaşılıyor...' : 'Paylaş'}
+                    {isLoadingShare ? 'Tê Parvekirin...' : 'Parveke'}
                   </motion.button>
                 </div>
               </motion.div>
@@ -670,7 +951,7 @@ export default function VideoPlayerPage() {
               >
                 <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                   <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
-                  İlgili İçerikler
+                  Naverokên Têkildar
                 </h3>
                 
                 {relatedVideos.length > 0 ? (
@@ -699,7 +980,7 @@ export default function VideoPlayerPage() {
                   <div className="text-center py-12">
                     <div className="text-gray-500 text-6xl mb-4">🎬</div>
                     <p className="text-gray-400 text-lg">
-                      Henüz ilgili içerik bulunmuyor
+                      Hîn naverokên têkildar tune ne
                     </p>
                   </div>
                 )}
@@ -732,7 +1013,7 @@ export default function VideoPlayerPage() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-3xl font-bold text-white flex items-center gap-3">
                     <span className="w-2 h-8 bg-red-500 rounded-full"></span>
-                    {video.title} - Detaylı Bilgi
+                    {video.title} - Agahiyên Detayî
                   </h2>
                   <motion.button
                     whileHover={{ scale: 1.1, rotate: 90 }}
@@ -754,28 +1035,28 @@ export default function VideoPlayerPage() {
                     <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                       <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
                         <Film className="w-6 h-6 text-red-400" />
-                        Temel Bilgiler
+                        Agahiyên Bingehîn
                       </h3>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-400">Tür:</span>
-                          <span className="text-white font-medium">{isMovie ? 'Film' : 'Dizi'}</span>
+                          <span className="text-gray-400">Cure:</span>
+                          <span className="text-white font-medium">{isMovie ? 'Fîlm' : 'Rêzefîlm'}</span>
                         </div>
                         {video.year && (
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Yıl:</span>
+                            <span className="text-gray-400">Sal:</span>
                             <span className="text-white font-medium">{video.year}</span>
                           </div>
                         )}
                         {(video as any).duration && (
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Süre:</span>
+                            <span className="text-gray-400">Dirêjahî:</span>
                             <span className="text-white font-medium">{formatDuration((video as any).duration)}</span>
                           </div>
                         )}
                         {video.rating && (
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Puan:</span>
+                            <span className="text-gray-400">Nirx:</span>
                             <span className="text-white font-medium flex items-center gap-2">
                               <Star className="w-5 h-5 text-yellow-500 fill-current" />
                               {video.rating}
@@ -783,7 +1064,7 @@ export default function VideoPlayerPage() {
                           </div>
                         )}
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-400">Görüntülenme:</span>
+                          <span className="text-gray-400">Dîtin:</span>
                           <span className="text-white font-medium flex items-center gap-2">
                             <Eye className="w-5 h-5 text-blue-400" />
                             {formatViewCount(video.views || 0)}
@@ -797,7 +1078,7 @@ export default function VideoPlayerPage() {
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                         <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
                           <Award className="w-6 h-6 text-blue-400" />
-                          Türler
+                          Cureyên Fîlmê
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {(typeof video.genre === 'string' ? JSON.parse(video.genre) : video.genre).map((genre: any, index: any) => (
@@ -817,7 +1098,7 @@ export default function VideoPlayerPage() {
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                         <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
                           <span className="w-1 h-6 bg-green-500 rounded-full"></span>
-                          Açıklama
+                          Daxuyanî
                         </h3>
                         <p className="text-gray-300 leading-relaxed">
                           {video.description}
@@ -833,7 +1114,7 @@ export default function VideoPlayerPage() {
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                         <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
                           <Users className="w-6 h-6 text-purple-400" />
-                          Yönetmen
+                          Derhêner
                         </h3>
                         <p className="text-gray-300">{video.director}</p>
                       </div>
@@ -843,7 +1124,7 @@ export default function VideoPlayerPage() {
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                         <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
                           <Users className="w-6 h-6 text-green-400" />
-                          Oyuncular
+                          Lîstikvan
                         </h3>
                         <div className="space-y-2">
                           {video.cast.map((actor, index) => (
@@ -860,11 +1141,11 @@ export default function VideoPlayerPage() {
                     <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                       <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
                         <span className="w-1 h-6 bg-yellow-500 rounded-full"></span>
-                        Teknik Bilgiler
+                        Agahiyên Teknîkî
                       </h3>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-400">Kalite:</span>
+                          <span className="text-gray-400">Kalîte:</span>
                           <span className="text-white font-medium bg-green-600/20 text-green-400 px-3 py-1 rounded-lg text-sm">
                             HD
                           </span>
@@ -874,7 +1155,7 @@ export default function VideoPlayerPage() {
                           <span className="text-white font-medium">MP4</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-400">Çözünürlük:</span>
+                          <span className="text-gray-400">Çareserî:</span>
                           <span className="text-white font-medium">1920x1080</span>
                         </div>
                       </div>
@@ -884,7 +1165,7 @@ export default function VideoPlayerPage() {
                     <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                       <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
                         <span className="w-1 h-6 bg-red-500 rounded-full"></span>
-                        Hızlı İşlemler
+                        Çalakiyên Bilez
                       </h3>
                       <div className="space-y-3">
                         {isAuthenticated ? (
@@ -900,7 +1181,7 @@ export default function VideoPlayerPage() {
                             } ${isLoadingFavorite ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
                             <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                            {isFavorite ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+                            {isFavorite ? 'Ji Dilxwaziyan Bîre' : 'Bixe Dilxwaziyan'}
                           </motion.button>
                         ) : (
                           <motion.button
@@ -910,7 +1191,7 @@ export default function VideoPlayerPage() {
                             className="w-full py-3 px-4 bg-gray-600 text-white rounded-xl font-medium hover:bg-gray-500 transition-colors flex items-center justify-center gap-3"
                           >
                             <Heart className="w-5 h-5" />
-                            Giriş Yap ve Favorilere Ekle
+                            Biket Nav û Bixe Dilxwaziyan
                           </motion.button>
                         )}
                         
@@ -924,12 +1205,39 @@ export default function VideoPlayerPage() {
                           }`}
                         >
                           <Share2 className="w-5 h-5" />
-                          {isLoadingShare ? 'Paylaşılıyor...' : 'Paylaş'}
+                          {isLoadingShare ? 'Tê Parvekirin...' : 'Parveke'}
                         </motion.button>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Trailer Modal */}
+      <AnimatePresence>
+        {showTrailer && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowTrailer(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-700/30"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-white mb-4">Fragman</h2>
+                <p className="text-gray-400">Taybetmendiya fragmanê dê li vir were sepandin.</p>
               </div>
             </motion.div>
           </motion.div>

@@ -6,11 +6,10 @@ import { Search, Filter, Play, Heart, Clock, Star } from 'lucide-react'
 import { VideoCard } from '@/components/VideoCard'
 import { useContent } from '@/contexts/ContentContext'
 import { apiClient } from '@/lib/api'
-import { useRouter } from 'next/navigation'
 import { getSafeImageUrl } from '@/lib/utils'
 
 export default function SeriesPage() {
-  const router = useRouter()
+
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [selectedYear, setSelectedYear] = useState('all')
@@ -23,11 +22,6 @@ export default function SeriesPage() {
   const [error, setError] = useState('')
   const [totalResults, setTotalResults] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
-
-  // Watch series function
-  const handleWatchSeries = (seriesId: string) => {
-    router.push(`/videos/${seriesId}`)
-  }
 
   // Fetch series from API with filters
   useEffect(() => {
@@ -311,7 +305,6 @@ export default function SeriesPage() {
                   duration={show.duration}
                   rating={show.rating}
                   views={show.views}
-                  onWatch={() => handleWatchSeries(show.id)}
                 />
               </motion.div>
             ))}

@@ -108,14 +108,14 @@ const Login: React.FC = () => {
           className="text-center"
         >
           <motion.div 
-            className="mx-auto w-20 h-20 bg-gradient-to-br from-red-500 via-pink-500 to-red-600 rounded-3xl flex items-center justify-center mb-6 shadow-2xl"
+            className="mx-auto w-24 h-24 bg-black rounded-3xl flex items-center justify-center mb-6 shadow-2xl"
             whileHover={{ 
               scale: 1.05,
               rotate: [0, -5, 5, 0],
             }}
             transition={{ duration: 0.3 }}
           >
-            <Film className="w-10 h-10 text-white" />
+            <img src="/src/assets/newlogo.png" alt="Filmxane Logo" className="w-16 h-16" />
           </motion.div>
           <motion.h2 
             className="text-4xl font-bold text-gray-900 mb-3 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent"

@@ -463,33 +463,102 @@ class ApiClient {
 
   // Gelişmiş filtreleme ve arama
   async searchWithFilters(filters: {
-    query?: string;
-    genre?: string;
-    year?: string;
-    type?: string;
-    rating?: string;
-    duration?: string;
-    sortBy?: string;
-    sortOrder?: 'ASC' | 'DESC';
-    page?: number;
-    limit?: number;
-  }): Promise<ApiResponse<{
-    items: (Movie | Series)[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  }>> {
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        params.append(key, value.toString());
+    type?: 'movie' | 'series',
+    query?: string,
+    genre?: string,
+    year?: string,
+    rating?: string,
+    page?: number,
+    limit?: number
+  }): Promise<any> {
+    try {
+      // Önce tüm videoları getir
+      const response = await fetch(`${this.baseUrl}/videos`);
+      if (!response.ok) {
+        throw new Error('Videos fetch failed');
+      }
+      
+      let allVideos = await response.json();
+      
+      // Type filter uygula
+      if (filters.type) {
+        allVideos = allVideos.filter((video: any) => video.type === filters.type);
+      }
+      
+      // Query filter uygula
+      if (filters.query) {
+        const query = filters.query.toLowerCase();
+        allVideos = allVideos.filter((video: any) => 
+          video.title.toLowerCase().includes(query) ||
+          (video.description && video.description.toLowerCase().includes(query))
+        );
+      }
+      
+      // Genre filter uygula
+      if (filters.genre && filters.genre !== 'all') {
+        allVideos = allVideos.filter((video: any) => {
+          if (!video.genre) return false;
+          const videoGenres = typeof video.genre === 'string' ? JSON.parse(video.genre) : video.genre;
+          return Array.isArray(videoGenres) && videoGenres.includes(filters.genre);
+        });
+      }
+      
+      // Year filter uygula
+      if (filters.year && filters.year !== 'all') {
+        allVideos = allVideos.filter((video: any) => video.year === parseInt(filters.year!));
+      }
+      
+      // Rating filter uygula
+      if (filters.rating && filters.rating !== 'all') {
+        allVideos = allVideos.filter((video: any) => video.rating === filters.rating);
+      }
+      
+      // Pagination uygula
+      const page = filters.page || 1;
+      const limit = filters.limit || 12;
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedVideos = allVideos.slice(startIndex, endIndex);
+      
+      return {
+        success: true,
+        data: {
+          items: paginatedVideos,
+          total: allVideos.length,
+          totalPages: Math.ceil(allVideos.length / limit),
+          currentPage: page
+        }
+      };
+    } catch (error) {
+      console.error('Search with filters error:', error);
+      return {
+        success: false,
+        error: 'Search failed',
+        data: {
+          items: [],
+          total: 0,
+          totalPages: 0,
+          currentPage: 1
+        }
+      };
+    }
+  }
+
+  async getWatchProgress(videoId: string): Promise<any> {
+    const token = localStorage.getItem('filmxane_token');
+    if (!token) {
+      throw new Error('Token bulunamadı');
+    }
+
+    const response = await fetch(`${this.baseUrl}/videos/watch-progress/${videoId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
     });
-    
-    return this.request(`/videos/search/filter?${params.toString()}`);
+
+    const data = await response.json();
+    return data;
   }
 
   // Tüm genre'leri getir
