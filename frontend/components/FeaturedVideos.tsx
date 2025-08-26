@@ -14,7 +14,6 @@ interface Video {
   thumbnail: string
   duration: number
   category: string
-  viewCount?: number
   rating?: number
   uploadedBy: {
     firstName: string
@@ -39,7 +38,7 @@ export function FeaturedVideos() {
     thumbnail: getSafeImageUrl(content.thumbnail, 300, 200, 'thumbnail'),
     duration: 'duration' in content ? content.duration : 0,
     category: content.genre?.[0] || 'Unknown',
-    viewCount: content.views || 0,
+
     rating: 'rating' in content ? content.rating : 0,
     uploadedBy: {
       firstName: content.director || 'Unknown',
@@ -110,7 +109,6 @@ export function FeaturedVideos() {
                 thumbnail={video.thumbnail}
                 duration={video.duration}
                 rating={video.rating}
-                views={video.viewCount}
               />
             </motion.div>
           ))}

@@ -310,7 +310,6 @@ export default function MoviesPage() {
                   posterUrl={movie.posterUrl}
                   duration={movie.duration}
                   rating={movie.rating}
-                  onWatch={() => handleWatchMovie(movie.id)}
                 />
               </motion.div>
             ))}

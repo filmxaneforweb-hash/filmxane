@@ -11,7 +11,7 @@ export default function TestFavoritesPage() {
     thumbnailUrl: 'https://via.placeholder.com/300x200/ff0000/ffffff?text=Test+Film',
     duration: 120,
     rating: 8.5,
-    views: 1000
+
   })
 
   const handleWatch = () => {
@@ -42,7 +42,6 @@ export default function TestFavoritesPage() {
             thumbnailUrl={testVideo.thumbnailUrl}
             duration={testVideo.duration}
             rating={testVideo.rating}
-            views={testVideo.views}
             onWatch={handleWatch}
           />
         </div>

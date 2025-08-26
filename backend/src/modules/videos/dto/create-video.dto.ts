@@ -51,4 +51,8 @@ export class CreateVideoDto {
   @IsOptional()
   @IsString()
   seriesId?: string;
+
+  @IsOptional()
+  @IsString()
+  trailerUrl?: string;
 }

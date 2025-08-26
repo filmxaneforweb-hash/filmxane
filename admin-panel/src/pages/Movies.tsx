@@ -22,7 +22,7 @@ import {
 } from 'lucide-react'
 import { useWebSocket } from '../hooks/useWebSocket'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3005/api'
+const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:3005/api'
 
 interface Movie {
   id: number

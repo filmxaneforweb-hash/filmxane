@@ -304,7 +304,6 @@ export default function SeriesPage() {
                   posterUrl={show.posterUrl}
                   duration={show.duration}
                   rating={show.rating}
-                  views={show.views}
                 />
               </motion.div>
             ))}

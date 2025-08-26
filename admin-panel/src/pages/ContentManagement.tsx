@@ -37,6 +37,7 @@ interface ContentStats {
 interface ContentItem {
   id: string
   title: string
+  description?: string
   type: 'movie' | 'series'
   thumbnail: string
   views: number
@@ -46,6 +47,19 @@ interface ContentItem {
   createdAt: string
   genre: string[]
   status: 'published' | 'hidden' // Added status for visibility toggle
+  year?: number
+  director?: string
+  cast?: string[]
+  language?: string[]
+  videoUrl?: string
+  thumbnailUrl?: string
+  posterUrl?: string
+  trailerUrl?: string // Fragman URL'i
+  duration?: number
+  seasonNumber?: number
+  episodeNumber?: number
+  totalEpisodes?: number
+  totalSeasons?: number
 }
 
 interface UserStats {
@@ -79,12 +93,36 @@ const ContentManagement: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showFeatureModal, setShowFeatureModal] = useState(false)
   const [showAddContentModal, setShowAddContentModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<'all' | 'movie' | 'series'>('all')
 
   // New content form state
   const [newContentForm, setNewContentForm] = useState({
+    title: '',
+    description: '',
+    type: 'movie' as 'movie' | 'series',
+    genre: '',
+    year: '',
+    director: '',
+    cast: '',
+    language: '',
+    videoUrl: '',
+    thumbnailUrl: '',
+    posterUrl: '',
+    trailerUrl: '', // Fragman URL'i
+    duration: '',
+    seasonNumber: '',
+    episodeNumber: '',
+    totalEpisodes: '',
+    totalSeasons: '',
+    isFeatured: false,
+    isNew: false
+  })
+
+  // Edit content form state
+  const [editContentForm, setEditContentForm] = useState({
     title: '',
     description: '',
     type: 'movie' as 'movie' | 'series',
@@ -173,6 +211,68 @@ const ContentManagement: React.FC = () => {
       console.error('Failed to load content management data:', error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleEditContent = (content: ContentItem) => {
+    setSelectedContent(content)
+    setEditContentForm({
+      title: content.title,
+      description: content.description,
+      type: content.type,
+      genre: Array.isArray(content.genre) ? content.genre.join(', ') : (content.genre as string) || '',
+      year: content.year?.toString() || '',
+      director: content.director || '',
+      cast: Array.isArray(content.cast) ? content.cast.join(', ') : content.cast || '',
+      language: Array.isArray(content.language) ? content.language.join(', ') : content.language || '',
+      videoUrl: content.videoUrl || '',
+      thumbnailUrl: content.thumbnailUrl || '',
+      posterUrl: content.posterUrl || '',
+      trailerUrl: content.trailerUrl || '', // Fragman URL'ini ekle
+      duration: content.duration?.toString() || '',
+      seasonNumber: content.seasonNumber?.toString() || '',
+      episodeNumber: content.episodeNumber?.toString() || '',
+      totalEpisodes: content.totalEpisodes?.toString() || '',
+      totalSeasons: content.totalSeasons?.toString() || '',
+      isFeatured: content.isFeatured || false,
+      isNew: content.isNew || false
+    })
+    setShowEditModal(true)
+  }
+
+  const handleUpdateContent = async () => {
+    if (!selectedContent) return
+
+    setIsProcessing(true)
+    try {
+      const token = localStorage.getItem('filmxane_admin_token')
+      if (!token) {
+        alert('Ji kerema xwe dîsa têkeve')
+        return
+      }
+
+      const response = await fetch(`${API_BASE_URL}/admin/content/${selectedContent.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(editContentForm)
+      })
+
+      if (response.ok) {
+        alert('Naverok bi serkeftî hatibe nûkirin!')
+        setShowEditModal(false)
+        loadAllData() // Refresh data
+      } else {
+        const errorData = await response.json()
+        alert(`Çewtiya nûkirinê: ${errorData.message || 'Çewtiya nûkirinê'}`)
+      }
+    } catch (error) {
+      console.error('Error updating content:', error)
+      alert('Çewtiya nûkirinê çêbûye')
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -622,6 +722,14 @@ const ContentManagement: React.FC = () => {
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleEditContent(item)}
+                        disabled={isProcessing}
+                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                        title="Naverokê biguherîne"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={() => handleToggleVisibility(item.id)}
                         disabled={isProcessing}
@@ -1080,21 +1188,35 @@ const ContentManagement: React.FC = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        URL-ya Fragmanê
+                        <span className="flex items-center gap-2">
+                          <span className="w-2 h-4 bg-red-500 rounded-full"></span>
+                          URL-ya Fragmanê
+                        </span>
                       </label>
                       <div className="relative">
-                        <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-red-400" />
                         <input
                           type="url"
                           value={newContentForm.trailerUrl}
                           onChange={(e) => setNewContentForm({...newContentForm, trailerUrl: e.target.value})}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="https://example.com/trailer.mp4"
                         />
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        Fragman URL-ê ne zorunî ye, lê dixwazî bixwazî têkevê
-                      </p>
+                      <div className="mt-2 space-y-2">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Fragman URL-ê ne zorunî ye, lê dixwazî bixwazî têkevê
+                        </p>
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                          <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">💡 Çawa Fragman Têkevê:</h4>
+                          <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                            <li>• YouTube fragman URL'ê: https://youtube.com/watch?v=...</li>
+                            <li>• Vimeo fragman URL'ê: https://vimeo.com/...</li>
+                            <li>• Direkt video dosyası: https://example.com/trailer.mp4</li>
+                            <li>• MP4, WebM, veya OGG formatên destekkirî ne</li>
+                          </ul>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1144,6 +1266,203 @@ const ContentManagement: React.FC = () => {
                         <>
                           <Plus className="w-4 h-4" />
                           Naveroka Zêde Bike
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Content Modal */}
+      <AnimatePresence>
+        {showEditModal && selectedContent && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto"
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                    <span className="w-2 h-8 bg-green-500 rounded-full"></span>
+                    Naverokê Biguherîne - {selectedContent.title}
+                  </h3>
+                  <button
+                    onClick={() => setShowEditModal(false)}
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <form onSubmit={(e) => { e.preventDefault(); handleUpdateContent(); }} className="space-y-6">
+                  {/* Basic Info */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Navê Naverokê
+                      </label>
+                      <input
+                        type="text"
+                        value={editContentForm.title}
+                        onChange={(e) => setEditContentForm({...editContentForm, title: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Cure
+                      </label>
+                      <select
+                        value={editContentForm.type}
+                        onChange={(e) => setEditContentForm({...editContentForm, type: e.target.value as 'movie' | 'series'})}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        <option value="movie">Fîlm</option>
+                        <option value="series">Rêzefîlm</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Daxuyanî
+                      </label>
+                      <textarea
+                        value={editContentForm.description}
+                        onChange={(e) => setEditContentForm({...editContentForm, description: e.target.value})}
+                        rows={3}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Sal
+                      </label>
+                      <input
+                        type="number"
+                        value={editContentForm.year}
+                        onChange={(e) => setEditContentForm({...editContentForm, year: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  {/* URLs */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        URL-ya Thumbnailê
+                      </label>
+                      <input
+                        type="url"
+                        value={editContentForm.thumbnailUrl}
+                        onChange={(e) => setEditContentForm({...editContentForm, thumbnailUrl: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="https://example.com/thumbnail.jpg"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        URL-ya Posterê
+                      </label>
+                      <input
+                        type="url"
+                        value={editContentForm.posterUrl}
+                        onChange={(e) => setEditContentForm({...editContentForm, posterUrl: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="https://example.com/poster.jpg"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span className="flex items-center gap-2">
+                          <span className="w-2 h-4 bg-red-500 rounded-full"></span>
+                          URL-ya Fragmanê
+                        </span>
+                      </label>
+                      <input
+                        type="url"
+                        value={editContentForm.trailerUrl}
+                        onChange={(e) => setEditContentForm({...editContentForm, trailerUrl: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="https://example.com/trailer.mp4"
+                      />
+                      <div className="mt-2">
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                          <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">💡 Çawa Fragman Têkevê:</h4>
+                          <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                            <li>• YouTube fragman URL'ê: https://youtube.com/watch?v=...</li>
+                            <li>• Vimeo fragman URL'ê: https://vimeo.com/...</li>
+                            <li>• Direkt video dosyası: https://example.com/trailer.mp4</li>
+                            <li>• MP4, WebM, veya OGG formatên destekkirî ne</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Options */}
+                  <div className="flex items-center space-x-6">
+                    <label className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        checked={editContentForm.isFeatured}
+                        onChange={(e) => setEditContentForm({...editContentForm, isFeatured: e.target.checked})}
+                        className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Taybet Bike</span>
+                    </label>
+
+                    <label className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        checked={editContentForm.isNew}
+                        onChange={(e) => setEditContentForm({...editContentForm, isNew: e.target.checked})}
+                        className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Nû</span>
+                    </label>
+                  </div>
+
+                  {/* Submit Buttons */}
+                  <div className="flex space-x-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowEditModal(false)}
+                      className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Betal
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isProcessing}
+                      className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Tê Nûkirin...
+                        </>
+                      ) : (
+                        <>
+                          <Edit3 className="w-4 h-4" />
+                          Nû Bike
                         </>
                       )}
                     </button>

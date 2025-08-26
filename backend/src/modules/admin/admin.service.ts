@@ -663,6 +663,7 @@ export class AdminService {
         videoPath: `/uploads/videos/${videoFilename}`,
         thumbnailPath: thumbnailPath,
         thumbnailUrl: thumbnailPath, // thumbnailUrl'yi de set et
+        trailerUrl: createVideoDto.trailerUrl || null, // Fragman URL'ini ekle
         episodeNumber: createVideoDto.episodeNumber || null,
         seasonNumber: createVideoDto.seasonNumber || null, // Series için season number
         seriesId: createVideoDto.seriesId || null, // Series için series ID
@@ -684,6 +685,54 @@ export class AdminService {
     } catch (error) {
       console.error('Error creating video:', error);
       throw new Error(`Failed to create video: ${error.message}`);
+    }
+  }
+
+  async updateContent(id: string, updateContentDto: any) {
+    try {
+      console.log('🔄 Updating content with ID:', id)
+      console.log('📝 Update data:', updateContentDto)
+      
+      const content = await this.videosRepository.findOne({ where: { id } })
+      if (!content) {
+        throw new Error('Content not found')
+      }
+      
+      // Update fields
+      if (updateContentDto.title) content.title = updateContentDto.title
+      if (updateContentDto.description) content.description = updateContentDto.description
+      if (updateContentDto.year) content.year = parseInt(updateContentDto.year)
+      if (updateContentDto.rating) content.rating = parseFloat(updateContentDto.rating)
+      if (updateContentDto.isFeatured !== undefined) content.isFeatured = Boolean(updateContentDto.isFeatured)
+      if (updateContentDto.isNew !== undefined) content.isNew = Boolean(updateContentDto.isNew)
+      if (updateContentDto.trailerUrl !== undefined) content.trailerUrl = updateContentDto.trailerUrl // Fragman URL'ini güncelle
+      if (updateContentDto.thumbnailUrl) content.thumbnailUrl = updateContentDto.thumbnailUrl
+      if (updateContentDto.posterUrl) content.posterUrl = updateContentDto.posterUrl
+      
+      // Update genre if provided
+      if (updateContentDto.genre) {
+        let genreArray = updateContentDto.genre
+        if (typeof genreArray === 'string') {
+          try {
+            genreArray = JSON.parse(genreArray)
+          } catch (error) {
+            genreArray = genreArray.split(',').map((g: string) => g.trim())
+          }
+        }
+        if (Array.isArray(genreArray)) {
+          content.genre = JSON.stringify(genreArray)
+        }
+      }
+      
+      content.updatedAt = new Date()
+      
+      const updatedContent = await this.videosRepository.save(content)
+      console.log('✅ Content updated successfully:', updatedContent.id)
+      
+      return updatedContent
+    } catch (error) {
+      console.error('❌ Error updating content:', error)
+      throw new Error(`Failed to update content: ${error.message}`)
     }
   }
 
@@ -732,6 +781,7 @@ export class AdminService {
         totalEpisodes: totalEpisodes,
         thumbnailUrl: thumbnailFile ? `/uploads/thumbnails/${thumbnailFile.filename}` : null,
         posterUrl: posterFile ? `/uploads/posters/${posterFile.filename}` : null,
+        trailerUrl: createSeriesDto.trailerUrl || null, // Fragman URL'ini ekle
         type: VideoType.SERIES,
         views: 0,
         isFeatured: createSeriesDto.isFeatured || false,

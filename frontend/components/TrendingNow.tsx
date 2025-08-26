@@ -14,7 +14,7 @@ export function TrendingNow() {
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 7200,
       rating: 4.5,
-      viewCount: 2500,
+
     },
     {
       id: '2',
@@ -23,7 +23,7 @@ export function TrendingNow() {
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 5400,
       rating: 4.2,
-      viewCount: 1800,
+
     },
     {
       id: '3',
@@ -32,7 +32,7 @@ export function TrendingNow() {
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 6300,
       rating: 4.7,
-      viewCount: 3200,
+
     },
     {
       id: '4',
@@ -41,7 +41,7 @@ export function TrendingNow() {
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 4800,
       rating: 4.0,
-      viewCount: 2100,
+
     },
     {
       id: '5',
@@ -50,7 +50,7 @@ export function TrendingNow() {
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 6600,
       rating: 4.8,
-      viewCount: 4100,
+
     },
     {
       id: '6',
@@ -59,7 +59,7 @@ export function TrendingNow() {
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 5700,
       rating: 4.3,
-      viewCount: 1900,
+
     },
   ]
 
@@ -104,7 +104,6 @@ export function TrendingNow() {
                 thumbnail={video.thumbnail}
                 duration={video.duration}
                 rating={video.rating}
-                views={video.views}
               />
             </motion.div>
           ))}

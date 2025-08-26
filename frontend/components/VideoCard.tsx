@@ -18,9 +18,9 @@ interface VideoCardProps {
   thumbnailPath?: string
   duration?: number
   rating?: number
-  views?: number
   isFavorite?: boolean
   onFavoriteToggle?: () => void
+  onWatch?: () => void
 }
 
 export function VideoCard({
@@ -33,9 +33,9 @@ export function VideoCard({
   thumbnailPath,
   duration,
   rating,
-  views,
   isFavorite = false,
   onFavoriteToggle,
+  onWatch,
 }: VideoCardProps) {
   // Ensure title is always a string
   const safeTitle = typeof title === 'string' ? title : 'Untitled Video'
@@ -115,18 +115,7 @@ export function VideoCard({
     }
   }
 
-  const formatViewCount = (count?: number) => {
-    if (typeof count !== "number" || isNaN(count)) {
-      return "0"
-    }
-    if (count >= 1000000) {
-      return `${(count / 1000000).toFixed(1)}M`
-    }
-    if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}K`
-    }
-    return count.toString()
-  }
+
 
   const handleFavoriteToggle = async () => {
     if (onFavoriteToggle) {
@@ -250,7 +239,16 @@ export function VideoCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
          
          {/* Netflix style play button */}
-         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer">
+         <div 
+           className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+           onClick={(e) => {
+             e.preventDefault()
+             e.stopPropagation()
+             if (onWatch) {
+               onWatch()
+             }
+           }}
+         >
            <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
              <Play className="w-6 h-6 text-black fill-black" />
            </div>
@@ -329,12 +327,7 @@ export function VideoCard({
                 <span>{rating}</span>
               </div>
             )}
-            {views && (
-              <div className="flex items-center gap-1">
-                <span>👁</span>
-                <span>{formatViewCount(views)}</span>
-              </div>
-            )}
+
           </div>
         </div>
       </div>

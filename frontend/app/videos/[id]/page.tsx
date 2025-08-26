@@ -801,10 +801,7 @@ export default function VideoPlayerPage() {
                       <span className="text-xl font-semibold">{video.rating}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-3">
-                    <Eye className="w-7 h-7 text-blue-400" />
-                    <span className="text-xl font-semibold">{formatViewCount(video.views || 0)} temaşe</span>
-                  </div>
+
                   {(video as any).duration && (
                     <div className="flex items-center gap-3">
                       <Clock className="w-7 h-7 text-green-400" />
@@ -971,7 +968,6 @@ export default function VideoPlayerPage() {
                           posterUrl={relatedVideo.posterUrl}
                           duration={(relatedVideo as any).duration}
                           rating={relatedVideo.rating}
-                          views={relatedVideo.views}
                         />
                       </motion.div>
                     ))}
@@ -1063,13 +1059,7 @@ export default function VideoPlayerPage() {
                             </span>
                           </div>
                         )}
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-400">Dîtin:</span>
-                          <span className="text-white font-medium flex items-center gap-2">
-                            <Eye className="w-5 h-5 text-blue-400" />
-                            {formatViewCount(video.views || 0)}
-                          </span>
-                        </div>
+
                       </div>
                     </div>
 
@@ -1232,12 +1222,80 @@ export default function VideoPlayerPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-700/30"
+              className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl max-w-5xl w-full shadow-2xl border border-slate-700/30"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">Fragman</h2>
-                <p className="text-gray-400">Taybetmendiya fragmanê dê li vir were sepandin.</p>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                    <span className="w-2 h-8 bg-red-500 rounded-full"></span>
+                    Fragman - {video.title}
+                  </h2>
+                  <motion.button
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setShowTrailer(false)}
+                    className="text-gray-400 hover:text-white transition-colors p-2"
+                  >
+                    <X className="w-8 h-8" />
+                  </motion.button>
+                </div>
+                
+                {/* Fragman Video Player */}
+                {video.trailerUrl ? (
+                  <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden">
+                    <ReactPlayer
+                      url={video.trailerUrl.startsWith('http') ? video.trailerUrl : `http://localhost:3005${video.trailerUrl}`}
+                      width="100%"
+                      height="100%"
+                      controls={true}
+                      playing={true}
+                      muted={false}
+                      style={{ objectFit: 'cover' }}
+                      fallback={
+                        <div className="w-full h-full bg-gradient-to-br from-slate-900 to-black flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-red-500 text-6xl mb-4">🎬</div>
+                            <p className="text-white text-lg">Fragman barkirin...</p>
+                          </div>
+                        </div>
+                      }
+                    />
+                  </div>
+                ) : (
+                  <div className="text-center py-16">
+                    <div className="text-gray-500 text-6xl mb-4">🎬</div>
+                    <h3 className="text-2xl font-semibold text-white mb-4">Fragman Tune</h3>
+                    <p className="text-gray-400 text-lg mb-6">
+                      Ji bo vê fîlmê hîn fragman tune ye. Admin panelê de fragmanê têkevê.
+                    </p>
+                    <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
+                      <h4 className="text-lg font-semibold text-white mb-3">Çawa Fragman Têkevê:</h4>
+                      <ol className="text-gray-300 text-left space-y-2">
+                        <li className="flex items-start gap-3">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                          <span>Admin panelê de têkeve</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                          <span>Content Management babetê hilbijêre</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                          <span>Fîlmê hilbijêre û "Edit" bikirtîne</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                          <span>Trailer URL babetê fragman URL'ê têkevê</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                          <span>Save bikirtîne</span>
+                        </li>
+                      </ol>
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>

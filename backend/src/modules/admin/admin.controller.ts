@@ -117,6 +117,7 @@ export class AdminController {
     try {
       console.log('🎬 Creating video with data:', createVideoDto)
       console.log('📁 Files received:', files?.length || 0)
+      console.log('🎬 Trailer URL:', createVideoDto.trailerUrl || 'Not provided')
       
       // Validate required fields
       if (!createVideoDto.title || createVideoDto.title.trim().length === 0) {
@@ -207,6 +208,31 @@ export class AdminController {
         error.message || 'Video oluşturulurken bir hata oluştu',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
+    }
+  }
+
+  @Put('content/:id')
+  async updateContent(
+    @Param('id') id: string,
+    @Body() updateContentDto: any
+  ) {
+    try {
+      console.log('🔄 Updating content with ID:', id)
+      console.log('📝 Update data:', updateContentDto)
+      
+      const result = await this.adminService.updateContent(id, updateContentDto)
+      
+      return {
+        success: true,
+        data: result,
+        message: 'Content updated successfully'
+      }
+    } catch (error) {
+      console.error('❌ Error updating content:', error)
+      throw new HttpException(
+        error.message || 'Error updating content',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      )
     }
   }
 

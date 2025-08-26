@@ -13,7 +13,7 @@ export function ContinueWatching() {
       thumbnail: null,
       duration: 7200,
       rating: 4.6,
-      viewCount: 3200,
+
       progress: 65, // Progress percentage
     },
     {
@@ -23,7 +23,7 @@ export function ContinueWatching() {
       thumbnail: null,
       duration: 5400,
       rating: 4.1,
-      viewCount: 2100,
+
       progress: 30,
     },
     {
@@ -33,7 +33,7 @@ export function ContinueWatching() {
       thumbnail: null,
       duration: 6300,
       rating: 4.4,
-      viewCount: 2800,
+
       progress: 80,
     },
     {
@@ -43,7 +43,7 @@ export function ContinueWatching() {
       thumbnail: null,
       duration: 4800,
       rating: 4.3,
-      viewCount: 1900,
+
       progress: 45,
     },
     {
@@ -53,7 +53,7 @@ export function ContinueWatching() {
       thumbnail: null,
       duration: 5400,
       rating: 4.7,
-      viewCount: 3500,
+
       progress: 20,
     },
     {
@@ -63,7 +63,7 @@ export function ContinueWatching() {
       thumbnail: null,
       duration: 4500,
       rating: 4.0,
-      viewCount: 1600,
+
       progress: 90,
     },
   ]
@@ -107,10 +107,9 @@ export function ContinueWatching() {
                 id={video.id}
                 title={video.title}
                 description={video.description}
-                thumbnail={video.thumbnail}
+                thumbnail={video.thumbnail || undefined}
                 duration={video.duration}
                 rating={video.rating}
-                viewCount={video.viewCount}
               />
               
               {/* Progress Bar */}

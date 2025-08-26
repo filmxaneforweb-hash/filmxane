@@ -41,6 +41,7 @@ export interface Movie {
   thumbnailUrl?: string
   posterUrl?: string
   trailer: string
+  trailerUrl?: string
   videoUrl: string
   duration: number // in minutes
   rating: number
@@ -70,6 +71,7 @@ export interface Series {
   thumbnailUrl?: string
   posterUrl?: string
   trailer: string
+  trailerUrl?: string
   year: number
   genre: string[]
   director: string

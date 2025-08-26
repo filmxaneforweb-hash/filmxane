@@ -462,13 +462,7 @@ export default function HomePage() {
                              </span>
                            </div>
                          )}
-                         <div className="flex items-center justify-between">
-                           <span className="text-gray-400">Dîtin:</span>
-                           <span className="text-white font-medium flex items-center gap-2">
-                             <Eye className="w-5 h-5 text-blue-400" />
-                             {featuredMovie.views || 0}
-                           </span>
-                         </div>
+
                       </div>
                     </div>
 

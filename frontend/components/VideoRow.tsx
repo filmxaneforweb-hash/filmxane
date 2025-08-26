@@ -13,7 +13,6 @@ interface Video {
   posterUrl?: string
   duration?: number
   rating?: number
-  views?: number
   progress?: number
 }
 
@@ -127,7 +126,6 @@ export function VideoRow({
                 posterUrl={video.posterUrl}
                 duration={video.duration}
                 rating={video.rating}
-                views={video.views}
               />
               
               {/* Enhanced Progress Bar with modern design */}
