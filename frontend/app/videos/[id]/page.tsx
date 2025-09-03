@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
+// import { motion, AnimatePresence } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { Play, Pause, Volume2, VolumeX, Maximize, Heart, Share2, Download, Clock, Star, Eye, X, Info, Calendar, Users, Award, Globe, Film, Tv, ExternalLink } from 'lucide-react'
 import ReactPlayer from 'react-player'
 import { apiClient } from '@/lib/api'
@@ -519,13 +519,11 @@ export default function VideoPlayerPage() {
                 )}
                 <div className="absolute inset-0 bg-black/40" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                  <button
                     className="bg-red-600 hover:bg-red-700 text-white rounded-full p-8 shadow-2xl transition-colors duration-300"
                     onClick={() => {
                       setIsPlaying(!isPlaying)
-                      setShowStartOptions(false) // Start options'ı gizle
+                      setShowStartOptions(false)
                     }}
                   >
                     {isPlaying ? (
@@ -533,26 +531,15 @@ export default function VideoPlayerPage() {
                     ) : (
                       <Play className="w-16 h-16 ml-2" />
                     )}
-                  </motion.button>
+                  </button>
                 </div>
                 
-                {/* Video Title Overlay */}
                 <div className="absolute bottom-20 left-8 right-8">
-                  <motion.h1
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.3 }}
-                    className="text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-2xl"
-                  >
+                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-2xl">
                     {video.title}
-                  </motion.h1>
+                  </h1>
                   
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.5 }}
-                    className="flex items-center gap-6 text-gray-300 mb-6"
-                  >
+                  <div className="flex items-center gap-6 text-gray-300 mb-6">
                     {video.rating && (
                       <div className="flex items-center gap-2">
                         <Star className="w-6 h-6 text-yellow-500 fill-current" />
@@ -566,7 +553,7 @@ export default function VideoPlayerPage() {
                       <span className="text-lg">{formatDuration((video as any).duration)}</span>
                     )}
                     <span className="bg-red-600 px-3 py-1 rounded text-sm font-semibold">HD</span>
-                  </motion.div>
+                  </div>
                 </div>
               </div>
             }
@@ -574,39 +561,26 @@ export default function VideoPlayerPage() {
 
           {/* Resume Button - Kaldığın yerden devam et */}
           {showResumeButton && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="absolute top-8 left-8 z-20"
-            >
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+            <div className="absolute top-8 left-8 z-20">
+              <button
                 onClick={handleResume}
                 className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg flex items-center gap-2"
               >
                 <Play className="w-5 h-5" />
                 Ji Cihê Te Bê Domandin ({formatDuration(resumeTime)})
-              </motion.button>
-            </motion.div>
+              </button>
+            </div>
           )}
 
           {/* Video Start Options - Filmin ortasında */}
           {showStartOptions && (
             <div className="absolute inset-0 flex items-center justify-center z-20">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="bg-black/80 backdrop-blur-md rounded-2xl p-8 text-center"
-              >
+              <div className="bg-black/80 backdrop-blur-md rounded-2xl p-8 text-center">
                 <h2 className="text-2xl font-bold text-white mb-6">Vîdyoya Temaşekirinê</h2>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
                   {/* Baştan başla butonu */}
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={() => {
                       if (playerRef.current) {
                         playerRef.current.seekTo(0);
@@ -619,13 +593,11 @@ export default function VideoPlayerPage() {
                   >
                     <Play className="w-6 h-6" />
                     Ji Destpêkê Dest Pêke
-                  </motion.button>
+                  </button>
 
                   {/* Kaldığın yerden devam et butonu */}
                   {showResumeButton && (
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
                       onClick={() => {
                         handleResume();
                         setShowStartOptions(false);
@@ -637,7 +609,7 @@ export default function VideoPlayerPage() {
                       <span className="text-sm bg-red-700 px-2 py-1 rounded">
                         {formatDuration(resumeTime)}
                       </span>
-                    </motion.button>
+                    </button>
                   )}
                 </div>
                 
@@ -659,7 +631,7 @@ export default function VideoPlayerPage() {
                     </div>
                   </div>
                 )}
-              </motion.div>
+              </div>
             </div>
           )}
 
@@ -700,9 +672,7 @@ export default function VideoPlayerPage() {
             {/* Control Buttons */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                <button
                   onClick={() => {
                     setIsPlaying(!isPlaying)
                     setShowStartOptions(false) // Start options'ı gizle
@@ -710,16 +680,14 @@ export default function VideoPlayerPage() {
                   className="bg-white text-black rounded-full p-4 hover:bg-gray-200 transition-colors shadow-lg"
                 >
                   {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
-                </motion.button>
+                </button>
                 
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                <button
                   onClick={toggleMute}
                   className="text-white hover:text-red-500 transition-colors p-2"
                 >
                   {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
-                </motion.button>
+                </button>
                 
                 <div className="text-white text-lg font-medium">
                   {formatDuration(currentTime)} / {formatDuration(duration)}
@@ -728,9 +696,7 @@ export default function VideoPlayerPage() {
               
               <div className="flex items-center gap-4">
                 {isAuthenticated && (
-                  <motion.button 
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                  <button 
                     onClick={toggleFavorite}
                     disabled={isLoadingFavorite}
                     className={`text-white transition-colors p-2 ${
@@ -740,11 +706,9 @@ export default function VideoPlayerPage() {
                     } ${isLoadingFavorite ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <Heart className={`w-6 h-6 ${isFavorite ? 'fill-current' : ''}`} />
-                  </motion.button>
+                  </button>
                 )}
-                <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                <button 
                   onClick={handleShare}
                   disabled={isLoadingShare}
                   className={`text-white hover:text-red-500 transition-colors p-2 ${
@@ -752,15 +716,13 @@ export default function VideoPlayerPage() {
                   }`}
                 >
                   <Share2 className="w-6 h-6" />
-                </motion.button>
-                <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                </button>
+                <button 
                   onClick={toggleFullscreen}
                   className="text-white hover:text-red-500 transition-colors p-2"
                 >
                   <Maximize className="w-6 h-6" />
-                </motion.button>
+                </button>
               </div>
             </div>
           </div>
@@ -773,25 +735,18 @@ export default function VideoPlayerPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Video Details */}
             <div className="lg:col-span-2">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-sm rounded-3xl p-8 border border-slate-700/30 shadow-2xl hover:shadow-red-500/10 transition-all duration-300"
-              >
+              <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-sm rounded-3xl p-8 border border-slate-700/30 shadow-2xl hover:shadow-red-500/10 transition-all duration-300">
                 <div className="flex items-start justify-between mb-6">
                   <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
                     {video.title}
                   </h1>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={() => setShowInfoModal(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-red-600/20 text-red-400 rounded-xl border border-red-500/30 hover:bg-red-600/30 transition-all duration-200"
                   >
                     <Info className="w-5 h-5" />
                     <span className="hidden sm:inline">Agahiyên Detayî</span>
-                  </motion.button>
+                  </button>
                 </div>
                 
                 <div className="flex items-center gap-8 text-gray-300 mb-8">
@@ -883,9 +838,7 @@ export default function VideoPlayerPage() {
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-4 pt-6 border-t border-slate-700/30">
                   {isAuthenticated ? (
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
                       onClick={toggleFavorite}
                       disabled={isLoadingFavorite}
                       className={`px-8 py-4 rounded-xl font-semibold transition-colors flex items-center gap-3 ${
@@ -896,35 +849,29 @@ export default function VideoPlayerPage() {
                     >
                       <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
                       {isFavorite ? 'Ji Dilxwaziyan Bîre' : 'Bixe Dilxwaziyan'}
-                    </motion.button>
+                    </button>
                   ) : (
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
                       onClick={() => window.location.href = '/login'}
                       className="px-8 py-4 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-500 transition-colors flex items-center gap-3"
                     >
                       <Heart className="w-5 h-5" />
                       Biket Nav û Bixe Dilxwaziyan
-                    </motion.button>
+                    </button>
                   )}
                   
                   {/* Butona Fragmanê - Tenê ji bo Fîlman */}
                   {isMovie && (
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
                       onClick={() => setShowTrailer(true)}
                       className="px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center gap-3"
                     >
                       <Play className="w-5 h-5" />
                       Fragmanê Bixwîne
-                    </motion.button>
+                    </button>
                   )}
                   
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={handleShare}
                     disabled={isLoadingShare}
                     className={`px-8 py-4 bg-slate-700 text-white rounded-xl font-semibold hover:bg-gray-600 transition-colors flex items-center gap-3 ${
@@ -933,19 +880,14 @@ export default function VideoPlayerPage() {
                   >
                     <Share2 className="w-5 h-5" />
                     {isLoadingShare ? 'Tê Parvekirin...' : 'Parveke'}
-                  </motion.button>
+                  </button>
                 </div>
-              </motion.div>
+              </div>
             </div>
 
             {/* Enhanced Sidebar */}
             <div className="lg:col-span-1">
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-sm rounded-3xl p-6 border border-slate-700/30 shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 sticky top-8"
-              >
+              <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-sm rounded-3xl p-6 border border-slate-700/30 shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 sticky top-8">
                 <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                   <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
                   Naverokên Têkildar
@@ -954,9 +896,8 @@ export default function VideoPlayerPage() {
                 {relatedVideos.length > 0 ? (
                   <div className="space-y-4">
                     {relatedVideos.map((relatedVideo) => (
-                      <motion.div
+                      <div
                         key={relatedVideo.id}
-                        whileHover={{ scale: 1.02 }}
                         className="cursor-pointer"
                       >
                         <VideoCard
@@ -969,7 +910,7 @@ export default function VideoPlayerPage() {
                           duration={(relatedVideo as any).duration}
                           rating={relatedVideo.rating}
                         />
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -980,30 +921,22 @@ export default function VideoPlayerPage() {
                     </p>
                   </div>
                 )}
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Enhanced Info Modal */}
-      <AnimatePresence>
-        {showInfoModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowInfoModal(false)}
+      {showInfoModal && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowInfoModal(false)}
+        >
+          <div
+            className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-700/30"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 50 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 50 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-700/30"
-              onClick={(e) => e.stopPropagation()}
-            >
               {/* Modal Header */}
               <div className="sticky top-0 bg-gradient-to-r from-slate-900 to-slate-800 rounded-t-3xl p-6 border-b border-slate-700/30">
                 <div className="flex items-center justify-between">
@@ -1011,14 +944,12 @@ export default function VideoPlayerPage() {
                     <span className="w-2 h-8 bg-red-500 rounded-full"></span>
                     {video.title} - Agahiyên Detayî
                   </h2>
-                  <motion.button
-                    whileHover={{ scale: 1.1, rotate: 90 }}
-                    whileTap={{ scale: 0.9 }}
+                  <button
                     onClick={() => setShowInfoModal(false)}
                     className="text-gray-400 hover:text-white transition-colors p-2"
                   >
                     <X className="w-8 h-8" />
-                  </motion.button>
+                  </button>
                 </div>
               </div>
 
@@ -1159,9 +1090,7 @@ export default function VideoPlayerPage() {
                       </h3>
                       <div className="space-y-3">
                         {isAuthenticated ? (
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
+                          <button
                             onClick={toggleFavorite}
                             disabled={isLoadingFavorite}
                             className={`w-full py-3 px-4 rounded-xl font-medium transition-colors flex items-center justify-center gap-3 ${
@@ -1172,22 +1101,18 @@ export default function VideoPlayerPage() {
                           >
                             <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
                             {isFavorite ? 'Ji Dilxwaziyan Bîre' : 'Bixe Dilxwaziyan'}
-                          </motion.button>
+                          </button>
                         ) : (
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
+                          <button
                             onClick={() => window.location.href = '/login'}
                             className="w-full py-3 px-4 bg-gray-600 text-white rounded-xl font-medium hover:bg-gray-500 transition-colors flex items-center justify-center gap-3"
                           >
                             <Heart className="w-5 h-5" />
                             Biket Nav û Bixe Dilxwaziyan
-                          </motion.button>
+                          </button>
                         )}
                         
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
+                        <button
                           onClick={handleShare}
                           disabled={isLoadingShare}
                           className={`w-full py-3 px-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-3 ${
@@ -1196,49 +1121,38 @@ export default function VideoPlayerPage() {
                         >
                           <Share2 className="w-5 h-5" />
                           {isLoadingShare ? 'Tê Parvekirin...' : 'Parveke'}
-                        </motion.button>
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
 
       {/* Trailer Modal */}
-      <AnimatePresence>
-        {showTrailer && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowTrailer(false)}
+      {showTrailer && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowTrailer(false)}
+        >
+          <div
+            className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl max-w-5xl w-full shadow-2xl border border-slate-700/30"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 50 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 50 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl max-w-5xl w-full shadow-2xl border border-slate-700/30"
-              onClick={(e) => e.stopPropagation()}
-            >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-3xl font-bold text-white flex items-center gap-3">
                     <span className="w-2 h-8 bg-red-500 rounded-full"></span>
                     Fragman - {video.title}
                   </h2>
-                  <motion.button
-                    whileHover={{ scale: 1.1, rotate: 90 }}
-                    whileTap={{ scale: 0.9 }}
+                  <button
                     onClick={() => setShowTrailer(false)}
                     className="text-gray-400 hover:text-white transition-colors p-2"
                   >
                     <X className="w-8 h-8" />
-                  </motion.button>
+                  </button>
                 </div>
                 
                 {/* Fragman Video Player */}
@@ -1297,10 +1211,9 @@ export default function VideoPlayerPage() {
                   </div>
                 )}
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

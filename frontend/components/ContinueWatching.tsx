@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+// import { div } from 'framer-div' // SSR sorunu nedeniyle kaldırıldı
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react'
 import { VideoCard } from './VideoCard'
 
@@ -96,11 +96,8 @@ export function ContinueWatching() {
         {/* Horizontal Scrolling Grid with Progress */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {continueWatchingVideos.map((video, index) => (
-            <motion.div
+            <div
               key={video.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
               className="relative"
             >
               <VideoCard 
@@ -124,7 +121,7 @@ export function ContinueWatching() {
               <div className="absolute bottom-14 left-2 text-xs text-white font-medium">
                 {video.progress}% temam bû
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

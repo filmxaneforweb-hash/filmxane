@@ -13,7 +13,7 @@ export class FavoritesController {
   @Post()
   @ApiOperation({ summary: 'Favorilere ekle' })
   @ApiResponse({ status: 201, description: 'Favorilere başarıyla eklendi' })
-  async addToFavorites(@Req() req, @Body() body: { videoId: string; type: 'movie' | 'series' }) {
+  async addToFavorites(@Req() req: any, @Body() body: { videoId: string; type: 'movie' | 'series' }) {
     console.log('🔍 Favori ekleme isteği:', { userId: req.user?.id, videoId: body.videoId, type: body.type })
     try {
       const result = await this.favoritesService.addToFavorites(req.user.id, body.videoId, body.type)
@@ -28,7 +28,7 @@ export class FavoritesController {
   @Delete()
   @ApiOperation({ summary: 'Favorilerden çıkar' })
   @ApiResponse({ status: 200, description: 'Favorilerden başarıyla çıkarıldı' })
-  async removeFromFavorites(@Req() req, @Body() body: { videoId: string }) {
+  async removeFromFavorites(@Req() req: any, @Body() body: { videoId: string }) {
     console.log('🔍 Favori çıkarma isteği:', { userId: req.user?.id, videoId: body.videoId })
     try {
       await this.favoritesService.removeFromFavorites(req.user.id, body.videoId)
@@ -43,7 +43,7 @@ export class FavoritesController {
   @Post('check')
   @ApiOperation({ summary: 'Favori durumunu kontrol et' })
   @ApiResponse({ status: 200, description: 'Favori durumu' })
-  async checkFavoriteStatus(@Req() req, @Body() body: { videoId: string }) {
+  async checkFavoriteStatus(@Req() req: any, @Body() body: { videoId: string }) {
     console.log('🔍 Favori durumu kontrol:', { userId: req.user?.id, videoId: body.videoId })
     try {
       const result = await this.favoritesService.checkFavoriteStatus(req.user.id, body.videoId)
@@ -58,7 +58,7 @@ export class FavoritesController {
   @Get('my-favorites')
   @ApiOperation({ summary: 'Kullanıcının favorileri' })
   @ApiResponse({ status: 200, description: 'Kullanıcının favori listesi' })
-  async getUserFavorites(@Req() req) {
+  async getUserFavorites(@Req() req: any) {
     console.log('🔍 Kullanıcı favorileri isteniyor:', { userId: req.user?.id })
     try {
       const result = await this.favoritesService.getUserFavorites(req.user.id)

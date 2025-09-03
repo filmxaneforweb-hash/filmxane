@@ -3,10 +3,10 @@
 import { HeroSection } from '@/components/HeroSection'
 import { ContentGrid } from '@/components/ContentGrid'
 import { useContent } from '@/contexts/ContentContext'
-import { motion, AnimatePresence } from 'framer-motion'
+// import { motion, AnimatePresence } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { getSafeImageUrl } from '@/lib/utils'
 import { useState } from 'react'
-import { X, Star, Calendar, Clock, Award, Users, Film, Eye, Heart, Share2 } from 'lucide-react'
+// import { X, Star, Calendar, Clock, Award, Users, Film, Eye, Heart, Share2 } from 'lucide-react' // SSR sorunu nedeniyle kaldırıldı
 
 export default function HomePage() {
   const { 
@@ -54,33 +54,14 @@ export default function HomePage() {
           {/* Content */}
           <div className="relative z-10 h-full flex flex-col justify-end px-8 pb-20">
             {/* Movie Info */}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-              className="max-w-4xl"
-            >
+            <div className="max-w-4xl">
               {/* Movie Title */}
-              <motion.h1
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 1, delay: 0.2 }}
-                className="text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6"
-                style={{
-                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                  lineHeight: '0.9'
-                }}
-              >
+              <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)', lineHeight: '0.9' }}>
                 {movies[0]?.title}
-              </motion.h1>
+              </h1>
 
               {/* Movie Meta Info */}
-              <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 1, delay: 0.4 }}
-                className="flex items-center space-x-6 text-gray-300 mb-6 text-lg"
-              >
+              <div className="flex items-center space-x-6 text-gray-300 mb-6 text-lg">
                 {movies[0]?.rating && (
                   <span className="flex items-center">
                     <span className="text-green-400 mr-2">●</span>
@@ -99,59 +80,46 @@ export default function HomePage() {
                   </span>
                 )}
                 <span className="bg-gray-800 px-2 py-1 rounded text-sm">HD</span>
-              </motion.div>
+              </div>
 
               {/* Movie Description */}
-              <motion.p
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 1, delay: 0.6 }}
-                className="text-xl text-gray-300 mb-8 max-w-3xl leading-relaxed"
-              >
+              <p className="text-xl text-gray-300 mb-8 max-w-3xl leading-relaxed">
                 {movies[0]?.description || 'Ji bo agahiyên zêdetir li ser vê fîlmê bikirtînin.'}
-              </motion.p>
+              </p>
 
               {/* Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.8 }}
-                className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
-              >
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <button
+
                   onClick={() => window.location.href = `/videos/${movies[0]?.id}`}
                   className="px-8 py-4 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition-colors text-lg flex items-center justify-center cursor-pointer"
                 >
                   <span className="mr-2">▶️</span>
                   Bixwîne
-                </motion.button>
+                </button>
                 
                 {/* Fragman Butonu - Sadece Filmler İçin */}
                 {movies[0]?.type === 'movie' && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
+
                     onClick={() => window.location.href = `/videos/${movies[0]?.id}?trailer=true`}
                     className="px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg flex items-center justify-center cursor-pointer"
                   >
                     <span className="mr-2">🎬</span>
                     Fragmanê Bixwîne
-                  </motion.button>
+                  </button>
                 )}
                 
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <button
+
                   onClick={() => setShowInfoModal(true)}
                   className="px-8 py-4 bg-gray-600/80 text-white rounded-lg font-semibold hover:bg-gray-500/80 transition-colors text-lg flex items-center justify-center backdrop-blur-sm cursor-pointer"
                 >
                   <span className="mr-2">ℹ️</span>
                   Agahiyên Zêdetir
-                </motion.button>
-              </motion.div>
-            </motion.div>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Bottom Fade */}
@@ -216,7 +184,7 @@ export default function HomePage() {
         {/* Drama Series */}
         {series && series.filter(s => {
           if (!s.genre) return false
-          const genres = typeof s.genre === 'string' ? JSON.parse(s.genre) : m.genre
+          const genres = typeof s.genre === 'string' ? JSON.parse(s.genre) : s.genre
           return genres.includes('Drama')
         })?.length > 0 && (
           <ContentGrid
@@ -224,7 +192,7 @@ export default function HomePage() {
             subtitle="Hêstir û keştiş"
             items={series.filter(s => {
               if (!s.genre) return false
-              const genres = typeof s.genre === 'string' ? JSON.parse(s.genre) : m.genre
+              const genres = typeof s.genre === 'string' ? JSON.parse(s.genre) : s.genre
               return genres.includes('Drama')
             })}
             showViewAll
@@ -273,7 +241,7 @@ export default function HomePage() {
         {/* Documentary Series */}
         {series && series.filter(s => {
           if (!s.genre) return false
-          const genres = typeof s.genre === 'string' ? JSON.parse(s.genre) : m.genre
+          const genres = typeof s.genre === 'string' ? JSON.parse(s.genre) : s.genre
           return genres.includes('Documentary')
         })?.length > 0 && (
           <ContentGrid
@@ -281,7 +249,7 @@ export default function HomePage() {
             subtitle="Rastiyên cîhanê"
             items={series.filter(s => {
               if (!s.genre) return false
-              const genres = typeof s.genre === 'string' ? JSON.parse(s.genre) : m.genre
+              const genres = typeof s.genre === 'string' ? JSON.parse(s.genre) : s.genre
               return genres.includes('Documentary')
             })}
             showViewAll
@@ -293,20 +261,16 @@ export default function HomePage() {
       </div>
 
       {/* Enhanced Info Modal */}
-      <AnimatePresence>
+      <div>
         {showInfoModal && featuredMovie && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <div
+
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setShowInfoModal(false)}
           >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 50 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 50 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            <div
+
+
               className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-700/30"
               onClick={(e) => e.stopPropagation()}
             >
@@ -320,14 +284,13 @@ export default function HomePage() {
                   <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-transparent to-transparent" />
                   
                   {/* Close Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.1, rotate: 90 }}
-                    whileTap={{ scale: 0.9 }}
+                  <button
+
                     onClick={() => setShowInfoModal(false)}
                     className="absolute top-4 right-4 text-white hover:text-red-400 transition-colors p-2 bg-black/30 rounded-full backdrop-blur-sm"
                   >
-                    <X className="w-6 h-6" />
-                  </motion.button>
+                    ✕
+                  </button>
 
                   {/* Movie Title Overlay */}
                   <div className="absolute bottom-6 left-6 right-6">
@@ -337,19 +300,19 @@ export default function HomePage() {
                     <div className="flex items-center gap-4 text-gray-300">
                       {featuredMovie.rating && (
                         <div className="flex items-center gap-2">
-                          <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                          ⭐
                           <span className="font-semibold">{featuredMovie.rating}</span>
                         </div>
                       )}
                       {featuredMovie.year && (
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-5 h-5 text-blue-400" />
+                          📅
                           <span>{featuredMovie.year}</span>
                         </div>
                       )}
                       {featuredMovie.duration && (
                         <div className="flex items-center gap-2">
-                          <Clock className="w-5 h-5 text-green-400" />
+                          🕐
                           <span>{Math.floor(featuredMovie.duration / 60)}d</span>
                         </div>
                       )}
@@ -381,7 +344,7 @@ export default function HomePage() {
                     {featuredMovie.genre && (
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                                                  <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
-                           <Award className="w-6 h-6 text-purple-400" />
+                                                       🏆
                            Cureyên Fîlmê
                          </h3>
                         <div className="flex flex-wrap gap-3">
@@ -401,7 +364,7 @@ export default function HomePage() {
                     {featuredMovie.director && (
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                                                  <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
-                           <Users className="w-6 h-6 text-green-400" />
+                                                       👥
                            Derhêner
                          </h3>
                         <p className="text-gray-300 text-lg">{featuredMovie.director}</p>
@@ -411,7 +374,7 @@ export default function HomePage() {
                     {featuredMovie.cast && featuredMovie.cast.length > 0 && (
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                                                  <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
-                           <Users className="w-6 h-6 text-yellow-400" />
+                                                       👥
                            Lîstikvan
                          </h3>
                         <div className="flex flex-wrap gap-3">
@@ -433,7 +396,7 @@ export default function HomePage() {
                     {/* Quick Stats */}
                     <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                                              <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-                         <Film className="w-6 h-6 text-red-400" />
+                                                   🎬
                          Agahiyên Bilez
                        </h3>
                       <div className="space-y-3">
@@ -457,7 +420,7 @@ export default function HomePage() {
                            <div className="flex items-center justify-between">
                              <span className="text-gray-400">Nirx:</span>
                              <span className="text-white font-medium flex items-center gap-2">
-                               <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                               ⭐
                                {featuredMovie.rating}
                              </span>
                            </div>
@@ -497,19 +460,17 @@ export default function HomePage() {
                          Çalakiyên Bilez
                        </h3>
                       <div className="space-y-3">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
+                        <button
+
                           onClick={() => window.location.href = `/videos/${featuredMovie.id}`}
                           className="w-full py-3 px-4 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-3"
                         >
                           <span className="text-lg">▶️</span>
                           Fîlmê Bibîne
-                        </motion.button>
+                        </button>
                         
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
+                        <button
+
                           onClick={() => {
                             if (navigator.share) {
                               navigator.share({
@@ -524,18 +485,18 @@ export default function HomePage() {
                           }}
                           className="w-full py-3 px-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-3"
                         >
-                          <Share2 className="w-5 h-5" />
+                          📤
                           Parve Bike
-                        </motion.button>
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
+      </div>
     </div>
   )
 }

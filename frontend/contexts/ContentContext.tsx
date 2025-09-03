@@ -44,7 +44,7 @@ interface ContentProviderProps {
   children: ReactNode
 }
 
-export const ContentProvider: React.FC<ContentProviderProps> = ({ children }) => {
+export const ContentProvider = ({ children }: ContentProviderProps) => {
   const [movies, setMovies] = useState<Movie[]>([])
   const [series, setSeries] = useState<Series[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -76,7 +76,7 @@ export const ContentProvider: React.FC<ContentProviderProps> = ({ children }) =>
       const response = await fetch('http://localhost:3005/api/videos')
       if (response.ok) {
         const allVideos = await response.json()
-        const movieVideos = allVideos.filter(v => v.type === 'movie')
+        const movieVideos = allVideos.filter((v: any) => v.type === 'movie')
         setMovies(movieVideos as Movie[])
         
         // Update featured and new releases
@@ -97,7 +97,7 @@ export const ContentProvider: React.FC<ContentProviderProps> = ({ children }) =>
       const response = await fetch('http://localhost:3005/api/videos')
       if (response.ok) {
         const allVideos = await response.json()
-        const seriesVideos = allVideos.filter(v => v.type === 'series')
+        const seriesVideos = allVideos.filter((v: any) => v.type === 'series')
         setSeries(seriesVideos as Series[])
         
         // Update featured and new releases
@@ -146,7 +146,7 @@ export const ContentProvider: React.FC<ContentProviderProps> = ({ children }) =>
           ? JSON.parse(content.genre) 
           : []
       
-      return contentGenres.some(genre => 
+            return contentGenres.some((genre: any) =>
         genre.toLowerCase() === category.name.toLowerCase()
       )
     })
@@ -180,7 +180,7 @@ export const ContentProvider: React.FC<ContentProviderProps> = ({ children }) =>
               ? JSON.parse(currentContent.genre) 
               : []
           
-          return contentGenres.some(genre => currentGenres.includes(genre))
+          return contentGenres.some((genre: any) => currentGenres.includes(genre))
         } catch (error) {
           console.error('❌ Error parsing genre:', error)
           return false

@@ -44,7 +44,7 @@ export default function LoginPage() {
 
         // User bilgilerini kontrol et
         if (!response.data.user || !response.data.user.id) {
-          setError('Giriş başarısız - kullanıcı bilgileri alınamadı')
+          setError('Têketin nehatibe serkeftin - agahiyên bikarhêner nehatibe wergirtin')
           return
         }
 
@@ -85,13 +85,13 @@ export default function LoginPage() {
       
       // Network/connection errors
       if (error.message?.includes('fetch') || error.message?.includes('network') || error.message?.includes('Failed to fetch')) {
-        setError('Backend sunucusuna bağlanılamıyor. Lütfen backend\'in çalıştığından emin olun.')
+        setError('Backend sunucusuna têkilî nayê dayîn. Ji kerema xwe backend\'ê çalak e kontrol bike.')
       } else if (error.message?.includes('401')) {
         setError('Email an jî şîfre çewt e. Ji kerema xwe kontrol bike.')
       } else if (error.message?.includes('404')) {
         setError('Ev email endam nîne. Ji kerema xwe pêşî endam bibe.')
       } else {
-        setError('Giriş yapılırken beklenmeyen hata: ' + (error.message || 'Bilinmeyen hata'))
+        setError('Di têketinê de çewtiya nexwezî: ' + (error.message || 'Çewtiya nenas'))
       }
     } finally {
       setLoading(false)

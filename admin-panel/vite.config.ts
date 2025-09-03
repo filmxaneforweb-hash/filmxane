@@ -14,6 +14,18 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['framer-motion', 'lucide-react'],
+        },
+      },
+    },
+  },
   define: {
     'process.env.VITE_API_BASE_URL': JSON.stringify('http://localhost:3005/api'),
   },

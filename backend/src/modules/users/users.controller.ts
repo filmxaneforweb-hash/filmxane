@@ -37,14 +37,14 @@ export class UsersController {
   @Get('profile')
   @ApiOperation({ summary: 'پڕۆفایلی بەکارهێنەر' })
   @ApiResponse({ status: 200, description: 'زانیاری بەکارهێنەر' })
-  async getProfile(@Req() req) {
+  async getProfile(@Req() req: any) {
     return await this.usersService.getProfile(req.user.id);
   }
 
   @Put('profile')
   @ApiOperation({ summary: 'نوێکردنەوەی پڕۆفایل' })
   @ApiResponse({ status: 200, description: 'پڕۆفایل بە سەرکەوتوویی نوێکرا' })
-  async updateProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+  async updateProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
     return await this.usersService.updateProfile(req.user.id, updateUserDto);
   }
 

@@ -62,13 +62,13 @@ export default function RegisterPage() {
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
-      setError('Şifreler eşleşmiyor')
+      setError('Şîfreyên newekhev in')
       setLoading(false)
       return
     }
 
     if (formData.password.length < 6) {
-      setError('Şifre en az 6 karakter olmalıdır')
+      setError('Şîfre divê bi kêmî 6 tîpan be')
       setLoading(false)
       return
     }
@@ -84,13 +84,13 @@ export default function RegisterPage() {
       if (response.success && response.data) {
         // Token'ı kontrol et
         if (!response.data.token) {
-          setError('Kayıt başarısız - token alınamadı')
+          setError('Tomarkirin nehatibe serkeftin - token nehatibe wergirtin')
           return
         }
 
         // User bilgilerini kontrol et
         if (!response.data.user || !response.data.user.id) {
-          setError('Kayıt başarısız - kullanıcı bilgileri alınamadı')
+          setError('Tomarkirin nehatibe serkeftin - agahiyên bikarhêner nehatibe wergirtin')
           return
         }
 
@@ -116,16 +116,16 @@ export default function RegisterPage() {
         // Otomatik giriş yap ve ana sayfaya yönlendir
         router.push('/')
       } else {
-        setError(response.error || 'Kayıt başarısız')
+        setError(response.error || 'Tomarkirin nehatibe serkeftin')
       }
     } catch (error: any) {
       console.error('Register error:', error)
       
       // Network/connection errors
       if (error.message?.includes('fetch') || error.message?.includes('network') || error.message?.includes('Failed to fetch')) {
-        setError('Backend sunucusuna bağlanılamıyor. Lütfen backend\'in çalıştığından emin olun.')
+        setError('Backend sunucusuna têkilî nayê dayîn. Ji kerema xwe backend\'ê çalak e kontrol bike.')
       } else {
-        setError('Kayıt olurken beklenmeyen hata: ' + (error.message || 'Bilinmeyen hata'))
+        setError('Di tomarkirinê de çewtiya nexwezî: ' + (error.message || 'Çewtiya nenas'))
       }
     } finally {
       setLoading(false)

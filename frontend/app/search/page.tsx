@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { motion } from 'framer-motion'
+// import { motion } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { Search, Filter, Clock, Star } from 'lucide-react'
 import { VideoCard } from '@/components/VideoCard'
 import { apiClient } from '@/lib/api'
@@ -169,12 +169,7 @@ export default function SearchPage() {
     <div className="min-h-screen bg-black pt-20">
       {/* Header */}
       <div className="container mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
             <span className="bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
               Lêgerîn
@@ -183,15 +178,10 @@ export default function SearchPage() {
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
             Fîlm û rêzefîlmên xwe bibînin
           </p>
-        </motion.div>
+        </div>
 
         {/* Search and Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 mb-8"
-        >
+        <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 mb-8">
           {/* Search Bar */}
           <div className="relative mb-6">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -266,15 +256,10 @@ export default function SearchPage() {
               Filtreleri Sıfırla
             </button>
           </div>
-        </motion.div>
+        </div>
 
         {/* Results Count */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mb-6"
-        >
+        <div className="mb-6">
           <p className="text-gray-400">
             {totalResults} encam hat dîtin
             {searchQuery && ` ji bo "${searchQuery}"`}
@@ -282,23 +267,13 @@ export default function SearchPage() {
             {selectedYear !== 'all' && ` di sala "${selectedYear}" de`}
             {selectedRating !== 'all' && ` rating ${selectedRating}`}
           </p>
-        </motion.div>
+        </div>
 
         {/* Search Results Grid */}
         {searchResults.length > 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {searchResults.map((content, index) => (
-              <motion.div
-                key={content.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 * index }}
-              >
+              <div key={content.id}>
                 <VideoCard
                   id={content.id}
                   title={content.title || 'Untitled'}
@@ -310,16 +285,11 @@ export default function SearchPage() {
                   rating={content.rating}
                   onWatch={() => handleWatchContent(content.id)}
                 />
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="text-center py-16"
-          >
+          <div className="text-center py-16">
             <div className="text-gray-400 text-6xl mb-4">🔍</div>
             <h3 className="text-2xl font-bold text-white mb-2">Encam nehat dîtin</h3>
             <p className="text-gray-400 mb-6">
@@ -334,17 +304,12 @@ export default function SearchPage() {
             >
               Hemû Encamên Bibînin
             </button>
-          </motion.div>
+          </div>
         )}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="mt-12 flex justify-center"
-          >
+          <div className="mt-12 flex justify-center">
             <div className="flex items-center space-x-2">
               {/* Previous Page */}
               <button
@@ -352,7 +317,7 @@ export default function SearchPage() {
                 disabled={currentPage === 1}
                 className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                ← Önceki
+                ← Berê
               </button>
 
               {/* Page Numbers */}
@@ -391,10 +356,10 @@ export default function SearchPage() {
                 disabled={currentPage === totalPages}
                 className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                Sonraki →
+                Paşê →
               </button>
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>

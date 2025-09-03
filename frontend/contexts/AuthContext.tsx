@@ -28,7 +28,7 @@ interface AuthProviderProps {
   children: ReactNode
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -73,7 +73,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         apiClient.setToken(token)
         
         // Store refresh token
-        localStorage.setItem('filmxane_refresh_token', refreshToken)
+        if (refreshToken) {
+          localStorage.setItem('filmxane_refresh_token', refreshToken)
+        }
         
         // Update user state
         setUser(userData)
@@ -109,7 +111,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         apiClient.setToken(token)
         
         // Store refresh token
-        localStorage.setItem('filmxane_refresh_token', refreshToken)
+        if (refreshToken) {
+          localStorage.setItem('filmxane_refresh_token', refreshToken)
+        }
         
         // Update user state
         setUser(userData)

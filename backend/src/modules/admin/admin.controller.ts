@@ -189,7 +189,7 @@ export class AdminController {
       // Create video using admin service
       const result = await this.adminService.createVideo(createVideoDto, videoFile, thumbnailFile);
       
-      console.log('✅ Video created successfully:', result.id)
+      console.log('✅ Video created successfully:', result)
       
       return {
         success: true,

@@ -65,8 +65,8 @@ export class VideosService {
     video.type = createVideoDto.type; // 'movie' or 'series'
     video.videoPath = `/uploads/videos/${videoFilename}`;
     video.videoUrl = `/uploads/videos/${videoFilename}`; // Frontend için URL
-    video.thumbnailPath = thumbnailPath;
-    video.thumbnailUrl = thumbnailPath; // Frontend için URL
+    video.thumbnailPath = thumbnailPath || undefined;
+    video.thumbnailUrl = thumbnailPath || undefined; // Frontend için URL
     video.episodeNumber = createVideoDto.episodeNumber;
     video.seasonNumber = createVideoDto.seasonNumber;
     video.seriesId = createVideoDto.seriesId;
@@ -82,7 +82,11 @@ export class VideosService {
   }
 
   async findOne(id: string): Promise<Video> {
-    return this.videosRepository.findOne({ where: { id } });
+    const video = await this.videosRepository.findOne({ where: { id } });
+    if (!video) {
+      throw new Error('Video bulunamadı');
+    }
+    return video;
   }
 
   async update(id: string, updateVideoDto: UpdateVideoDto): Promise<Video> {
@@ -503,7 +507,11 @@ export class VideosService {
   async updateWatchHistory(id: string, updateData: Partial<WatchHistory>): Promise<WatchHistory> {
     try {
       await this.watchHistoryRepository.update(id, updateData);
-      return await this.watchHistoryRepository.findOne({ where: { id } });
+      const updated = await this.watchHistoryRepository.findOne({ where: { id } });
+      if (!updated) {
+        throw new Error('Güncellenen izleme geçmişi bulunamadı.');
+      }
+      return updated;
     } catch (error) {
       console.error('İzleme geçmişi güncellenemedi:', error);
       throw error;

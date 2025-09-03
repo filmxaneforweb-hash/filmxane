@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+// import { motion } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { User, Mail, Lock, Bell, Eye, Globe, Palette, Volume2, Subtitles, Save, X } from 'lucide-react'
 import { apiClient } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
@@ -306,24 +306,14 @@ export default function SettingsPage() {
       {/* Hero Section */}
       <section className="py-16 px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <motion.h1 
-            className="text-5xl md:text-6xl font-bold text-white mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
             <span className="bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
               Mîhengên
             </span>
-          </motion.h1>
-          <motion.p 
-            className="text-xl text-slate-400 max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          </h1>
+          <p className="text-xl text-slate-400 max-w-3xl mx-auto">
             Hesaba xwe û mîhengên te yên şexsî yên xweşbînî bike
-          </motion.p>
+          </p>
         </div>
       </section>
 
@@ -331,12 +321,7 @@ export default function SettingsPage() {
       <section className="py-16 px-8">
         <div className="max-w-4xl mx-auto space-y-12">
           {/* Account Settings */}
-          <motion.div 
-            className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-8 border border-slate-600/30"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-8 border border-slate-600/30">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                 <User className="w-5 h-5 text-white" />
@@ -436,15 +421,10 @@ export default function SettingsPage() {
                 {saving ? 'Guhertin...' : 'Şîfre Biguherre'}
               </button>
             </div>
-          </motion.div>
+          </div>
 
           {/* Notification Settings */}
-          <motion.div 
-            className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-8 border border-slate-600/30"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-          >
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-8 border border-slate-600/30">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
                 <Bell className="w-5 h-5 text-white" />
@@ -482,15 +462,10 @@ export default function SettingsPage() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Privacy Settings */}
-          <motion.div 
-            className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-8 border border-slate-600/30"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-          >
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-8 border border-slate-600/30">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
                 <Eye className="w-5 h-5 text-white" />
@@ -521,15 +496,10 @@ export default function SettingsPage() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* General Settings */}
-          <motion.div 
-            className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-8 border border-slate-600/30"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.0 }}
-          >
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-8 border border-slate-600/30">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
                 <Globe className="w-5 h-5 text-white" />
@@ -608,15 +578,10 @@ export default function SettingsPage() {
                 {saving ? 'Tomarkirin...' : 'Hemû Tomarke'}
               </button>
             </div>
-          </motion.div>
+          </div>
 
           {/* Danger Zone */}
-          <motion.div 
-            className="bg-red-900/20 backdrop-blur-sm rounded-2xl p-8 border border-red-500/30"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.2 }}
-          >
+          <div className="bg-red-900/20 backdrop-blur-sm rounded-2xl p-8 border border-red-500/30">
             <h2 className="text-2xl font-bold text-red-400 mb-6">Qada Xetarê</h2>
             
             <div className="space-y-4">
@@ -662,7 +627,7 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
     </main>

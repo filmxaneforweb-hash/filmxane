@@ -4,6 +4,7 @@ import './globals.css'
 import { Navigation } from '@/components/Navigation'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ContentProvider } from '@/contexts/ContentContext'
+import { SettingsProvider } from '@/contexts/SettingsContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -68,22 +69,22 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <head>
         <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="icon" type="image/png" href="/newlogo.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#000000" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </head>
       <body className={`${inter.className} bg-black text-white antialiased`}>
-        <AuthProvider>
-          <ContentProvider>
-            <Navigation />
-            <main className="min-h-screen">
-              {children}
-            </main>
-          </ContentProvider>
-        </AuthProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <ContentProvider>
+              <Navigation />
+              <main className="min-h-screen">
+                {children}
+              </main>
+            </ContentProvider>
+          </AuthProvider>
+        </SettingsProvider>
       </body>
     </html>
   )

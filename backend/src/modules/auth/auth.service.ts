@@ -64,13 +64,13 @@ export class AuthService {
         lastName,
         status: UserStatus.ACTIVE,
         emailVerified: true,
-        emailVerificationToken: null,
+        emailVerificationToken: undefined,
       });
 
       console.log('👤 User object created:', { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName });
 
       const savedUser = await this.userRepository.save(user);
-      console.log('💾 User saved to database:', { id: savedUser.id, email: savedUser.email });
+      console.log('💾 User saved to database:', savedUser);
 
       // Generate JWT token
       console.log('🎫 Attempting to generate JWT token...');
@@ -82,7 +82,7 @@ export class AuthService {
         throw new Error('JWT token generation failed');
       }
 
-      console.log('🎉 Registration successful:', { userId: savedUser.id, tokenLength: token.length });
+      console.log('🎉 Registration successful:', { userId: savedUser, tokenLength: token.length });
       return { user: savedUser, token };
     } catch (error) {
       console.error('❌ Registration error:', error);
@@ -228,8 +228,8 @@ export class AuthService {
 
     // Update password and clear reset token
     user.password = hashedPassword;
-    user.passwordResetToken = null;
-    user.passwordResetExpires = null;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
 
     await this.userRepository.save(user);
   }
@@ -244,7 +244,7 @@ export class AuthService {
     }
 
     user.emailVerified = true;
-    user.emailVerificationToken = null;
+    user.emailVerificationToken = undefined;
 
     await this.userRepository.save(user);
   }

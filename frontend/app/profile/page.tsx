@@ -276,7 +276,7 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-black">
         <Navigation />
         <div className="pt-24 text-center">
-          <p className="text-white">Kullanıcı bulunamadı</p>
+          <p className="text-white">Bikarhêner nehatibe dîtin</p>
         </div>
       </div>
     )
@@ -290,14 +290,14 @@ export default function ProfilePage() {
       const diffTime = Math.abs(now.getTime() - date.getTime())
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
       
-      if (diffDays === 1) return 'Dün'
-      if (diffDays === 0) return 'Bugün'
-      if (diffDays < 7) return `${diffDays} gün önce`
-      if (diffDays < 30) return `${Math.floor(diffDays / 7)} hafta önce`
-      if (diffDays < 365) return `${Math.floor(diffDays / 30)} ay önce`
-      return `${Math.floor(diffDays / 365)} yıl önce`
+      if (diffDays === 1) return 'Duh'
+      if (diffDays === 0) return 'Îro'
+      if (diffDays < 7) return `${diffDays} roj berê`
+      if (diffDays < 30) return `${Math.floor(diffDays / 7)} hefte berê`
+      if (diffDays < 365) return `${Math.floor(diffDays / 30)} meh berê`
+      return `${Math.floor(diffDays / 365)} sal berê`
     } catch {
-      return 'Bilinmiyor'
+      return 'Nenas'
     }
   }
 
@@ -336,7 +336,7 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                 <Heart className="w-5 h-5 text-red-500" />
-                <span className="text-white">Favori Filmler</span>
+                <span className="text-white">Fîlmên Dilxwazî</span>
                 <span className="ml-auto text-gray-400">
                   {statsLoading ? (
                     <div className="animate-spin w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full"></div>
@@ -348,7 +348,7 @@ export default function ProfilePage() {
               
               <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                 <Clock className="w-5 h-5 text-blue-500" />
-                <span className="text-white">İzleme Süresi</span>
+                <span className="text-white">Demê Temaşekirinê</span>
                 <span className="ml-auto text-gray-400">
                   {statsLoading ? (
                     <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
@@ -360,7 +360,7 @@ export default function ProfilePage() {
 
               <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                 <Eye className="w-5 h-5 text-purple-500" />
-                <span className="text-white">Toplam İzlenme</span>
+                <span className="text-white">Tevahiya Temaşekirinê</span>
                 <span className="ml-auto text-gray-400">
                   {statsLoading ? (
                     <div className="animate-spin w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full"></div>
@@ -372,7 +372,7 @@ export default function ProfilePage() {
 
               <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                 <CheckCircle className="w-5 h-5 text-green-500" />
-                <span className="text-white">Tamamlanan</span>
+                <span className="text-white">Temamkirî</span>
                 <span className="ml-auto text-gray-400">
                   {statsLoading ? (
                     <div className="animate-spin w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full"></div>
@@ -384,7 +384,7 @@ export default function ProfilePage() {
               
               <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                 <Calendar className="w-5 h-5 text-green-500" />
-                <span className="text-white">Üyelik Tarihi</span>
+                <span className="text-white">Dîroka Endamtiyê</span>
                 <span className="ml-auto text-gray-400">
                   {statsLoading ? (
                     <div className="animate-spin w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full"></div>
@@ -401,7 +401,7 @@ export default function ProfilePage() {
                 onClick={() => router.push('/mylist')}
                 className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors"
               >
-                Favori Listem ({stats.favoritesCount})
+                Lîsta Dilxwaziyê ({stats.favoritesCount})
               </button>
               
               <button 
@@ -415,7 +415,7 @@ export default function ProfilePage() {
                 }}
                 className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-colors"
               >
-                Çıkış Yap
+                Derkeve
               </button>
             </div>
 

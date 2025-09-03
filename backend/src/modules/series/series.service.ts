@@ -22,7 +22,7 @@ export class SeriesService {
     });
   }
 
-  async findOne(id: string): Promise<Series> {
+  async findOne(id: string): Promise<Series | null> {
     return this.seriesRepository.findOne({ where: { id } });
   }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { motion } from 'framer-motion'
+// import { div } from 'framer-div' // SSR sorunu nedeniyle kaldırıldı
 import { ChevronLeft, ChevronRight, Film, Heart, Zap, Map, Ghost, Microscope, BookOpen } from 'lucide-react'
 
 export function Categories() {
@@ -115,21 +115,18 @@ export function Categories() {
     <section className="py-16 bg-gradient-to-br from-slate-900/50 via-slate-800/30 to-slate-900/50">
       <div className="px-8 max-w-7xl mx-auto">
         {/* Modern section header with enhanced styling */}
-        <motion.div 
+        <div 
           className="flex items-center justify-between mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+
         >
           <div className="flex items-center gap-4">
             {/* Modern category icon */}
-            <motion.div 
+            <div 
               className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-xl"
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              transition={{ duration: 0.2 }}
+
             >
               <Film className="w-7 h-7 text-white" />
-            </motion.div>
+            </div>
             
             {/* Enhanced title section */}
             <div>
@@ -144,24 +141,22 @@ export function Categories() {
           
           {/* Modern navigation arrows */}
           <div className="flex items-center gap-3">
-            <motion.button 
+            <button 
               onClick={scrollLeft}
               className="p-3 bg-slate-800/40 backdrop-blur-sm hover:bg-slate-700/60 text-slate-300 hover:text-white rounded-xl transition-all duration-300 border border-slate-600/30 hover:border-slate-500/50 shadow-lg"
-              whileHover={{ scale: 1.05, x: -2 }}
-              whileTap={{ scale: 0.95 }}
+
             >
               <ChevronLeft className="w-5 h-5" />
-            </motion.button>
-            <motion.button 
+            </button>
+            <button 
               onClick={scrollRight}
               className="p-3 bg-slate-800/40 backdrop-blur-sm hover:bg-slate-700/60 text-slate-300 hover:text-white rounded-xl transition-all duration-300 border border-slate-600/30 hover:border-slate-500/50 shadow-lg"
-              whileHover={{ scale: 1.05, x: 2 }}
-              whileTap={{ scale: 0.95 }}
+
             >
               <ChevronRight className="w-5 h-5" />
-            </motion.button>
+            </button>
           </div>
-        </motion.div>
+        </div>
         
         {/* Modern category grid with enhanced cards */}
         <div 
@@ -171,43 +166,39 @@ export function Categories() {
           {categories.map((category, index) => {
             const IconComponent = category.icon
             return (
-              <motion.div
+              <div
                 key={category.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+
                 className="group"
               >
-                <motion.button
+                <button
                   onClick={() => handleCategoryClick(category.id)}
                   className={`relative w-full p-6 rounded-2xl transition-all duration-300 text-center overflow-hidden ${
                     selectedCategory === category.id
                       ? 'bg-gradient-to-br from-red-500 to-red-600 text-white transform scale-105 shadow-2xl shadow-red-500/25'
                       : 'bg-slate-800/40 backdrop-blur-sm text-slate-300 hover:text-white hover:scale-105 hover:bg-slate-700/60 border border-slate-600/30 hover:border-slate-500/50'
                   }`}
-                  whileHover={{ y: -4 }}
-                  whileTap={{ scale: 0.98 }}
+
                 >
                   {/* Background gradient overlay */}
                   {selectedCategory === category.id && (
-                    <motion.div
+                    <div
                       className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      initial={false}
+
                     />
                   )}
                   
                   {/* Icon with enhanced styling */}
-                  <motion.div 
+                  <div 
                     className={`relative mb-4 mx-auto w-16 h-16 rounded-2xl flex items-center justify-center ${
                       selectedCategory === category.id 
                         ? 'bg-white/20 backdrop-blur-sm' 
                         : `bg-gradient-to-br ${category.color}`
                     }`}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ duration: 0.2 }}
+
                   >
                     <IconComponent className="w-8 h-8 text-white" />
-                  </motion.div>
+                  </div>
                   
                   {/* Content */}
                   <div className="relative z-10">
@@ -218,28 +209,25 @@ export function Categories() {
                       {category.videoCount} video
                     </p>
                   </div>
-                </motion.button>
-              </motion.div>
+                </button>
+              </div>
             )
           })}
         </div>
 
         {/* Modern "Explore All" button */}
-        <motion.div 
+        <div 
           className="flex justify-center mt-12"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
+
         >
-          <motion.button
+                          <button
             onClick={handleExploreAll}
             className="px-10 py-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl transition-all duration-300 font-semibold shadow-xl hover:shadow-2xl hover:shadow-red-500/25"
-            whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.98 }}
+
           >
             Hemû Kategorî Bibîne →
-          </motion.button>
-        </motion.div>
+                          </button>
+        </div>
       </div>
     </section>
   )

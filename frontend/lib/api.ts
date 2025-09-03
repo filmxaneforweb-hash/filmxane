@@ -27,6 +27,7 @@ export interface User {
 export interface AuthResponse {
   user: User
   token: string
+  refreshToken?: string
 }
 
 // Content Types
@@ -56,6 +57,7 @@ export interface Movie {
   isNew: boolean
   views: number
   likes: number
+  type: 'movie'
   createdAt: string
   updatedAt: string
 }
@@ -84,6 +86,7 @@ export interface Series {
   views: number
   likes: number
   rating: number
+  type: 'series'
   seasons: Season[]
   createdAt: string
   updatedAt: string
@@ -315,6 +318,42 @@ class ApiClient {
 
   async getProfile(): Promise<ApiResponse<User>> {
     return this.request<User>('/auth/me')
+  }
+
+  async getUserSettings(): Promise<ApiResponse<any>> {
+    return this.request<any>('/user/settings')
+  }
+
+  async updateUserSettings(settings: any): Promise<ApiResponse<any>> {
+    return this.request<any>('/user/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    })
+  }
+
+  async changePassword(data: { currentPassword: string; newPassword: string }): Promise<ApiResponse<any>> {
+    return this.request<any>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async resetUserSettings(): Promise<ApiResponse<any>> {
+    return this.request<any>('/user/settings/reset', {
+      method: 'POST',
+    })
+  }
+
+  async exportUserData(): Promise<ApiResponse<any>> {
+    return this.request<any>('/user/export-data', {
+      method: 'GET',
+    })
+  }
+
+  async deleteUserAccount(): Promise<ApiResponse<any>> {
+    return this.request<any>('/user/delete-account', {
+      method: 'DELETE',
+    })
   }
 
   // Content APIs

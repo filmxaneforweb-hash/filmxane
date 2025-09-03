@@ -42,7 +42,7 @@ export default function ApiTestPage() {
       // Test 4: Auth Test Endpoint
       console.log('🧪 Testing Auth Test Endpoint...')
       try {
-        const authTestResponse = await fetch('http://localhost:3001/api/auth/test')
+        const authTestResponse = await fetch('http://localhost:3005/api/auth/test')
         const authTestData = await authTestResponse.json()
         results.authTest = {
           success: authTestResponse.ok,
@@ -52,7 +52,7 @@ export default function ApiTestPage() {
       } catch (error) {
         results.authTest = {
           success: false,
-          error: error.message
+          error: error instanceof Error ? error.message : 'Unknown error'
         }
       }
 
@@ -75,9 +75,9 @@ export default function ApiTestPage() {
           <div className="space-y-2 text-sm">
             <p><strong>Base URL:</strong> {typeof window !== 'undefined' ? window.location.origin : 'Server-side'}</p>
             <p><strong>Current Port:</strong> {typeof window !== 'undefined' ? window.location.port : 'Unknown'}</p>
-            <strong>Expected Backend:</strong> localhost:3001</p>
+            <p><strong>Expected Backend:</strong> localhost:3005</p>
             <p><strong>API Endpoint:</strong> /api</p>
-            <p><strong>Full API URL:</strong> http://localhost:3001/api</p>
+            <p><strong>Full API URL:</strong> http://localhost:3005/api</p>
           </div>
         </div>
 
@@ -107,7 +107,7 @@ export default function ApiTestPage() {
         <div className="mt-8 bg-yellow-900/20 border border-yellow-600 p-4 rounded-lg">
           <h3 className="text-lg font-semibold text-yellow-400 mb-2">💡 Sorun Giderme</h3>
           <ul className="text-sm space-y-1">
-            <li>• Backend'in 3001 portunda çalıştığından emin ol</li>
+            <li>• Backend'in 3005 portunda çalıştığından emin ol</li>
             <li>• Frontend'in 3000 veya 3002 portunda çalıştığından emin ol</li>
             <li>• Console'da hata mesajlarını kontrol et</li>
             <li>• Network tab'ında API çağrılarını incele</li>

@@ -111,8 +111,10 @@ export class CreateVideosTable1709999999999 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable('videos');
-    const foreignKey = table.foreignKeys.find(fk => fk.columnNames.indexOf('categoryId') !== -1);
-    await queryRunner.dropForeignKey('videos', foreignKey);
+    const foreignKey = table?.foreignKeys.find(fk => fk.columnNames.indexOf('categoryId') !== -1);
+    if (foreignKey) {
+      await queryRunner.dropForeignKey('videos', foreignKey);
+    }
     await queryRunner.dropTable('videos');
   }
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+// import { motion } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { Play, Heart, Clock, MoreVertical, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -213,13 +213,7 @@ export function VideoCard({
 
   return (
     <Link href={`/videos/${id}`} className="block">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ scale: 1.02, y: -4 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        className="group relative bg-slate-800/50 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer border border-slate-700/30 hover:border-slate-600/50 backdrop-blur-sm"
-      >
+      <div className="group relative bg-slate-800/50 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer border border-slate-700/30 hover:border-slate-600/50 backdrop-blur-sm hover:scale-102 hover:-translate-y-1">
       {/* Thumbnail - Netflix style */}
       <div className="relative aspect-video overflow-hidden">
         <Image
@@ -331,7 +325,7 @@ export function VideoCard({
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
     </Link>
   )
 }

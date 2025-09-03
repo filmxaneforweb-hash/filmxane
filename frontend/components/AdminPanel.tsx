@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+// import { div } from 'framer-div' // SSR sorunu nedeniyle kaldırıldı
 import { 
   Upload, 
   Users, 
@@ -179,7 +179,7 @@ export function AdminPanel() {
         <div className="min-h-[600px]">
           {/* Dashboard Tab */}
           {activeTab === 'dashboard' && (
-            <motion.div
+            <div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
@@ -252,12 +252,12 @@ export function AdminPanel() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* Upload Tab */}
           {activeTab === 'upload' && (
-            <motion.div
+            <div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="max-w-2xl"
@@ -407,12 +407,12 @@ export function AdminPanel() {
                   {isLoading ? 'Uploading...' : 'Upload Content'}
                 </button>
               </form>
-            </motion.div>
+            </div>
           )}
 
           {/* Movies Tab */}
           {activeTab === 'movies' && (
-            <motion.div
+            <div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -473,12 +473,12 @@ export function AdminPanel() {
                   </tbody>
                 </table>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* Series Tab */}
           {activeTab === 'series' && (
-            <motion.div
+            <div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -539,12 +539,12 @@ export function AdminPanel() {
                   </tbody>
                 </table>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* Users Tab */}
           {activeTab === 'users' && (
-            <motion.div
+            <div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -552,12 +552,12 @@ export function AdminPanel() {
               <div className="bg-slate-800 rounded-lg p-6">
                 <p className="text-slate-400">User management features coming soon...</p>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* Settings Tab */}
           {activeTab === 'settings' && (
-            <motion.div
+            <div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -565,7 +565,7 @@ export function AdminPanel() {
               <div className="bg-slate-800 rounded-lg p-6">
                 <p className="text-slate-400">Platform settings features coming soon...</p>
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>

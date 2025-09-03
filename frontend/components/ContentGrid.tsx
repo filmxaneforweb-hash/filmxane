@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Play, Heart, Clock, Star } from 'lucide-react'
 import Link from 'next/link'
 import { Movie, Series } from '@/lib/api'
@@ -67,29 +66,21 @@ export function ContentGrid({
         <div className="relative group">
           {/* Scroll Buttons */}
           {canScrollLeft && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/80 hover:bg-black text-white rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 shadow-lg"
+            <button
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/80 hover:bg-black text-white rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 shadow-lg hover:scale-110 active:scale-95"
               onClick={scrollLeft}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
             >
               <ChevronLeft className="w-6 h-6" />
-            </motion.button>
+            </button>
           )}
 
           {canScrollRight && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/80 hover:bg-black text-white rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 shadow-lg"
+            <button
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/80 hover:bg-black text-white rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 shadow-lg hover:scale-110 active:scale-95"
               onClick={scrollRight}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
             >
               <ChevronRight className="w-6 h-6" />
-            </motion.button>
+            </button>
           )}
 
           {/* Content Grid */}
@@ -99,11 +90,8 @@ export function ContentGrid({
               const itemIndex = startIndex + index
               
               return (
-                <motion.div
+                <div
                   key={item.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
                   className="flex-shrink-0 w-64 group/item"
                 >
                   <Link href={`/videos/${item.id}`}>
@@ -190,7 +178,7 @@ export function ContentGrid({
                       </div>
                     </div>
                   </Link>
-                </motion.div>
+                </div>
               )
             })}
           </div>

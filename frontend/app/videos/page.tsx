@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+// import { motion } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { Search, Film, TrendingUp, Star, Clock, Users } from 'lucide-react'
 import { VideoRow } from '@/components/VideoRow'
 import { useContent } from '@/contexts/ContentContext'
@@ -67,35 +67,20 @@ export default function VideosPage() {
               />
               <div className="absolute inset-0 bg-black/60 rounded-2xl" />
               <div className="relative z-10 py-16 px-8">
-                <motion.h1 
-                  className="text-5xl md:text-6xl font-bold text-white mb-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                >
+                <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
                   <span className="bg-gradient-to-r from-white via-purple-100 to-purple-200 bg-clip-text text-transparent">
                     Hemû Fîlm û Rêzefîlm
                   </span>
-                </motion.h1>
-                <motion.p 
-                  className="text-xl text-slate-400 max-w-3xl mx-auto mb-8"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                >
+                </h1>
+                <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-8">
                   Herî baştirîn naverokên kurdî û cîhanî bibîne û temaşe bike
-                </motion.p>
+                </p>
               </div>
             </div>
           )}
 
           {/* Search Bar */}
-          <motion.div 
-            className="max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
+          <div className="max-w-2xl mx-auto">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
@@ -106,17 +91,15 @@ export default function VideosPage() {
                 placeholder="Fîlm, rêzefîlm an jî aktor lêbigere..."
                 className="w-full pl-12 pr-4 py-4 bg-slate-800/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
               />
-              <motion.button
+              <button
                 onClick={handleSearch}
                 disabled={isSearching || !searchQuery.trim()}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors duration-200"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors duration-200 hover:scale-105 active:scale-95"
               >
                 {isSearching ? 'Lêdigere...' : 'Lêbigere'}
-              </motion.button>
+              </button>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 

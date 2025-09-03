@@ -142,7 +142,7 @@ export class AdminService {
       .limit(2)
       .getMany();
 
-    const activities = [];
+    const activities: any[] = [];
 
     // Add video activities
     recentVideos.forEach((video, index) => {
@@ -647,7 +647,8 @@ export class AdminService {
       console.log('Final genre array:', genreArray);
       
       // Create video entity
-      const video = this.videosRepository.create({
+      const video = new Video();
+      Object.assign(video, {
         title: createVideoDto.title || '',
         description: createVideoDto.description || '',
         genre: JSON.stringify(genreArray), // JSON string olarak sakla
@@ -676,7 +677,7 @@ export class AdminService {
       console.log('Video entity created:', video);
       
       const savedVideo = await this.videosRepository.save(video);
-      console.log('Video saved to database:', savedVideo.id);
+      console.log('Video saved to database:', savedVideo);
       
       // WebSocket ile admin'lere bildir
       this.adminGateway.notifyVideoAdded(savedVideo);
@@ -770,7 +771,8 @@ export class AdminService {
       
       // For now, we'll create a video with type SERIES
       // In the future, you might want a separate series table
-      const series = this.videosRepository.create({
+      const series = new Video();
+      Object.assign(series, {
         title: createSeriesDto.title,
         description: createSeriesDto.description,
         genre: JSON.stringify(genreArray), // JSON string olarak sakla
@@ -789,7 +791,7 @@ export class AdminService {
       });
 
       const savedSeries = await this.videosRepository.save(series);
-      console.log('✅ Series created successfully:', savedSeries.id);
+      console.log('✅ Series created successfully:', savedSeries);
       
       // WebSocket ile admin'lere bildir
       this.adminGateway.notifySeriesAdded(savedSeries);

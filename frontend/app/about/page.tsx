@@ -1,4 +1,6 @@
-import { motion } from 'framer-motion'
+'use client'
+
+// import { motion } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { Film, Users, Globe, Heart, Award, Star } from 'lucide-react'
 
 export default function AboutPage() {
@@ -46,65 +48,44 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="py-16 px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <motion.h1 
-            className="text-5xl md:text-6xl font-bold text-white mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
             <span className="bg-gradient-to-r from-white via-green-100 to-green-200 bg-clip-text text-transparent">
               Derbarê Me
             </span>
-          </motion.h1>
-          <motion.p 
-            className="text-xl text-slate-400 max-w-3xl mx-auto mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          </h1>
+          <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-8">
             Filmxane, platformeke vîdyo ya kurdî ye ku dixwaze kultûra kurdî û cîhanî belav bike
-          </motion.p>
-          <motion.button
+          </p>
+          <button
             onClick={handleContactClick}
-            className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-all duration-200"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
           >
             Bi Me Re Têkilî Daynin
-          </motion.button>
+          </button>
         </div>
       </section>
 
       {/* Features Grid */}
       <section className="py-16 px-8">
         <div className="max-w-7xl mx-auto">
-          <motion.h2 
-            className="text-3xl font-bold text-white mb-12 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-          >
+          <h2 className="text-3xl font-bold text-white mb-12 text-center">
             Taybetmendiyên Me
-          </motion.h2>
+          </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => {
               const IconComponent = feature.icon
               return (
-                <motion.div
+                <div
                   key={feature.title}
                   className="bg-slate-800/40 backdrop-blur-sm p-8 rounded-2xl border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300 group hover:scale-105"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
                 >
                   <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <IconComponent className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-4">{feature.title}</h3>
                   <p className="text-slate-400 leading-relaxed">{feature.description}</p>
-                </motion.div>
+                </div>
               )
             })}
           </div>
@@ -114,12 +95,7 @@ export default function AboutPage() {
       {/* Mission Statement */}
       <section className="py-16 px-8">
         <div className="max-w-4xl mx-auto">
-          <motion.div 
-            className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-12 border border-slate-600/30 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.4 }}
-          >
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-12 border border-slate-600/30 text-center">
             <h2 className="text-3xl font-bold text-white mb-6">Mîsyona Me</h2>
             <p className="text-lg text-slate-300 leading-relaxed mb-8">
               Em dixwazin platformeke vîdyo ya kurdî ava bikin ku hemû kurd û hevalên kurdan 
@@ -129,7 +105,7 @@ export default function AboutPage() {
             <p className="text-slate-400">
               Bi hevra, em dikarin çêbikin platformeke mezin û dewlemend ji bo hemû kurdan.
             </p>
-          </motion.div>
+          </div>
         </div>
       </section>
     </main>

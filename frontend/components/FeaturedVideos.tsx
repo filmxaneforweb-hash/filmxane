@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+// import { div } from 'framer-div' // SSR sorunu nedeniyle kaldırıldı
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { VideoCard } from './VideoCard'
 import { getSafeImageUrl, getResponsiveGridClass } from '@/lib/utils'
@@ -96,11 +96,9 @@ export function FeaturedVideos() {
         {/* Netflix style video grid */}
         <div className={`${getResponsiveGridClass()} gap-3`}>
           {videos.map((video, index) => (
-            <motion.div
+            <div
               key={video.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+
             >
               <VideoCard 
                 id={video.id}
@@ -110,7 +108,7 @@ export function FeaturedVideos() {
                 duration={video.duration}
                 rating={video.rating}
               />
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

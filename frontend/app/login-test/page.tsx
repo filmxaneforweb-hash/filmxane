@@ -26,7 +26,7 @@ export default function LoginTestPage() {
         message: response.message
       })
 
-      if (response.success) {
+      if (response.success && response.data) {
         console.log('✅ Login successful:', response.data)
         // Store token
         apiClient.setToken(response.data.token)
@@ -114,7 +114,7 @@ export default function LoginTestPage() {
         <div className="mt-8 bg-yellow-900/20 border border-yellow-600 p-4 rounded-lg">
           <h3 className="text-lg font-semibold text-yellow-400 mb-2">💡 Test Bilgileri</h3>
           <ul className="text-sm space-y-1">
-            <li>• Backend'in 3001 portunda çalıştığından emin ol</li>
+            <li>• Backend'in 3005 portunda çalıştığından emin ol</li>
             <li>• Database'de test kullanıcıları seeded olmalı</li>
             <li>• Console'da login loglarını kontrol et</li>
             <li>• Network tab'ında API çağrısını incele</li>

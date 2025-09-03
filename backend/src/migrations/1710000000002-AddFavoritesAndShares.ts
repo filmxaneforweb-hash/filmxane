@@ -79,8 +79,8 @@ export class AddFavoritesAndShares1710000000002 implements MigrationInterface {
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Foreign key'leri kaldır
     const favoritesTable = await queryRunner.getTable('favorites')
-    const userIdForeignKey = favoritesTable.foreignKeys.find(fk => fk.columnNames.indexOf('userId') !== -1)
-    const videoIdForeignKey = favoritesTable.foreignKeys.find(fk => fk.columnNames.indexOf('videoId') !== -1)
+    const userIdForeignKey = favoritesTable?.foreignKeys.find(fk => fk.columnNames.indexOf('userId') !== -1)
+    const videoIdForeignKey = favoritesTable?.foreignKeys.find(fk => fk.columnNames.indexOf('videoId') !== -1)
     
     if (userIdForeignKey) {
       await queryRunner.dropForeignKey('favorites', userIdForeignKey)

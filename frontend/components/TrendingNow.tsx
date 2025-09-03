@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+// import { motion } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { VideoCard } from './VideoCard'
 import { getSafeImageUrl, getResponsiveGridClass } from '@/lib/utils'
@@ -91,11 +91,8 @@ export function TrendingNow() {
         {/* Horizontal Scrolling Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {trendingVideos.map((video, index) => (
-            <motion.div
+            <div
               key={video.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <VideoCard 
                 id={video.id}
@@ -105,7 +102,7 @@ export function TrendingNow() {
                 duration={video.duration}
                 rating={video.rating}
               />
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

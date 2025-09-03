@@ -44,8 +44,8 @@ import { DatabaseConfig } from './config/database.config';
     // Rate limiting
     ThrottlerModule.forRoot([
       {
-        ttl: parseInt(process.env.THROTTLE_TTL) || 60,
-        limit: parseInt(process.env.THROTTLE_LIMIT) || 100,
+        ttl: parseInt(process.env.THROTTLE_TTL || '60'),
+        limit: parseInt(process.env.THROTTLE_LIMIT || '100'),
       },
     ]),
 

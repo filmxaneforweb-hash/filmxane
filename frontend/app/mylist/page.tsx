@@ -219,16 +219,16 @@ export default function MyListPage() {
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-gray-300 hover:text-white transition-colors">
-                Ana Sayfa
+                Serê Rûpelê
               </Link>
               <Link href="/movies" className="text-gray-300 hover:text-white transition-colors">
-                Filmler
+                Fîlmên
               </Link>
               <Link href="/series" className="text-gray-300 hover:text-white transition-colors">
-                Diziler
+                Rêzefîlmên
               </Link>
               <Link href="/profile" className="text-gray-300 hover:text-white transition-colors">
-                Profilim
+                Profîla Min
               </Link>
             </div>
           </div>
@@ -238,8 +238,8 @@ export default function MyListPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">🎬 Favori Listem</h1>
-          <p className="text-gray-400">Beğendiğiniz film ve diziler burada saklanır</p>
+          <h1 className="text-3xl font-bold text-white mb-2">🎬 Lîsta Dilxwaziyê</h1>
+          <p className="text-gray-400">Fîlm û rêzefîlmên ku hûn hez dikin li vir têne hilanîn</p>
         </div>
 
         {error && (
@@ -251,13 +251,13 @@ export default function MyListPage() {
         {favorites.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-8xl mb-6">💔</div>
-            <h2 className="text-2xl font-bold text-white mb-4">Henüz favori listeniz boş</h2>
-            <p className="text-gray-400 mb-8">Filmleri keşfetmeye başlayın ve beğendiklerinizi favorilere ekleyin</p>
+            <h2 className="text-2xl font-bold text-white mb-4">Hîn lîsta dilxwaziyê vala ye</h2>
+            <p className="text-gray-400 mb-8">Dest bi keşfkirina fîlman bike û yên ku hûn hez dikin bixe dilxwaziyê</p>
             <Link 
               href="/movies" 
               className="inline-block bg-red-600 hover:bg-red-700 text-white py-3 px-8 rounded-lg font-medium transition-colors"
             >
-              Filmleri Keşfet
+              Fîlmên Keşf Bike
             </Link>
           </div>
         ) : (
@@ -332,20 +332,20 @@ export default function MyListPage() {
                   <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      {content.duration ? `${Math.floor(content.duration / 60)}d ${Math.floor(content.duration % 60)}m` : 'Bilinmiyor'}
+                      {content.duration ? `${Math.floor(content.duration / 60)}d ${Math.floor(content.duration % 60)}m` : 'Nenas'}
                     </span>
                     <span className="flex items-center gap-1">
                       <Star className="w-4 h4 text-yellow-500" />
-                      {content.rating ? content.rating.toFixed(1) : 'Bilinmiyor'}
+                      {content.rating ? content.rating.toFixed(1) : 'Nenas'}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">
-                      {content.year || 'Bilinmiyor'}
+                      {content.year || 'Nenas'}
                     </span>
                     <span className="text-xs bg-red-600 text-white px-2 py-1 rounded">
-                      {content.type === 'movie' ? 'Film' : 'Dizi'}
+                      {content.type === 'movie' ? 'Fîlm' : 'Rêzefîlm'}
                     </span>
                   </div>
 

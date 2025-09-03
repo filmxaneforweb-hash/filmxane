@@ -200,7 +200,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Token yenileme' })
   @ApiResponse({ status: 200, description: 'Yeni token oluşturuldu' })
   @ApiResponse({ status: 401, description: 'Token süresi dolmuş' })
-  async refreshToken(@Req() req) {
+  async refreshToken(@Req() req: any) {
     return await this.authService.refreshToken(req.user.id);
   }
 
@@ -221,7 +221,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Kullanıcı bilgileri' })
   @ApiResponse({ status: 200, description: 'Kullanıcı bilgileri' })
   @ApiResponse({ status: 401, description: 'Token süresi dolmuş' })
-  async getProfile(@Req() req) {
+  async getProfile(@Req() req: any) {
     const user = req.user;
     
     // Return user data without sensitive information

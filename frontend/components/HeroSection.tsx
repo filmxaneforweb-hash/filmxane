@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+// import { motion, AnimatePresence } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { Play, Info, Heart, Clock, Star } from 'lucide-react'
 import Link from 'next/link'
 import { useContent } from '@/contexts/ContentContext'
@@ -58,43 +58,24 @@ export function HeroSection() {
       {/* Content */}
       <div className="relative h-full flex items-center">
         <div className="container mx-auto px-4 md:px-8">
-          <motion.div
+          <div
             key={currentContent.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
             className="max-w-2xl"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
             {/* Title */}
-            <motion.h1 
-              className="text-4xl md:text-6xl font-bold text-white mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
               {currentContent.title}
-            </motion.h1>
+            </h1>
 
             {/* Kurdish Title */}
-            <motion.p 
-              className="text-xl md:text-2xl text-red-400 mb-4 font-medium"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
+            <p className="text-xl md:text-2xl text-red-400 mb-4 font-medium">
               {currentContent.titleKurdish}
-            </motion.p>
+            </p>
 
             {/* Meta Information */}
-            <motion.div 
-              className="flex items-center gap-4 mb-6 text-sm text-slate-300"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
+            <div className="flex items-center gap-4 mb-6 text-sm text-slate-300">
               <span className="flex items-center gap-1">
                 <Star className="w-4 h-4 text-yellow-500 fill-current" />
                 {currentContent.rating}/10
@@ -107,25 +88,15 @@ export function HeroSection() {
               <span className="px-2 py-1 bg-red-500/20 border border-red-500/30 rounded text-red-400 text-xs">
                 {currentContent.quality}
               </span>
-            </motion.div>
+            </div>
 
             {/* Description */}
-            <motion.p 
-              className="text-slate-300 mb-8 text-lg leading-relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
+            <p className="text-slate-300 mb-8 text-lg leading-relaxed">
               {currentContent.description}
-            </motion.p>
+            </p>
 
             {/* Action Buttons */}
-            <motion.div 
-              className="flex items-center gap-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
+            <div className="flex items-center gap-4">
               <Link
                 href={isMovie ? `/movies/${currentContent.id}` : `/series/${currentContent.id}`}
                 className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-200"
@@ -142,8 +113,8 @@ export function HeroSection() {
               <button className="p-3 bg-slate-700/80 text-white rounded-lg hover:bg-slate-600/80 transition-colors duration-200 backdrop-blur-sm">
                 <Heart className="w-5 h-5" />
               </button>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -166,16 +137,9 @@ export function HeroSection() {
 
       {/* Progress Bar */}
       <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-800">
-        <motion.div
-          className="h-full bg-red-500"
-          initial={{ width: 0 }}
-          animate={{ width: '100%' }}
-          transition={{ duration: 5, ease: 'linear' }}
-          onAnimationComplete={() => {
-            if (isAutoPlaying) {
-              setCurrentIndex((prev) => (prev + 1) % featuredContent.length)
-            }
-          }}
+        <div
+          className="h-full bg-red-500 animate-pulse"
+          style={{ width: '100%' }}
         />
       </div>
     </section>
