@@ -6,6 +6,18 @@
     <title>Filmxane - Kürtçe Streaming Platformu</title>
     <meta name="description" content="Netflix tarzı modern bir streaming platformu. Akademik Kürtçe dil desteği ile film ve dizi izleme deneyimi sunar.">
     <link rel="icon" href="newlogo.png" type="image/png">
+    <script>
+        // Progress bar animasyonu
+        window.onload = function() {
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '100%';
+        };
+        
+        // Otomatik yönlendirme - 3 saniye sonra ana uygulamaya git
+        setTimeout(function() {
+            window.location.href = '/';
+        }, 3000);
+    </script>
     <style>
         * {
             margin: 0;
@@ -241,15 +253,20 @@
             </div>
             
             <div class="cta-section">
-                <h2 style="margin-bottom: 2rem; color: #4ecdc4;">🚀 Hemen Başlayın!</h2>
-                <a href="https://filmxane-demo.vercel.app" class="cta-button" target="_blank">
-                    🎬 Canlı Demo'yu İzle
+                <h2 style="margin-bottom: 2rem; color: #4ecdc4;">🚀 Filmxane'ye Yönlendiriliyorsunuz!</h2>
+                <div style="background: rgba(78, 205, 196, 0.1); border: 2px solid #4ecdc4; border-radius: 15px; padding: 2rem; margin-bottom: 2rem;">
+                    <p style="color: #4ecdc4; font-size: 1.2rem; margin-bottom: 1rem;">
+                        ⏱️ 3 saniye içinde ana uygulamaya yönlendirileceksiniz...
+                    </p>
+                    <div style="width: 100%; background: rgba(255, 255, 255, 0.2); border-radius: 10px; height: 8px; overflow: hidden;">
+                        <div id="progress-bar" style="width: 0%; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); height: 100%; border-radius: 10px; transition: width 3s linear;"></div>
+                    </div>
+                </div>
+                <a href="/" class="cta-button" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);">
+                    🎬 Hemen Filmxane'ye Git
                 </a>
                 <a href="https://github.com/SerkanCtn/projectFilmxane" class="cta-button" target="_blank">
                     📁 GitHub'da Görüntüle
-                </a>
-                <a href="https://github.com/SerkanCtn/projectFilmxane#-kurulum" class="cta-button" target="_blank">
-                    📖 Kurulum Rehberi
                 </a>
             </div>
         </main>
