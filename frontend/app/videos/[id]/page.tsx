@@ -2,6 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
+
+// GitHub Pages için static params
+export async function generateStaticParams() {
+  // Boş array döndür - dynamic route'lar runtime'da çalışacak
+  return []
+}
 // import { motion, AnimatePresence } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { Play, Pause, Volume2, VolumeX, Maximize, Heart, Share2, Download, Clock, Star, Eye, X, Info, Calendar, Users, Award, Globe, Film, Tv, ExternalLink } from 'lucide-react'
 import ReactPlayer from 'react-player'
