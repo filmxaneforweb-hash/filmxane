@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filmxane - Kürtçe Streaming Platformu</title>
+    <meta name="description" content="Netflix tarzı modern bir streaming platformu. Akademik Kürtçe dil desteği ile film ve dizi izleme deneyimi sunar.">
+    <link rel="icon" href="newlogo.png" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: url('newlogo.png') no-repeat center;
+            background-size: contain;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            margin-bottom: 2rem;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #4ecdc4;
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .feature-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin: 4rem 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+            margin: 0 1rem;
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .tech-stack {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .tech-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: #4ecdc4;
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .tech-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        footer {
+            margin-top: auto;
+            padding: 2rem 0;
+            text-align: center;
+            color: #a0a0a0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-button {
+                display: block;
+                margin: 1rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo"></div>
+            <h1>Filmxane</h1>
+            <p class="subtitle">Kürtçe Streaming Platformu</p>
+        </header>
+        
+        <main>
+            <div class="features">
+                <div class="feature-card">
+                    <h3 class="feature-title">🎬 Kullanıcı Özellikleri</h3>
+                    <ul class="feature-list">
+                        <li>Hesap oluşturma ve giriş sistemi</li>
+                        <li>Abonelik sistemi (aylık/yıllık paketler)</li>
+                        <li>Film ve dizi streaming</li>
+                        <li>Kategoriler ve gelişmiş arama</li>
+                        <li>Favoriler ve izleme listesi</li>
+                        <li>Akademik Kürtçe arayüz</li>
+                        <li>Kapak fotoğrafları ve thumbnail desteği</li>
+                        <li>Video izleme sayfası</li>
+                        <li>Responsive tasarım</li>
+                        <li>İzleme geçmişi ve istatistikler</li>
+                        <li>Gerçek zamanlı profil güncellemeleri</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3 class="feature-title">⚙️ Admin Özellikleri</h3>
+                    <ul class="feature-list">
+                        <li>Video upload ve yönetim (Film/Series)</li>
+                        <li>Kapak fotoğrafı yükleme</li>
+                        <li>Kullanıcı yönetimi</li>
+                        <li>Abonelik ve ödeme takibi</li>
+                        <li>İçerik moderasyonu</li>
+                        <li>WebSocket gerçek zamanlı güncellemeler</li>
+                        <li>Admin dashboard istatistikleri</li>
+                        <li>Kullanıcı rol yönetimi</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="tech-stack">
+                <h3 class="tech-title">🛠️ Teknoloji Stack</h3>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <strong>Frontend</strong><br>
+                        Next.js 15, React, TypeScript, Tailwind CSS
+                    </div>
+                    <div class="tech-item">
+                        <strong>Backend</strong><br>
+                        NestJS, TypeORM, SQLite, JWT
+                    </div>
+                    <div class="tech-item">
+                        <strong>Admin Panel</strong><br>
+                        React, Vite, TypeScript
+                    </div>
+                    <div class="tech-item">
+                        <strong>Real-time</strong><br>
+                        WebSocket, Socket.io
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cta-section">
+                <h2 style="margin-bottom: 2rem; color: #4ecdc4;">🚀 Hemen Başlayın!</h2>
+                <a href="https://github.com/SerkanCtn/projectFilmxane" class="cta-button" target="_blank">
+                    📁 GitHub'da Görüntüle
+                </a>
+                <a href="https://github.com/SerkanCtn/projectFilmxane#-kurulum" class="cta-button" target="_blank">
+                    📖 Kurulum Rehberi
+                </a>
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 Filmxane Team. MIT Lisansı altında lisanslanmıştır.</p>
+            <p>Kürtçe içerik için modern streaming platformu 🎬</p>
+        </footer>
+    </div>
+</body>
+</html>
