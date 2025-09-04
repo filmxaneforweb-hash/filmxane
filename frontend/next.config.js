@@ -1,22 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Next.js 14 optimizations
-  experimental: {
-    // Enable scroll restoration
-    scrollRestoration: true,
-  },
+  // Basic configuration
   images: {
     unoptimized: true,
   },
   env: {
-    // If not provided externally, leave empty or point to backend 3004 so api.ts auto-detection/fallback works
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005/api',
   },
-  // Performance optimizations for Next.js 14
-  compress: true,
-  poweredByHeader: false,
-  // Fix potential routing issues
-  trailingSlash: false,
   // Disable ESLint during build
   eslint: {
     ignoreDuringBuilds: true,
@@ -27,33 +17,28 @@ const nextConfig = {
   },
   // Production build için
   output: 'standalone',
-  // Disable prerendering for error pages
-  generateBuildId: async () => {
-    return 'build-' + Date.now()
-  },
-  // Disable static generation for problematic pages
-  // generateStaticParams: false, // Bu Next.js 14'te geçerli değil
-  // Better error handling
-  onDemandEntries: {
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
-  },
-  // Fix CSS loading issues
-  webpack: (config, { dev, isServer }) => {
-    // Optimize CSS loading
-    if (!dev && !isServer) {
-      config.optimization.splitChunks.cacheGroups.styles = {
-        name: 'styles',
-        test: /\.(css|scss)$/,
-        chunks: 'all',
-        enforce: true,
-      }
-    }
-    return config
-  },
+  // Disable static generation completely
+  trailingSlash: false,
   // Skip error pages during build
   skipTrailingSlashRedirect: true,
   skipMiddlewareUrlNormalize: true,
+  // Disable static optimization
+  experimental: {
+    esmExternals: false,
+  },
+  // Custom error pages
+  async rewrites() {
+    return [
+      {
+        source: '/404',
+        destination: '/404.html',
+      },
+      {
+        source: '/500',
+        destination: '/500.html',
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig

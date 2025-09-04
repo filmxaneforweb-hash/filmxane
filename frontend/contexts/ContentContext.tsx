@@ -196,7 +196,7 @@ export const ContentProvider = ({ children }: ContentProviderProps) => {
     // Featured content (high rating and views)
     const featured = allContent
       .filter(content => content.isFeatured)
-      .sort((a, b) => b.rating - a.rating)
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
       .slice(0, 10)
     
     setFeaturedContent(featured)
@@ -204,7 +204,7 @@ export const ContentProvider = ({ children }: ContentProviderProps) => {
     // New releases (recent content)
     const newReleases = allContent
       .filter(content => content.isNew)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
       .slice(0, 10)
     
     setNewReleases(newReleases)
@@ -215,11 +215,11 @@ export const ContentProvider = ({ children }: ContentProviderProps) => {
     const initializeContent = async () => {
       try {
         setIsLoading(true)
-        console.log('🚀 Initializing content...')
+        // console.log('🚀 Initializing content...')
         
         // Timeout ekle - 1 saniye sonra loading'i kapat
         const timeoutId = setTimeout(() => {
-          console.log('⏰ Timeout reached, stopping loading')
+          // console.log('⏰ Timeout reached, stopping loading')
           setIsLoading(false)
         }, 1000)
         
@@ -233,7 +233,7 @@ export const ContentProvider = ({ children }: ContentProviderProps) => {
         ])
         
         clearTimeout(timeoutId)
-        console.log('✅ Content initialized successfully')
+        // console.log('✅ Content initialized successfully')
       } catch (error) {
         console.error('❌ Failed to initialize content:', error)
         // Set loading to false even on error

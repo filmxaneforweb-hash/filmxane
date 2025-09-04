@@ -1,7 +1,7 @@
 // API Configuration - Fixed backend port
 const API_BASE_URL = 'http://localhost:3005/api'
 
-console.log('🔧 API Base URL set to:', API_BASE_URL)
+// console.log('🔧 API Base URL set to:', API_BASE_URL)
 
 // API Response Types
 export interface ApiResponse<T> {
@@ -162,7 +162,7 @@ class ApiClient {
   constructor() {
     this.baseUrl = API_BASE_URL
     this.token = typeof window !== 'undefined' ? localStorage.getItem('filmxane_token') : null
-    console.log('🔧 ApiClient initialized with baseUrl:', this.baseUrl)
+    // console.log('🔧 ApiClient initialized with baseUrl:', this.baseUrl)
   }
 
   // Set authentication token
@@ -205,23 +205,23 @@ class ApiClient {
     try {
       const url = `${this.baseUrl}${endpoint}`
       
-      // Debug logging
-      console.log(`🚀 API Request: ${url}`)
-      console.log(`📡 Base URL: ${this.baseUrl}`)
-      console.log(`🔑 Token: ${this.token ? 'Present' : 'None'}`)
+      // Debug logging - disabled for production
+      // console.log(`🚀 API Request: ${url}`)
+      // console.log(`📡 Base URL: ${this.baseUrl}`)
+      // console.log(`🔑 Token: ${this.token ? 'Present' : 'None'}`)
       
       const response = await fetch(url, {
         ...options,
         headers: this.getHeaders(),
       })
 
-      console.log(`📊 Response status: ${response.status}`)
-      console.log(`📊 Response ok: ${response.ok}`)
+      // console.log(`📊 Response status: ${response.status}`)
+      // console.log(`📊 Response ok: ${response.ok}`)
 
       if (!response.ok) {
         if (response.status === 401) {
           this.clearToken()
-          console.log('❌ Authentication failed - clearing token')
+          // console.log('❌ Authentication failed - clearing token')
           return {
             success: false,
             error: 'Authentication failed. Please login again.'
@@ -249,11 +249,11 @@ class ApiClient {
       }
 
       const data = await response.json()
-      console.log('✅ API Response data:', data)
-      console.log('🔍 DEBUG: Response data type:', typeof data)
-      console.log('🔍 DEBUG: Response data keys:', Object.keys(data))
-      console.log('🔍 DEBUG: Response data.data:', data.data)
-      console.log('🔍 DEBUG: Response data.success:', data.success)
+      // console.log('✅ API Response data:', data)
+      // console.log('🔍 DEBUG: Response data type:', typeof data)
+      // console.log('🔍 DEBUG: Response data keys:', Object.keys(data))
+      // console.log('🔍 DEBUG: Response data.data:', data.data)
+      // console.log('🔍 DEBUG: Response data.success:', data.success)
       
       return {
         success: true,
@@ -280,7 +280,7 @@ class ApiClient {
   // Authentication APIs
   async login(email: string, password: string): Promise<ApiResponse<AuthResponse>> {
     const payload = { email, password }
-    console.log('🔐 Login payload:', { email, passwordLength: password?.length })
+    // console.log('🔐 Login payload:', { email, passwordLength: password?.length })
     
     return this.request<AuthResponse>('/auth/login', {
       method: 'POST',
@@ -290,7 +290,7 @@ class ApiClient {
 
   async register(firstName: string, lastName: string, email: string, password: string): Promise<ApiResponse<AuthResponse>> {
     const payload = { firstName, lastName, email, password }
-    console.log('🚀 Register payload:', payload)
+    // console.log('🚀 Register payload:', payload)
     
     return this.request<AuthResponse>('/auth/register', {
       method: 'POST',

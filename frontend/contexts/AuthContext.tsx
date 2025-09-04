@@ -36,6 +36,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        // Check if we're in browser environment
+        if (typeof window === 'undefined') {
+          setIsLoading(false)
+          return
+        }
+
         const token = localStorage.getItem('filmxane_token')
         if (token) {
           // Verify token and get user profile
@@ -51,7 +57,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } catch (error) {
         console.error('Failed to initialize auth:', error)
         apiClient.clearToken()
-        localStorage.removeItem('filmxane_refresh_token')
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('filmxane_refresh_token')
+        }
       } finally {
         setIsLoading(false)
       }
@@ -73,7 +81,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         apiClient.setToken(token)
         
         // Store refresh token
-        if (refreshToken) {
+        if (refreshToken && typeof window !== 'undefined') {
           localStorage.setItem('filmxane_refresh_token', refreshToken)
         }
         
@@ -111,7 +119,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         apiClient.setToken(token)
         
         // Store refresh token
-        if (refreshToken) {
+        if (refreshToken && typeof window !== 'undefined') {
           localStorage.setItem('filmxane_refresh_token', refreshToken)
         }
         
@@ -149,7 +157,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Clear local state regardless of API call success
       setUser(null)
       apiClient.clearToken()
-      localStorage.removeItem('filmxane_refresh_token')
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('filmxane_refresh_token')
+      }
     }
   }
 

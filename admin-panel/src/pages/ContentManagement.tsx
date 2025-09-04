@@ -218,7 +218,7 @@ const ContentManagement: React.FC = () => {
     setSelectedContent(content)
     setEditContentForm({
       title: content.title,
-      description: content.description,
+      description: content.description || '',
       type: content.type,
       genre: Array.isArray(content.genre) ? content.genre.join(', ') : (content.genre as string) || '',
       year: content.year?.toString() || '',

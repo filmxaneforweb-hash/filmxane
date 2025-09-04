@@ -299,7 +299,7 @@ const Users: React.FC = () => {
                       <Mail className="w-4 h-4 text-gray-400" />
                       <span className="text-sm text-gray-900 dark:text-white">{user.email}</span>
                       {user.emailVerified && (
-                        <CheckCircle className="w-4 h-4 text-green-500" title="E-mail piştrast e" />
+                        <CheckCircle className="w-4 h-4 text-green-500" />
                       )}
                     </div>
                   </td>

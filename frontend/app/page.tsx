@@ -90,7 +90,6 @@ export default function HomePage() {
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                 <button
-
                   onClick={() => window.location.href = `/videos/${movies[0]?.id}`}
                   className="px-8 py-4 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition-colors text-lg flex items-center justify-center cursor-pointer"
                 >
@@ -101,7 +100,6 @@ export default function HomePage() {
                 {/* Fragman Butonu - Sadece Filmler İçin */}
                 {movies[0]?.type === 'movie' && (
                   <button
-
                     onClick={() => window.location.href = `/videos/${movies[0]?.id}?trailer=true`}
                     className="px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg flex items-center justify-center cursor-pointer"
                   >
@@ -111,7 +109,6 @@ export default function HomePage() {
                 )}
                 
                 <button
-
                   onClick={() => setShowInfoModal(true)}
                   className="px-8 py-4 bg-gray-600/80 text-white rounded-lg font-semibold hover:bg-gray-500/80 transition-colors text-lg flex items-center justify-center backdrop-blur-sm cursor-pointer"
                 >
@@ -264,13 +261,10 @@ export default function HomePage() {
       <div>
         {showInfoModal && featuredMovie && (
           <div
-
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setShowInfoModal(false)}
           >
             <div
-
-
               className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-700/30"
               onClick={(e) => e.stopPropagation()}
             >
@@ -285,7 +279,6 @@ export default function HomePage() {
                   
                   {/* Close Button */}
                   <button
-
                     onClick={() => setShowInfoModal(false)}
                     className="absolute top-4 right-4 text-white hover:text-red-400 transition-colors p-2 bg-black/30 rounded-full backdrop-blur-sm"
                   >
@@ -461,7 +454,6 @@ export default function HomePage() {
                        </h3>
                       <div className="space-y-3">
                         <button
-
                           onClick={() => window.location.href = `/videos/${featuredMovie.id}`}
                           className="w-full py-3 px-4 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-3"
                         >
@@ -470,7 +462,6 @@ export default function HomePage() {
                         </button>
                         
                         <button
-
                           onClick={() => {
                             if (navigator.share) {
                               navigator.share({
@@ -480,7 +471,7 @@ export default function HomePage() {
                               })
                             } else {
                               navigator.clipboard.writeText(window.location.href)
-                                                             alert('Lînk hatibe kopîkirin li panoyê!')
+                              alert('Lînk hatibe kopîkirin li panoyê!')
                             }
                           }}
                           className="w-full py-3 px-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-3"

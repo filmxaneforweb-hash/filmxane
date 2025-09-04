@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+
 import { useAuth } from '@/contexts/AuthContext'
 import { useContent } from '@/contexts/ContentContext'
 import { apiClient } from '@/lib/api'
@@ -30,7 +31,8 @@ export function Navigation() {
   const [searchQuery, setSearchQuery] = useState('')
   const [loginData, setLoginData] = useState({ email: '', password: '' })
   const [signupData, setSignupData] = useState({ 
-    name: '', 
+    firstName: '', 
+    lastName: '', 
     email: '', 
     password: '', 
     confirmPassword: '' 
@@ -112,14 +114,14 @@ export function Navigation() {
 
     try {
       const result = await register(
-        signupData.name,
+        signupData.firstName,
+        signupData.lastName,
         signupData.email,
-        signupData.password,
-        signupData.confirmPassword
+        signupData.password
       )
       if (result.success) {
         setIsSignupModalOpen(false)
-        setSignupData({ name: '', email: '', password: '', confirmPassword: '' })
+        setSignupData({ firstName: '', lastName: '', email: '', password: '', confirmPassword: '' })
         router.push('/')
       } else {
         setError('Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.')
@@ -402,14 +404,28 @@ export function Navigation() {
             <form onSubmit={handleSignup} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Ad Soyad
+                  Ad
                 </label>
                 <input
                   type="text"
-                  value={signupData.name}
-                  onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
+                  value={signupData.firstName}
+                  onChange={(e) => setSignupData({ ...signupData, firstName: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
-                  placeholder="Adınızı ve soyadınızı girin"
+                  placeholder="Adınızı girin"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Soyad
+                </label>
+                <input
+                  type="text"
+                  value={signupData.lastName}
+                  onChange={(e) => setSignupData({ ...signupData, lastName: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
+                  placeholder="Soyadınızı girin"
                   required
                 />
               </div>
