@@ -25,10 +25,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // GitHub Pages için static export
-  output: 'export',
-  trailingSlash: true,
-  distDir: 'out',
+  // Production build için
+  output: 'standalone',
   // Disable prerendering for error pages
   generateBuildId: async () => {
     return 'build-' + Date.now()
