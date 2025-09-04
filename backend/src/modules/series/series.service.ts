@@ -49,7 +49,11 @@ export class SeriesService {
 
   async update(id: string, updateSeriesDto: Partial<CreateSeriesDto>): Promise<Series> {
     await this.seriesRepository.update(id, updateSeriesDto);
-    return this.findOne(id);
+    const updatedSeries = await this.findOne(id);
+    if (!updatedSeries) {
+      throw new Error('Series not found after update');
+    }
+    return updatedSeries;
   }
 
   async remove(id: string): Promise<void> {
