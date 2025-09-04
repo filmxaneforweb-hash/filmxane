@@ -226,32 +226,81 @@ export default function ProfilePage() {
   }, [user])
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const token = localStorage.getItem('filmxane_token')
       if (!token) {
         router.push('/login')
         return
       }
 
-      // Basit kullanıcı bilgileri
-      const firstName = localStorage.getItem('filmxane_user_firstName')
-      const lastName = localStorage.getItem('filmxane_user_lastName')
-      const email = localStorage.getItem('filmxane_user_email')
-      
-      if (firstName && lastName && email) {
-        setUser({ firstName, lastName, email })
-        
-        // Üyelik tarihini kontrol et, yoksa bugün olarak ayarla
-        let joinDate = localStorage.getItem('filmxane_user_joinDate')
-        if (!joinDate) {
-          joinDate = new Date().toISOString()
-          localStorage.setItem('filmxane_user_joinDate', joinDate)
+      try {
+        // Backend'den kullanıcı bilgilerini çek
+        const response = await fetch('http://localhost:3005/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (response.ok) {
+          const userData = await response.json()
+          console.log('✅ Backend\'den kullanıcı verisi alındı:', userData)
+          
+          setUser({
+            firstName: userData.firstName || userData.name?.split(' ')[0] || 'User',
+            lastName: userData.lastName || userData.name?.split(' ')[1] || '',
+            email: userData.email
+          })
+          
+          // Üyelik tarihini backend'den al
+          const joinDate = userData.createdAt || userData.joinDate || new Date().toISOString()
+          setStats(prev => ({
+            ...prev,
+            joinDate
+          }))
+        } else {
+          console.error('❌ Backend\'den kullanıcı verisi alınamadı:', response.status)
+          // Fallback: localStorage'dan al
+          const firstName = localStorage.getItem('filmxane_user_firstName')
+          const lastName = localStorage.getItem('filmxane_user_lastName')
+          const email = localStorage.getItem('filmxane_user_email')
+          
+          if (firstName && lastName && email) {
+            setUser({ firstName, lastName, email })
+            
+            let joinDate = localStorage.getItem('filmxane_user_joinDate')
+            if (!joinDate) {
+              joinDate = new Date().toISOString()
+              localStorage.setItem('filmxane_user_joinDate', joinDate)
+            }
+            
+            setStats(prev => ({
+              ...prev,
+              joinDate
+            }))
+          }
         }
+      } catch (error) {
+        console.error('❌ Kullanıcı verisi çekme hatası:', error)
+        // Fallback: localStorage'dan al
+        const firstName = localStorage.getItem('filmxane_user_firstName')
+        const lastName = localStorage.getItem('filmxane_user_lastName')
+        const email = localStorage.getItem('filmxane_user_email')
         
-        setStats(prev => ({
-          ...prev,
-          joinDate
-        }))
+        if (firstName && lastName && email) {
+          setUser({ firstName, lastName, email })
+          
+          let joinDate = localStorage.getItem('filmxane_user_joinDate')
+          if (!joinDate) {
+            joinDate = new Date().toISOString()
+            localStorage.setItem('filmxane_user_joinDate', joinDate)
+          }
+          
+          setStats(prev => ({
+            ...prev,
+            joinDate
+          }))
+        }
       }
       
       setLoading(false)

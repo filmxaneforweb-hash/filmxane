@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { User, Heart, LogOut, Search, Menu, X } from 'lucide-react'
 
 import { useAuth } from '@/contexts/AuthContext'
 import { useContent } from '@/contexts/ContentContext'
@@ -72,9 +73,13 @@ export function Navigation() {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      await searchContent(searchQuery)
-      router.push('/search')
-      setIsSearchOpen(false)
+      console.log('🔍 Arama başlatılıyor:', searchQuery)
+      try {
+        await searchContent(searchQuery)
+        console.log('✅ Arama tamamlandı, sonuçlar:', searchResults)
+      } catch (error) {
+        console.error('❌ Arama hatası:', error)
+      }
     }
   }
 
@@ -180,11 +185,11 @@ export function Navigation() {
                   className="p-2.5 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200"
                   title="Search"
                 >
-                  🔍
+                  <Search className="w-4 h-4" />
                 </button>
                 
                 {isSearchOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-80 bg-slate-900/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-700/50 p-4">
+                  <div className="absolute top-full right-0 mt-2 w-96 bg-slate-900/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-700/50 p-4 max-h-96 overflow-y-auto">
                     <form onSubmit={handleSearch} className="space-y-3">
                       <input
                         ref={searchRef}
@@ -215,6 +220,53 @@ export function Navigation() {
                         </button>
                       </div>
                     </form>
+
+                    {/* Arama Sonuçları */}
+                    {searchResults && searchResults.items && searchResults.items.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                        <h3 className="text-white font-medium text-sm">Encamên Lêgerînê:</h3>
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {searchResults.items.map((item: any) => (
+                            <Link
+                              key={item.id}
+                              href={`/videos/${item.id}`}
+                              onClick={() => {
+                                setIsSearchOpen(false)
+                                setSearchQuery('')
+                              }}
+                              className="flex items-center gap-3 p-2 bg-slate-800/50 hover:bg-slate-700/50 rounded-lg transition-colors duration-200"
+                            >
+                              <div className="w-12 h-8 bg-slate-700 rounded flex items-center justify-center">
+                                {item.thumbnail ? (
+                                  <img 
+                                    src={item.thumbnail} 
+                                    alt={item.title}
+                                    className="w-full h-full object-cover rounded"
+                                  />
+                                ) : (
+                                  <span className="text-xs text-slate-400">
+                                    {item.type === 'movie' ? 'F' : 'R'}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-white text-sm font-medium truncate">{item.title}</p>
+                                <p className="text-slate-400 text-xs">
+                                  {item.type === 'movie' ? 'Fîlm' : 'Rêzefîlm'} • {item.year || 'Nenas'}
+                                </p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Arama Sonucu Yok */}
+                    {searchResults && searchResults.items && searchResults.items.length === 0 && searchQuery.trim() && (
+                      <div className="mt-4 text-center py-4">
+                        <p className="text-slate-400 text-sm">Encamên lêgerînê nehat dîtin.</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -256,11 +308,11 @@ export function Navigation() {
                         </div>
                         <div className="space-y-2">
                           <Link href="/profile" className="flex items-center gap-3 p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors duration-200">
-                            👤
+                            <User className="w-4 h-4" />
                             <span>Profilim</span>
                           </Link>
                           <Link href="/mylist" className="flex items-center gap-3 p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors duration-200">
-                            ❤️
+                            <Heart className="w-4 h-4" />
                             <span>Listem</span>
                           </Link>
                           <hr className="border-slate-600 my-2" />
@@ -268,7 +320,7 @@ export function Navigation() {
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors duration-200"
                           >
-                            🚪
+                            <LogOut className="w-4 h-4" />
                             <span>Çıkış Yap</span>
                           </button>
                         </div>
@@ -300,7 +352,7 @@ export function Navigation() {
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200"
               >
-                {isMobileMenuOpen ? '✕' : '☰'}
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>

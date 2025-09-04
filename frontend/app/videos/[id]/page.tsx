@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 // import { motion, AnimatePresence } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { Play, Pause, Volume2, VolumeX, Maximize, Heart, Share2, Download, Clock, Star, Eye, X, Info, Calendar, Users, Award, Globe, Film, Tv, ExternalLink } from 'lucide-react'
 import ReactPlayer from 'react-player'
 import { apiClient } from '@/lib/api'
 import { Movie, Series } from '@/lib/api'
 import { VideoCard } from '@/components/VideoCard'
+import { useContent } from '@/contexts/ContentContext'
 import { getSafeImageUrl } from '@/lib/utils'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -15,6 +17,7 @@ export default function VideoPlayerPage() {
   const params = useParams()
   const videoId = params.id as string
   const { user, isAuthenticated } = useAuth()
+  const { getRelatedContent } = useContent()
   
   const [video, setVideo] = useState<Movie | Series | null>(null)
   const [loading, setLoading] = useState(true)
@@ -56,20 +59,10 @@ export default function VideoPlayerPage() {
               durationRaw: foundVideo.duration
             })
             setVideo(foundVideo)
-                    // Vîdyoyên têkildar jî bihêle
-        const related = videos
-          .filter((v: any) => {
-            if (v.id === videoId) return false
-            if (!v.genre || !foundVideo.genre) return false
             
-            // Genre'yan parse bike (JSON string wekî tê tomarkirin)
-            const vGenres = typeof v.genre === 'string' ? JSON.parse(v.genre) : v.genre
-            const foundGenres = typeof foundVideo.genre === 'string' ? JSON.parse(foundVideo.genre) : foundVideo.genre
-            
-            return vGenres.some((g: any) => foundGenres.includes(g))
-          })
-          .slice(0, 6)
-        setRelatedVideos(related)
+            // İlgili videoları ContentContext'ten al
+            const related = getRelatedContent(videoId, foundVideo.type as 'movie' | 'series')
+            setRelatedVideos(related)
       } else {
         setError('Vîdyo nehatibe dîtin')
       }
@@ -896,9 +889,10 @@ export default function VideoPlayerPage() {
                 {relatedVideos.length > 0 ? (
                   <div className="space-y-4">
                     {relatedVideos.map((relatedVideo) => (
-                      <div
+                      <Link
                         key={relatedVideo.id}
-                        className="cursor-pointer"
+                        href={`/videos/${relatedVideo.id}`}
+                        className="block hover:scale-105 transition-transform duration-200"
                       >
                         <VideoCard
                           id={relatedVideo.id}
@@ -910,7 +904,7 @@ export default function VideoPlayerPage() {
                           duration={(relatedVideo as any).duration}
                           rating={relatedVideo.rating}
                         />
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 ) : (

@@ -88,6 +88,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Update user state
         setUser(userData)
         
+        // Store user data in localStorage for profile page
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('filmxane_user_firstName', userData.firstName || userData.name?.split(' ')[0] || 'User')
+          localStorage.setItem('filmxane_user_lastName', userData.lastName || userData.name?.split(' ')[1] || '')
+          localStorage.setItem('filmxane_user_email', userData.email)
+          localStorage.setItem('filmxane_user_joinDate', userData.createdAt || new Date().toISOString())
+          console.log('✅ Kullanıcı verileri localStorage\'a kaydedildi')
+        }
+        
         return { success: true }
       } else {
         return { 
@@ -126,6 +135,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Update user state
         setUser(userData)
         
+        // Store user data in localStorage for profile page
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('filmxane_user_firstName', userData.firstName || userData.name?.split(' ')[0] || 'User')
+          localStorage.setItem('filmxane_user_lastName', userData.lastName || userData.name?.split(' ')[1] || '')
+          localStorage.setItem('filmxane_user_email', userData.email)
+          localStorage.setItem('filmxane_user_joinDate', userData.createdAt || new Date().toISOString())
+          console.log('✅ Kullanıcı verileri localStorage\'a kaydedildi (register)')
+        }
+        
         return { success: true }
       } else {
         return { 
@@ -158,7 +176,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(null)
       apiClient.clearToken()
       if (typeof window !== 'undefined') {
+        // Tüm localStorage verilerini temizle
+        localStorage.removeItem('filmxane_token')
         localStorage.removeItem('filmxane_refresh_token')
+        localStorage.removeItem('filmxane_user_firstName')
+        localStorage.removeItem('filmxane_user_lastName')
+        localStorage.removeItem('filmxane_user_email')
+        localStorage.removeItem('filmxane_user_joinDate')
+        console.log('✅ Tüm kullanıcı verileri temizlendi')
       }
     }
   }
