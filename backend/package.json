@@ -5,7 +5,7 @@
   "main": "src/main.ts",
   "scripts": {
     "build": "nest build",
-    "vercel-build": "npm run build && npm run start:prod",
+    "vercel-build": "npm run build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "dev": "nest start --watch",

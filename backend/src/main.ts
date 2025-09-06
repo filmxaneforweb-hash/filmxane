@@ -143,10 +143,20 @@ async function bootstrap() {
   console.log(`📚 API Dokümantasyonu: http://localhost:${port}/api/docs`);
   console.log(`📁 Static files: http://localhost:${port}/uploads`);
   console.log(`🔐 Gerçek kullanıcı kayıtları için hazır`);
+  
+  return app;
 }
 
-bootstrap().catch(err => {
+// Vercel için export
+let app: any;
+
+bootstrap().then((bootstrapedApp) => {
+  app = bootstrapedApp;
+}).catch(err => {
   console.error('❌ Backend başlatılamadı:', err);
   // Don't exit, just log the error
   console.log('⚠️ Backend hata ile karşılaştı ama durmadı');
 });
+
+// Vercel için export
+export default app;
