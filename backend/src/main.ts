@@ -60,6 +60,14 @@ async function bootstrap() {
     bodyParser: false, // Disable default body parser
   });
 
+  // CORS configuration - Add early
+  app.enableCors({
+    origin: '*', // Allow all origins
+    methods: '*', // Allow all methods
+    allowedHeaders: '*', // Allow all headers
+    credentials: false // Disable credentials for wildcard origin
+  });
+
   // Configure body parser with increased limits
   app.use(require('express').json({ limit: '10gb' }));
   app.use(require('express').urlencoded({ limit: '10gb', extended: true }));
@@ -127,13 +135,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // CORS configuration - Simple and permissive
-  app.enableCors({
-    origin: '*', // Allow all origins
-    methods: '*', // Allow all methods
-    allowedHeaders: '*', // Allow all headers
-    credentials: false // Disable credentials for wildcard origin
-  });
 
   const port = process.env.PORT || 3005;
   await app.listen(port);
