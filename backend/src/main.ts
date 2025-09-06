@@ -125,7 +125,10 @@ async function bootstrap() {
       'http://localhost:3001', 
       'http://localhost:3002',
       'http://localhost:5173',
-      'http://localhost:4173'
+      'http://localhost:4173',
+      // Vercel frontend domain'inizi buraya ekleyin
+      'https://filmxane-frontend.vercel.app',
+      'https://your-custom-domain.com'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
