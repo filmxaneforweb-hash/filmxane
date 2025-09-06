@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { User, Heart, LogOut, Search, Menu, X, Settings } from 'lucide-react'
 
@@ -11,10 +12,18 @@ import { apiClient } from '@/lib/api'
 
 // Logo PNG Component
 const FilmxaneLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
-  <img 
+  <Image 
     src="/newlogo.png" 
     alt="Filmxane Logo" 
+    width={24}
+    height={24}
     className={className}
+    priority
+    onError={(e) => {
+      console.log('Logo yüklenemedi:', e);
+      // Fallback olarak text logo göster
+      e.currentTarget.style.display = 'none';
+    }}
   />
 )
 
