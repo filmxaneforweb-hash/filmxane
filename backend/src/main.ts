@@ -104,6 +104,15 @@ async function bootstrap() {
     }
   })());
 
+  // Health check endpoint
+  app.getHttpAdapter().get('/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      message: 'Filmxane Backend is running',
+      timestamp: new Date().toISOString()
+    });
+  });
+
   // Global prefix
   app.setGlobalPrefix('api');
 
@@ -128,11 +137,14 @@ async function bootstrap() {
       'http://localhost:4173',
       // Vercel frontend domain'inizi buraya ekleyin
       'https://filmxane-frontend.vercel.app',
+      'https://filmxane-frontend-hsz4q38kw-filmxanes-projects.vercel.app',
       'https://your-custom-domain.com'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   });
 
   const port = process.env.PORT || 3005;
