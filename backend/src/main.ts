@@ -127,14 +127,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // CORS configuration - Allow all origins for now
+  // CORS configuration - Simple and permissive
   app.enableCors({
-    origin: true, // Allow all origins temporarily
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With', 'Origin'],
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
+    origin: '*', // Allow all origins
+    methods: '*', // Allow all methods
+    allowedHeaders: '*', // Allow all headers
+    credentials: false // Disable credentials for wildcard origin
   });
 
   const port = process.env.PORT || 3005;
