@@ -127,21 +127,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // CORS configuration
+  // CORS configuration - Allow all origins for now
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3001', 
-      'http://localhost:3002',
-      'http://localhost:5173',
-      'http://localhost:4173',
-      // Vercel frontend domain'inizi buraya ekleyin
-      'https://filmxane-frontend.vercel.app',
-      'https://filmxane-frontend-hsz4q38kw-filmxanes-projects.vercel.app',
-      'https://your-custom-domain.com'
-    ],
+    origin: true, // Allow all origins temporarily
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With', 'Origin'],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204
