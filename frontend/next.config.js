@@ -15,9 +15,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Production build için - Netlify static export
-  output: 'export',
-  distDir: 'out',
+  // Production build için - Vercel deployment
+  output: 'standalone',
   // Disable static generation completely
   trailingSlash: false,
   // Skip error pages during build
