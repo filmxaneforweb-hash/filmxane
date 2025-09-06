@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Video, VideoType, VideoStatus } from '../../entities/video.entity';
-import { User, UserStatus } from '../../entities/user.entity';
+import { User, UserStatus, UserRole } from '../../entities/user.entity';
 import { Subscription, SubscriptionPlan } from '../../entities/subscription.entity';
 import { Series } from '../../entities/series.entity';
 import { SystemSettings } from '../../entities/settings.entity';
@@ -456,7 +456,7 @@ export class AdminService {
       lastName: user.lastName,
       email: user.email,
       role: user.role || 'user',
-      status: user.status === 'active' ? 'active' : 'inactive',
+      status: user.status || 'active',
       emailVerified: user.emailVerified || false,
       subscription: {
         plan: user.subscription?.plan || 'basic',
@@ -511,27 +511,6 @@ export class AdminService {
     }));
   }
 
-  async getUserStats() {
-    const totalUsers = await this.usersRepository.count();
-    const activeUsers = await this.usersRepository.count({ where: { status: UserStatus.ACTIVE } });
-    const premiumUsers = await this.usersRepository.count({ 
-      where: { subscription: { plan: SubscriptionPlan.PREMIUM } } 
-    });
-    const familyUsers = await this.usersRepository.count({ 
-      where: { subscription: { plan: SubscriptionPlan.FAMILY } } 
-    });
-    const verifiedUsers = await this.usersRepository.count({ where: { emailVerified: true } });
-
-    return {
-      total: totalUsers,
-      active: activeUsers,
-      premium: premiumUsers + familyUsers,
-      basic: totalUsers - (premiumUsers + familyUsers),
-      verified: verifiedUsers,
-      totalWatched: 0, // TODO: Implement from user activity
-      totalFavorites: 0 // TODO: Implement from favorites
-    };
-  }
 
   async getMovieStats() {
     const totalMovies = await this.videosRepository.count({ where: { type: VideoType.MOVIE } });
@@ -654,7 +633,7 @@ export class AdminService {
         genre: JSON.stringify(genreArray), // JSON string olarak sakla
         year: parseInt(createVideoDto.year) || new Date().getFullYear(),
         releaseYear: parseInt(createVideoDto.year) || new Date().getFullYear(),
-        duration: parseInt(createVideoDto.duration) || 0,
+        duration: (parseInt(createVideoDto.duration) || 0) * 60, // Dakikayı saniyeye çevir
         isFeatured: Boolean(createVideoDto.isFeatured),
         isNew: Boolean(createVideoDto.isNew),
         type: createVideoDto.type || VideoType.MOVIE, // DTO'dan type'ı al
@@ -813,7 +792,7 @@ export class AdminService {
 
   private async getAdminUserId(): Promise<string> {
     const adminUser = await this.usersRepository.findOne({
-      where: { email: 'admin@filmxane.com' }
+      where: { role: UserRole.ADMIN }
     });
     
     if (!adminUser) {
@@ -889,5 +868,212 @@ export class AdminService {
     this.adminGateway.notifyContentUpdated(content);
     
     return { success: true, message: `Content status updated to ${status}` };
+  }
+
+  async getUserStats() {
+    const [
+      totalUsers,
+      activeUsers,
+      newUsersThisMonth,
+      usersByRole
+    ] = await Promise.all([
+      this.usersRepository.count(),
+      this.usersRepository.count({ where: { status: UserStatus.ACTIVE } }),
+      this.usersRepository.count({
+        where: {
+          createdAt: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+        }
+      }),
+      this.usersRepository
+        .createQueryBuilder('user')
+        .select('user.role', 'role')
+        .addSelect('COUNT(*)', 'count')
+        .groupBy('user.role')
+        .getRawMany()
+    ]);
+
+    return {
+      totalUsers,
+      activeUsers,
+      inactiveUsers: totalUsers - activeUsers,
+      newUsersThisMonth,
+      usersByRole: usersByRole.reduce((acc, item) => {
+        acc[item.role] = parseInt(item.count);
+        return acc;
+      }, {})
+    };
+  }
+
+  async getRecentActivity() {
+    // Son 24 saatteki aktiviteleri getir
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    
+    const [
+      recentVideos,
+      recentUsers
+    ] = await Promise.all([
+      this.videosRepository.find({
+        where: {
+          createdAt: oneDayAgo
+        },
+        order: { createdAt: 'DESC' },
+        take: 5
+      }),
+      this.usersRepository.find({
+        where: {
+          createdAt: oneDayAgo
+        },
+        order: { createdAt: 'DESC' },
+        take: 5
+      })
+    ]);
+
+    const activities: any[] = [];
+
+    // Yeni videolar
+    recentVideos.forEach(video => {
+      activities.push({
+        icon: 'plus',
+        iconColor: 'text-green-500',
+        message: `New ${video.type} "${video.title}" uploaded`,
+        time: this.getTimeAgo(video.createdAt)
+      });
+    });
+
+    // Yeni kullanıcılar
+    recentUsers.forEach(user => {
+      activities.push({
+        icon: 'users',
+        iconColor: 'text-blue-500',
+        message: `New user registered: ${user.email}`,
+        time: this.getTimeAgo(user.createdAt)
+      });
+    });
+
+    // Popüler içerikler (yüksek görüntülenme)
+    const popularVideos = await this.videosRepository.find({
+      order: { views: 'DESC' },
+      take: 3
+    });
+
+    popularVideos.forEach(video => {
+      if (video.views > 1000) {
+        activities.push({
+          icon: 'trending',
+          iconColor: 'text-yellow-500',
+          message: `${video.type} "${video.title}" reached ${video.views.toLocaleString()} views`,
+          time: this.getTimeAgo(video.updatedAt)
+        });
+      }
+    });
+
+    return activities.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 10);
+  }
+
+  private getTimeAgo(date: Date): string {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  }
+
+  async updateUser(userId: string, updateData: any) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Update user data
+    if (updateData.firstName) user.firstName = updateData.firstName;
+    if (updateData.lastName) user.lastName = updateData.lastName;
+    if (updateData.email) user.email = updateData.email;
+    
+    await this.usersRepository.save(user);
+
+    return {
+      success: true,
+      message: 'User updated successfully',
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        createdAt: user.createdAt.toISOString(),
+        lastLogin: user.lastLoginAt?.toISOString() || null
+      }
+    };
+  }
+
+  async deleteUser(userId: string) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Don't allow deleting admin users
+    if (user.role === 'admin') {
+      throw new Error('Cannot delete admin users');
+    }
+
+    await this.usersRepository.remove(user);
+
+    return {
+      success: true,
+      message: 'User deleted successfully'
+    };
+  }
+
+  async changeUserRole(userId: string, newRole: string) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Validate role
+    if (!['user', 'moderator', 'admin'].includes(newRole)) {
+      throw new Error('Invalid role');
+    }
+
+    // Convert string role to enum
+    let roleEnum;
+    switch (newRole) {
+      case 'user':
+        roleEnum = 'user';
+        break;
+      case 'moderator':
+        roleEnum = 'moderator';
+        break;
+      case 'admin':
+        roleEnum = 'admin';
+        break;
+      default:
+        throw new Error('Invalid role');
+    }
+
+    user.role = roleEnum as any;
+    await this.usersRepository.save(user);
+
+    return {
+      success: true,
+      message: `User role changed to ${newRole}`,
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        createdAt: user.createdAt.toISOString(),
+        lastLogin: user.lastLoginAt?.toISOString() || null
+      }
+    };
   }
 }

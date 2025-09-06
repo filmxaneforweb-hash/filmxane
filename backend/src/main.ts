@@ -56,7 +56,13 @@ const createUploadsDirectories = () => {
 };
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: false, // Disable default body parser
+  });
+
+  // Configure body parser with increased limits
+  app.use(require('express').json({ limit: '10gb' }));
+  app.use(require('express').urlencoded({ limit: '10gb', extended: true }));
 
   // Create upload directories
   createUploadsDirectories();

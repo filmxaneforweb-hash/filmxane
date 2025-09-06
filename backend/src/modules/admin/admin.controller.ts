@@ -74,7 +74,7 @@ export class AdminController {
     return this.adminService.getAllSeries();
   }
 
-  @Get('users/stats')
+  @Get('user-stats')
   getUserStats() {
     return this.adminService.getUserStats();
   }
@@ -94,6 +94,38 @@ export class AdminController {
     return this.adminService.getSystemSettings();
   }
 
+  @Get('recent-activity')
+  getRecentActivity() {
+    return this.adminService.getRecentActivity();
+  }
+
+  @Put('users/:id')
+  async updateUser(@Param('id') id: string, @Body() updateData: any) {
+    try {
+      return await this.adminService.updateUser(id, updateData);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Delete('users/:id')
+  async deleteUser(@Param('id') id: string) {
+    try {
+      return await this.adminService.deleteUser(id);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Put('users/:id/role')
+  async changeUserRole(@Param('id') id: string, @Body() roleData: { role: string }) {
+    try {
+      return await this.adminService.changeUserRole(id, roleData.role);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   @Put('settings')
   updateSystemSettings(@Body() settings: any) {
     return this.adminService.updateSystemSettings(settings);
@@ -102,7 +134,7 @@ export class AdminController {
   @Post('videos')
   @UseInterceptors(FilesInterceptor('files', 2)) // video + thumbnail
   async createVideo(
-    @Body() createVideoDto: CreateVideoDto,
+    @Body() body: any,
     @UploadedFiles(
       new ParseFilePipe({
         validators: [
@@ -115,8 +147,30 @@ export class AdminController {
     ) files: Express.Multer.File[],
   ) {
     try {
+      console.log('🎬 ===== VIDEO UPLOAD STARTED =====')
+      console.log('🎬 Raw body received:', body)
+      
+      // Parse JSON data if it's in 'data' field
+      let createVideoDto: CreateVideoDto;
+      if (body.data && typeof body.data === 'string') {
+        try {
+          createVideoDto = JSON.parse(body.data);
+          console.log('🎬 Parsed video data:', createVideoDto)
+        } catch (error) {
+          console.log('❌ JSON parse error:', error)
+          throw new HttpException('Invalid JSON data', HttpStatus.BAD_REQUEST);
+        }
+      } else {
+        createVideoDto = body;
+      }
+      
       console.log('🎬 Creating video with data:', createVideoDto)
       console.log('📁 Files received:', files?.length || 0)
+      if (files && files.length > 0) {
+        files.forEach((file, index) => {
+          console.log(`📁 File ${index + 1}:`, file.originalname, file.size, file.mimetype)
+        })
+      }
       console.log('🎬 Trailer URL:', createVideoDto.trailerUrl || 'Not provided')
       
       // Validate required fields
@@ -187,9 +241,11 @@ export class AdminController {
       }
       
       // Create video using admin service
+      console.log('🚀 Calling admin service createVideo...')
       const result = await this.adminService.createVideo(createVideoDto, videoFile, thumbnailFile);
       
       console.log('✅ Video created successfully:', result)
+      console.log('🎬 ===== VIDEO UPLOAD COMPLETED =====')
       
       return {
         success: true,

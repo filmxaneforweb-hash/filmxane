@@ -28,27 +28,34 @@ export default function SeriesPage() {
     const fetchSeries = async () => {
       try {
         setLoading(true)
-        console.log('🔍 Fetching series with filters...')
+        console.log('🔍 Fetching series...')
         
-        const response = await apiClient.searchWithFilters({
-          type: 'series',
-          query: searchQuery || undefined,
-          genre: selectedGenre !== 'all' ? selectedGenre : undefined,
-          year: selectedYear !== 'all' ? selectedYear : undefined,
-          rating: selectedRating !== 'all' ? selectedRating : undefined,
-          page: currentPage,
-          limit: 20
-        })
+        // Direct API call for faster loading
+        const response = await fetch('http://localhost:3005/api/videos')
+        const allVideos = await response.json()
         
-        console.log('📊 Series response:', response)
+        // Filter series only
+        const seriesData = allVideos.filter((video: any) => video.type === 'series')
         
-        if (response.success && response.data) {
-          setSeries(response.data.items)
-          setTotalResults(response.data.total)
-          setTotalPages(response.data.totalPages)
+        console.log('📊 Series data:', seriesData)
+        
+        if (seriesData && seriesData.length > 0) {
+          setSeries(seriesData)
+          setTotalResults(seriesData.length)
+          setTotalPages(1)
+          
+          // Extract genres and years for filters
+          const genres = [...new Set(seriesData.flatMap(series => 
+            typeof series.genre === 'string' ? JSON.parse(series.genre) : series.genre || []
+          ))]
+          setAllGenres(genres)
+          
+          const years = [...new Set(seriesData.map(series => series.year).filter(Boolean))]
+          setAllYears(years.sort((a, b) => b - a))
         } else {
-          console.error('❌ Failed to fetch series:', response.error)
-          setError(response.error || 'Failed to fetch series')
+          console.log('📊 No series found')
+          setSeries([])
+          setError('No series found')
         }
       } catch (error) {
         console.error('❌ Error fetching series:', error)
@@ -58,36 +65,10 @@ export default function SeriesPage() {
       }
     }
 
-    // Debounce search query - wait 500ms after user stops typing
-    const timeoutId = setTimeout(() => {
-      fetchSeries()
-    }, 500)
-
-    return () => clearTimeout(timeoutId)
+    fetchSeries()
   }, [searchQuery, selectedGenre, selectedYear, selectedRating, currentPage])
 
-  // Fetch all genres and years on component mount
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        // Fetch genres
-        const genresResponse = await apiClient.getAllGenres()
-        if (genresResponse.success && genresResponse.data) {
-          setAllGenres(genresResponse.data)
-        }
-        
-        // Fetch years
-        const yearsResponse = await apiClient.getAllYears()
-        if (yearsResponse.success && yearsResponse.data) {
-          setAllYears(yearsResponse.data)
-        }
-      } catch (error) {
-        console.error('❌ Error fetching filters:', error)
-      }
-    }
-
-    fetchFilters()
-  }, [])
+  // Filters are now loaded with the main data fetch
 
   // Use backend data for genres and years
   const genres = ['all', ...allGenres]

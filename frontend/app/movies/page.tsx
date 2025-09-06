@@ -33,27 +33,34 @@ export default function MoviesPage() {
     const fetchMovies = async () => {
       try {
         setLoading(true)
-        console.log('🔍 Fetching movies with filters...')
+        console.log('🔍 Fetching movies...')
         
-        const response = await apiClient.searchWithFilters({
-          type: 'movie',
-          query: searchQuery || undefined,
-          genre: selectedGenre !== 'all' ? selectedGenre : undefined,
-          year: selectedYear !== 'all' ? selectedYear : undefined,
-          rating: selectedRating !== 'all' ? selectedRating : undefined,
-          page: currentPage,
-          limit: 20
-        })
+        // Direct API call for faster loading
+        const response = await fetch('http://localhost:3005/api/videos')
+        const allVideos = await response.json()
         
-        console.log('📊 Movies response:', response)
+        // Filter movies only
+        const moviesData = allVideos.filter((video: any) => video.type === 'movie')
         
-        if (response.success && response.data) {
-          setMovies(response.data.items)
-          setTotalResults(response.data.total)
-          setTotalPages(response.data.totalPages)
+        console.log('📊 Movies data:', moviesData)
+        
+        if (moviesData && moviesData.length > 0) {
+          setMovies(moviesData)
+          setTotalResults(moviesData.length)
+          setTotalPages(1)
+          
+          // Extract genres and years for filters
+          const genres = [...new Set(moviesData.flatMap(movie => 
+            typeof movie.genre === 'string' ? JSON.parse(movie.genre) : movie.genre || []
+          ))] as string[]
+          setAllGenres(genres)
+          
+          const years = [...new Set(moviesData.map(movie => movie.year).filter(Boolean))] as number[]
+          setAllYears(years.sort((a, b) => b - a))
         } else {
-          console.error('❌ Failed to fetch movies:', response.error)
-          setError(response.error || 'Failed to fetch movies')
+          console.log('📊 No movies found')
+          setMovies([])
+          setError('No movies found')
         }
       } catch (error) {
         console.error('❌ Error fetching movies:', error)
@@ -63,36 +70,10 @@ export default function MoviesPage() {
       }
     }
 
-    // Debounce search query - wait 500ms after user stops typing
-    const timeoutId = setTimeout(() => {
-      fetchMovies()
-    }, 500)
-
-    return () => clearTimeout(timeoutId)
+    fetchMovies()
   }, [searchQuery, selectedGenre, selectedYear, selectedRating, currentPage])
 
-  // Fetch all genres and years on component mount
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        // Fetch genres
-        const genresResponse = await apiClient.getAllGenres()
-        if (genresResponse.success && genresResponse.data) {
-          setAllGenres(genresResponse.data)
-        }
-        
-        // Fetch years
-        const yearsResponse = await apiClient.getAllYears()
-        if (yearsResponse.success && yearsResponse.data) {
-          setAllYears(yearsResponse.data)
-        }
-      } catch (error) {
-        console.error('❌ Error fetching filters:', error)
-      }
-    }
-
-    fetchFilters()
-  }, [])
+  // Filters are now loaded with the main data fetch
 
   // Use backend data for genres and years
   const genres = ['all', ...allGenres]

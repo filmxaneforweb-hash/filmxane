@@ -20,6 +20,8 @@ export interface User {
   lastName?: string
   avatar?: string
   role: 'user' | 'admin' | 'moderator'
+  status?: 'active' | 'inactive'
+  lastLogin?: string
   createdAt: string
   updatedAt: string
 }
@@ -171,6 +173,11 @@ class ApiClient {
     if (typeof window !== 'undefined') {
       localStorage.setItem('filmxane_token', token)
     }
+  }
+
+  // Get authentication token
+  getToken(): string | null {
+    return this.token
   }
 
   // Clear authentication token
@@ -403,6 +410,10 @@ class ApiClient {
     return this.request<Category[]>('/categories')
   }
 
+  async getGenres(): Promise<ApiResponse<string[]>> {
+    return this.request<string[]>('/admin/genres')
+  }
+
   async searchContent(query: string, filters?: SearchFilters): Promise<ApiResponse<SearchResponse>> {
     const params = new URLSearchParams({ query })
     if (filters) {
@@ -473,10 +484,51 @@ class ApiClient {
 
   // Admin APIs (only for admin users)
   async uploadContent(formData: FormData): Promise<ApiResponse<{ id: string }>> {
-    return this.request<{ id: string }>('/admin/content/upload', {
+    return this.request<{ id: string }>('/admin/videos', {
       method: 'POST',
       body: formData,
       headers: {}, // Let browser set content-type for FormData
+    })
+  }
+
+  async uploadContentWithProgress(
+    formData: FormData, 
+    onProgress: (progress: number) => void
+  ): Promise<ApiResponse<{ id: string }>> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = (event.loaded / event.total) * 100
+          onProgress(progress)
+        }
+      })
+      
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText)
+            resolve({ success: true, data: response })
+          } catch (error) {
+            resolve({ success: false, error: 'Invalid response format' })
+          }
+        } else {
+          resolve({ success: false, error: `HTTP ${xhr.status}: ${xhr.statusText}` })
+        }
+      })
+      
+      xhr.addEventListener('error', () => {
+        resolve({ success: false, error: 'Network error' })
+      })
+      
+      xhr.addEventListener('timeout', () => {
+        resolve({ success: false, error: 'Request timeout' })
+      })
+      
+      xhr.open('POST', `${this.baseUrl}/admin/videos`)
+      xhr.setRequestHeader('Authorization', `Bearer ${this.getToken()}`)
+      xhr.send(formData)
     })
   }
 
@@ -500,6 +552,53 @@ class ApiClient {
     totalViews: number
   }>> {
     return this.request('/admin/stats')
+  }
+
+  async getChartData(): Promise<ApiResponse<any>> {
+    return this.request('/admin/chart-data')
+  }
+
+  async getAllUsers(): Promise<ApiResponse<User[]>> {
+    return this.request('/admin/users')
+  }
+
+  async getUserStats(): Promise<ApiResponse<any>> {
+    return this.request('/admin/user-stats')
+  }
+
+  async getSystemSettings(): Promise<ApiResponse<any>> {
+    return this.request('/admin/settings')
+  }
+
+  async getRecentActivity(): Promise<ApiResponse<any[]>> {
+    return this.request('/admin/recent-activity')
+  }
+
+  async updateSystemSettings(settings: any): Promise<ApiResponse<any>> {
+    return this.request('/admin/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    })
+  }
+
+  async updateUser(userId: string, userData: any): Promise<ApiResponse<any>> {
+    return this.request(`/admin/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+    })
+  }
+
+  async deleteUser(userId: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/users/${userId}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async changeUserRole(userId: string, role: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/users/${userId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    })
   }
 
   // Gelişmiş filtreleme ve arama

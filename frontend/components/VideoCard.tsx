@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 // import { motion } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { Play, Heart, Clock, MoreVertical, Trash2 } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { getSafeImageUrl } from '@/lib/utils'
 import { apiClient } from '@/lib/api'
 
@@ -212,10 +211,15 @@ export function VideoCard({
   const currentFavoriteState = onFavoriteToggle ? isFavorite : localIsFavorite
 
   return (
-    <Link href={`/videos/${id}`} className="block">
-      <div className="group relative bg-slate-800/50 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer border border-slate-700/30 hover:border-slate-600/50 backdrop-blur-sm hover:scale-102 hover:-translate-y-1">
+    <div 
+      className="group relative bg-slate-800/50 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer border border-slate-700/30 hover:border-slate-600/50 backdrop-blur-sm hover:scale-102 hover:-translate-y-1"
+      onClick={() => window.location.href = `/videos/${id}`}
+    >
       {/* Thumbnail - Netflix style */}
-      <div className="relative aspect-video overflow-hidden">
+      <div 
+        className="relative aspect-video overflow-hidden cursor-pointer"
+        onClick={() => window.location.href = `/videos/${id}`}
+      >
         <Image
           src={getSafeImageUrl(thumbnailUrl || posterUrl || thumbnail || thumbnailPath, 300, 200, 'thumbnail')}
           alt={safeTitle}
@@ -237,9 +241,12 @@ export function VideoCard({
            className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
            onClick={(e) => {
              e.preventDefault()
-             e.stopPropagation()
+             // Don't stop propagation - let it bubble up to parent
              if (onWatch) {
                onWatch()
+             } else {
+               // If no onWatch callback, navigate to video page
+               window.location.href = `/videos/${id}`
              }
            }}
          >
@@ -326,6 +333,5 @@ export function VideoCard({
         </div>
       </div>
     </div>
-    </Link>
   )
 }

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Play, Heart, Clock, Star } from 'lucide-react'
-import Link from 'next/link'
 import { Movie, Series } from '@/lib/api'
 import { getSafeImageUrl, getRandomPlaceholderImage } from '@/lib/utils'
 
@@ -53,12 +52,12 @@ export function ContentGrid({
           </div>
           
           {showViewAll && (
-            <Link
-              href={viewAllLink}
-              className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors duration-200"
+            <button
+              onClick={() => window.location.href = viewAllLink}
+              className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors duration-200 cursor-pointer"
             >
               Hemû Bibîne →
-            </Link>
+            </button>
           )}
         </div>
 
@@ -94,8 +93,8 @@ export function ContentGrid({
                   key={item.id}
                   className="flex-shrink-0 w-64 group/item"
                 >
-                  <Link href={`/videos/${item.id}`}>
-                    <div className="relative overflow-hidden rounded-lg bg-slate-800 hover:bg-slate-700 transition-all duration-300 group-hover/item:scale-105">
+                  <div className="relative overflow-hidden rounded-lg bg-slate-800 hover:bg-slate-700 transition-all duration-300 group-hover/item:scale-105 cursor-pointer"
+                       onClick={() => window.location.href = `/videos/${item.id}`}>
                       {/* Thumbnail */}
                       <div className="relative aspect-[2/3] overflow-hidden">
                         <img
@@ -177,7 +176,6 @@ export function ContentGrid({
                         </button>
                       </div>
                     </div>
-                  </Link>
                 </div>
               )
             })}

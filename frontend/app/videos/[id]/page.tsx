@@ -51,12 +51,12 @@ export default function VideoPlayerPage() {
           const videos = await response.json()
           const foundVideo = videos.find((v: any) => v.id === videoId)
           if (foundVideo) {
-            console.log('🔍 Video duration debug:', {
+            console.log('🔍 Video debug:', {
               id: foundVideo.id,
               title: foundVideo.title,
               duration: foundVideo.duration,
-              durationType: typeof foundVideo.duration,
-              durationRaw: foundVideo.duration
+              trailerUrl: foundVideo.trailerUrl,
+              hasTrailer: !!foundVideo.trailerUrl
             })
             setVideo(foundVideo)
             
@@ -178,9 +178,11 @@ export default function VideoPlayerPage() {
     const secs = safeSeconds % 60
     
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+      return `${hours}h ${minutes}m`
+    } else if (minutes > 0) {
+      return `${minutes}m`
     } else {
-      return `${minutes}:${secs.toString().padStart(2, '0')}`
+      return `${secs}s`
     }
   }
 
@@ -539,7 +541,7 @@ export default function VideoPlayerPage() {
                         <span className="text-lg">{video.rating}</span>
                       </div>
                     )}
-                    {video.year && (
+                    {video.year && video.year > 1900 && video.year < 2030 && (
                       <span className="text-lg">{video.year}</span>
                     )}
                     {(video as any).duration && (
@@ -1174,34 +1176,6 @@ export default function VideoPlayerPage() {
                   <div className="text-center py-16">
                     <div className="text-gray-500 text-6xl mb-4">🎬</div>
                     <h3 className="text-2xl font-semibold text-white mb-4">Fragman Tune</h3>
-                    <p className="text-gray-400 text-lg mb-6">
-                      Ji bo vê fîlmê hîn fragman tune ye. Admin panelê de fragmanê têkevê.
-                    </p>
-                    <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
-                      <h4 className="text-lg font-semibold text-white mb-3">Çawa Fragman Têkevê:</h4>
-                      <ol className="text-gray-300 text-left space-y-2">
-                        <li className="flex items-start gap-3">
-                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                          <span>Admin panelê de têkeve</span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                          <span>Content Management babetê hilbijêre</span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                          <span>Fîlmê hilbijêre û "Edit" bikirtîne</span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                          <span>Trailer URL babetê fragman URL'ê têkevê</span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                          <span>Save bikirtîne</span>
-                        </li>
-                      </ol>
-                    </div>
                   </div>
                 )}
               </div>

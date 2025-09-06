@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { User, Heart, LogOut, Search, Menu, X } from 'lucide-react'
+import { User, Heart, LogOut, Search, Menu, X, Settings } from 'lucide-react'
 
 import { useAuth } from '@/contexts/AuthContext'
 import { useContent } from '@/contexts/ContentContext'
@@ -298,11 +298,16 @@ export function Navigation() {
                         <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
                           <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
                             <span className="text-white font-bold text-sm">
-                              {user?.name?.charAt(0).toUpperCase() || 'U'}
+                              {(user?.firstName || user?.name)?.charAt(0).toUpperCase() || 'U'}
                             </span>
                           </div>
                           <div>
-                            <p className="text-white font-medium">{user?.name || 'User'}</p>
+                            <p className="text-white font-medium">
+                              {user?.firstName && user?.lastName 
+                                ? `${user.firstName} ${user.lastName}` 
+                                : user?.name || 'User'
+                              }
+                            </p>
                             <p className="text-slate-400 text-sm">Giriş yapıldı</p>
                           </div>
                         </div>
@@ -315,6 +320,12 @@ export function Navigation() {
                             <Heart className="w-4 h-4" />
                             <span>Listem</span>
                           </Link>
+                          {user?.role === 'admin' && (
+                            <Link href="/admin" className="flex items-center gap-3 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors duration-200">
+                              <Settings className="w-4 h-4" />
+                              <span>Admin Panel</span>
+                            </Link>
+                          )}
                           <hr className="border-slate-600 my-2" />
                           <button 
                             onClick={handleLogout}
