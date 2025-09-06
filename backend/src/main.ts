@@ -105,8 +105,8 @@ async function bootstrap() {
   })());
 
   // Health check endpoint
-  app.getHttpAdapter().get('/health', (req, res) => {
-    res.json({ 
+  app.getHttpAdapter().get('/health', (req: any, res: any) => {
+    res.status(200).json({ 
       status: 'ok', 
       message: 'Filmxane Backend is running',
       timestamp: new Date().toISOString()
