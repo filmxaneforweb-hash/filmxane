@@ -1,7 +1,7 @@
 // API Configuration - Production backend URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
   (process.env.NODE_ENV === 'production' 
-    ? 'https://filmxane-backend.vercel.app/api'  // Vercel backend URL'iniz
+    ? '/api'  // Aynı domain'de API routes
     : 'http://localhost:3005/api')
 
 console.log('🔧 API Base URL set to:', API_BASE_URL)
