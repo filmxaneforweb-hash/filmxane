@@ -1,9 +1,12 @@
 // API Configuration - Production backend URL
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://filmxane-backend.vercel.app/api'  // Vercel backend URL'iniz
-  : 'http://localhost:3005/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+  (process.env.NODE_ENV === 'production' 
+    ? 'https://filmxane-backend.vercel.app/api'  // Vercel backend URL'iniz
+    : 'http://localhost:3005/api')
 
-// console.log('🔧 API Base URL set to:', API_BASE_URL)
+console.log('🔧 API Base URL set to:', API_BASE_URL)
+console.log('🔧 NODE_ENV:', process.env.NODE_ENV)
+console.log('🔧 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL)
 
 // API Response Types
 export interface ApiResponse<T> {
