@@ -1,6 +1,6 @@
 // API Configuration - Production backend URL
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://bejewelled-cheesecake-ffd95e.netlify.app/api'  // Netlify backend URL'iniz
+  ? 'https://filmxane-backend.vercel.app/api'  // Vercel backend URL'iniz
   : 'http://localhost:3005/api'
 
 // console.log('🔧 API Base URL set to:', API_BASE_URL)
