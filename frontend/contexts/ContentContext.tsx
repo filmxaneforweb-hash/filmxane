@@ -73,7 +73,11 @@ export const ContentProvider = ({ children }: ContentProviderProps) => {
     try {
       setIsLoading(true)
       // Doğrudan tüm videoları getir ve movie tipini filtrele
-      const response = await fetch('http://localhost:3005/api/videos')
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+        (process.env.NODE_ENV === 'production' 
+          ? 'https://filmxane-backend.vercel.app/api' 
+          : 'http://localhost:3005/api')
+      const response = await fetch(`${API_BASE_URL}/videos`)
       if (response.ok) {
         const allVideos = await response.json()
         const movieVideos = allVideos.filter((v: any) => v.type === 'movie')
@@ -94,7 +98,11 @@ export const ContentProvider = ({ children }: ContentProviderProps) => {
     try {
       setIsLoading(true)
       // Doğrudan tüm videoları getir ve series tipini filtrele
-      const response = await fetch('http://localhost:3005/api/videos')
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+        (process.env.NODE_ENV === 'production' 
+          ? 'https://filmxane-backend.vercel.app/api' 
+          : 'http://localhost:3005/api')
+      const response = await fetch(`${API_BASE_URL}/videos`)
       if (response.ok) {
         const allVideos = await response.json()
         const seriesVideos = allVideos.filter((v: any) => v.type === 'series')

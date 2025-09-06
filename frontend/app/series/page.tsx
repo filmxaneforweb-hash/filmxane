@@ -31,7 +31,11 @@ export default function SeriesPage() {
         console.log('🔍 Fetching series...')
         
         // Direct API call for faster loading
-        const response = await fetch('http://localhost:3005/api/videos')
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+          (process.env.NODE_ENV === 'production' 
+            ? 'https://filmxane-backend.vercel.app/api' 
+            : 'http://localhost:3005/api')
+        const response = await fetch(`${API_BASE_URL}/videos`)
         const allVideos = await response.json()
         
         // Filter series only

@@ -34,7 +34,11 @@ export const getSafeImageUrl = (url: string | null | undefined, width: number, h
   
   // Eğer relative path ise (uploads/...), backend URL'ini ekle
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:3005${url}`
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+      (process.env.NODE_ENV === 'production' 
+        ? 'https://filmxane-backend.vercel.app/api' 
+        : 'http://localhost:3005/api')
+    return API_BASE_URL.replace('/api', '') + url
   }
   
   try {
