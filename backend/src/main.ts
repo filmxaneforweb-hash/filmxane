@@ -148,15 +148,8 @@ async function bootstrap() {
 }
 
 // Vercel için export
-let app: any;
-
-bootstrap().then((bootstrapedApp) => {
-  app = bootstrapedApp;
-}).catch(err => {
+export default bootstrap().catch(err => {
   console.error('❌ Backend başlatılamadı:', err);
   // Don't exit, just log the error
   console.log('⚠️ Backend hata ile karşılaştı ama durmadı');
 });
-
-// Vercel için export
-export default app;
