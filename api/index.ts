@@ -1,28 +1,11 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../backend/src/app.module';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 
-let app: any;
-
-export default async function handler(req: any, res: any) {
-  if (!app) {
-    const expressApp = express();
-    app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
-    
-    // CORS configuration
-    app.enableCors({
-      origin: '*',
-      methods: '*',
-      allowedHeaders: '*',
-      credentials: false
-    });
-
-    // Global prefix
-    app.setGlobalPrefix('api');
-    
-    await app.init();
-  }
-
-  return app.getHttpAdapter().getInstance()(req, res);
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Basit API response
+  res.status(200).json({
+    message: 'Filmxane API is running!',
+    timestamp: new Date().toISOString(),
+    method: req.method,
+    url: req.url
+  });
 }
