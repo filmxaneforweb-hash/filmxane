@@ -31,7 +31,14 @@ export async function GET(request: NextRequest) {
     }
   ];
 
-  return NextResponse.json(videos);
+  const response = NextResponse.json(videos);
+  
+  // CORS headers
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  return response;
 }
 
 export async function OPTIONS(request: NextRequest) {
