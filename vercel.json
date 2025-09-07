@@ -16,6 +16,14 @@
       "dest": "/api/$1"
     },
     {
+      "src": "/newlogo.png",
+      "dest": "/frontend/public/newlogo.png"
+    },
+    {
+      "src": "/site.webmanifest",
+      "dest": "/frontend/public/site.webmanifest"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
