@@ -8,6 +8,18 @@
   ],
   "routes": [
     {
+      "src": "/api/categories",
+      "dest": "/api/categories.ts"
+    },
+    {
+      "src": "/api/videos",
+      "dest": "/api/videos.ts"
+    },
+    {
+      "src": "/api/auth/login",
+      "dest": "/api/auth/login.ts"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/index.ts"
     },
