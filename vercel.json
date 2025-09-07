@@ -6,17 +6,14 @@
       "use": "@vercel/next"
     },
     {
-      "src": "backend/src/**/*.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["backend/dist/**"]
-      }
+      "src": "api/index.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/backend/src/$1"
+      "dest": "/api/index.ts"
     },
     {
       "src": "/(.*)",
@@ -27,10 +24,5 @@
     "JWT_SECRET": "@jwt_secret",
     "JWT_EXPIRES_IN": "7d",
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "backend/src/**/*.ts": {
-      "maxDuration": 30
-    }
   }
 }
