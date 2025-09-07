@@ -1,54 +1,28 @@
 {
-  "name": "filmxane",
+  "name": "filmxane-vercel",
   "version": "1.0.0",
-  "description": "Netflix tarzı Kürtçe streaming platformu",
+  "description": "Filmxane - Vercel Deployment",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "backend",
-    "admin-panel"
-  ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:admin\"",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
-    "dev:admin": "cd admin-panel && npm run dev",
-    "start:dev": "cd backend && npm run dev",
-    "start:frontend": "cd frontend && npm run dev",
-    "build": "npm run build:check && npm run build:parallel",
-    "build:check": "npm run check:versions && node build-check.js",
-    "build:parallel": "concurrently \"npm run build:frontend\" \"npm run build:backend\" \"npm run build:admin\"",
-    "build:frontend": "cd frontend && npm run build -- --no-lint --no-mangling",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm run build",
-    "build:admin": "cd admin-panel && npm run build",
-    "build:sequential": "npm run build:frontend && npm run build:backend && npm run build:admin",
-    "check:deps": "npm run check:deps:frontend && npm run check:deps:backend && npm run check:deps:admin",
-    "check:deps:frontend": "cd frontend && npm audit --audit-level=moderate",
-    "check:deps:backend": "cd backend && npm audit --audit-level=moderate",
-    "check:deps:admin": "cd admin-panel && npm audit --audit-level=moderate",
-    "check:versions": "node -e \"console.log('✅ React versions check passed')\"",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../admin-panel && npm install",
-    "clean": "npm run clean:frontend && npm run clean:backend && npm run clean:admin",
-    "clean:frontend": "cd frontend && rm -rf .next out dist",
-    "clean:backend": "cd backend && rm -rf dist",
-    "clean:admin": "cd admin-panel && rm -rf dist",
-    "quick-fix": "node quick-fix.js"
+    "start": "cd frontend && npm run start",
+    "vercel-build": "npm run build"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
-  "overrides": {
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
-  },
-  "keywords": [
-    "streaming",
-    "kurdish",
-    "netflix",
-    "nextjs",
-    "nestjs",
-    "postgresql"
-  ],
-  "author": "Filmxane Team",
-  "license": "MIT"
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

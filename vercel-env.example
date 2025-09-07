@@ -1,0 +1,16 @@
+# Vercel Environment Variables
+# Bu dosyayı Vercel dashboard'da Environment Variables olarak ekleyin
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-here
+JWT_EXPIRES_IN=7d
+
+# Database (Vercel Postgres)
+POSTGRES_URL=postgresql://username:password@host:port/database
+
+# API URL
+NEXT_PUBLIC_API_URL=https://your-domain.vercel.app/api
+
+# Vercel
+VERCEL=1
+VERCEL_URL=your-domain.vercel.app
