@@ -21,7 +21,6 @@
     }
   ],
   "env": {
-    "JWT_SECRET": "@jwt_secret",
     "JWT_EXPIRES_IN": "7d",
     "NODE_ENV": "production"
   }
