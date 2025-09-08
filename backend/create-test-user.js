@@ -7,10 +7,10 @@ async function createTestUser() {
     console.log('🧪 Creating test user...\n');
 
     const userData = {
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test@example.com',
-      password: 'password123'
+      firstName: 'Serkan',
+      lastName: 'Yamal',
+      email: 'sekolikelamineyamal@gmail.com',
+      password: 'serkan21'
     };
 
     const response = await axios.post(`${API_BASE_URL}/auth/register`, userData);

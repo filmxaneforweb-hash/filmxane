@@ -40,6 +40,9 @@ export function Navigation() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showLoginPassword, setShowLoginPassword] = useState(false)
+  const [showSignupPassword, setShowSignupPassword] = useState(false)
+  const [showSignupConfirmPassword, setShowSignupConfirmPassword] = useState(false)
 
   // Refs
   const searchRef = useRef<HTMLInputElement>(null)
@@ -54,7 +57,7 @@ export function Navigation() {
     { name: 'Lîsta Min', href: '/mylist' },
   ]
 
-  // Close menus when clicking outside
+  // Menuyên bigire dema li derve tê kişandin
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
@@ -69,21 +72,21 @@ export function Navigation() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Handle search
+  // Lêgerînê birêve bibe
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      console.log('🔍 Arama başlatılıyor:', searchQuery)
+      console.log('🔍 Lêgerîn dest pê kir:', searchQuery)
       try {
         await searchContent(searchQuery)
-        console.log('✅ Arama tamamlandı, sonuçlar:', searchResults)
+        console.log('✅ Lêgerîn qediya, encam:', searchResults)
       } catch (error) {
-        console.error('❌ Arama hatası:', error)
+        console.error('❌ Çewtiya lêgerînê:', error)
       }
     }
   }
 
-  // Handle login
+  // Têketinê birêve bibe
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -96,7 +99,7 @@ export function Navigation() {
         setLoginData({ email: '', password: '' })
         router.push('/')
       } else {
-        setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.')
+        setError('Têketin nehatibe serkeftin. Ji kerema xwe agahiyên xwe kontrol bike.')
       }
     } catch (err) {
       setError('Bir hata oluştu. Lütfen tekrar deneyin.')
@@ -105,14 +108,14 @@ export function Navigation() {
     }
   }
 
-  // Handle signup
+  // Tomarkirinê birêve bibe
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
 
     if (signupData.password !== signupData.confirmPassword) {
-      setError('Şifreler eşleşmiyor')
+      setError('Şîfreyên newekhev in')
       setIsLoading(false)
       return
     }
@@ -129,16 +132,16 @@ export function Navigation() {
         setSignupData({ firstName: '', lastName: '', email: '', password: '', confirmPassword: '' })
         router.push('/')
       } else {
-        setError('Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.')
+        setError('Tomarkirin nehatibe serkeftin. Ji kerema xwe agahiyên xwe kontrol bike.')
       }
     } catch (err) {
-      setError('Bir hata oluştu. Lütfen tekrar deneyin.')
+      setError('Çewtiyek çêbû. Ji kerema xwe dîsa biceribîne.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Handle logout
+  // Derketinê birêve bibe
   const handleLogout = async () => {
     await logout()
     setIsUserMenuOpen(false)
@@ -163,7 +166,7 @@ export function Navigation() {
               </div>
             </Link>
 
-            {/* Navigation Tabs */}
+            {/* Tabên Navîgasyonê */}
             <div className="hidden md:flex items-center space-x-1">
               {tabs.map((tab) => (
                 <Link
@@ -176,14 +179,14 @@ export function Navigation() {
               ))}
             </div>
 
-            {/* Right Side Actions */}
+            {/* Çalakiyên Aliyê Rastê */}
             <div className="flex items-center gap-2">
-              {/* Search */}
+              {/* Lêgerîn */}
               <div className="relative">
                 <button
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
                   className="p-2.5 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200"
-                  title="Search"
+                  title="Lêgerîn"
                 >
                   <Search className="w-4 h-4" />
                 </button>
@@ -221,7 +224,7 @@ export function Navigation() {
                       </div>
                     </form>
 
-                    {/* Arama Sonuçları */}
+                    {/* Encamên Lêgerînê */}
                     {searchResults && searchResults.items && searchResults.items.length > 0 && (
                       <div className="mt-4 space-y-2">
                         <h3 className="text-white font-medium text-sm">Encamên Lêgerînê:</h3>
@@ -261,7 +264,7 @@ export function Navigation() {
                       </div>
                     )}
 
-                    {/* Arama Sonucu Yok */}
+                    {/* Encama Lêgerînê Tune */}
                     {searchResults && searchResults.items && searchResults.items.length === 0 && searchQuery.trim() && (
                       <div className="mt-4 text-center py-4">
                         <p className="text-slate-400 text-sm">Encamên lêgerînê nehat dîtin.</p>
@@ -271,13 +274,13 @@ export function Navigation() {
                 )}
               </div>
 
-              {/* User Menu */}
+              {/* Menûya Bikarhêner */}
               <div className="relative" ref={userMenuRef}>
                 {isAuthenticated ? (
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="p-2.5 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200"
-                    title="User Menu"
+                    title="Menûya Bikarhêner"
                   >
                     👤
                   </button>
@@ -285,7 +288,7 @@ export function Navigation() {
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="p-2.5 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200"
-                    title="Giriş Yap / Kayıt Ol"
+                    title="Têkeve / Tomar Bibe"
                   >
                     👤
                   </button>
@@ -308,22 +311,22 @@ export function Navigation() {
                                 : user?.name || 'User'
                               }
                             </p>
-                            <p className="text-slate-400 text-sm">Giriş yapıldı</p>
+                            <p className="text-slate-400 text-sm">Têketin hat kirin</p>
                           </div>
                         </div>
                         <div className="space-y-2">
                           <Link href="/profile" className="flex items-center gap-3 p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors duration-200">
                             <User className="w-4 h-4" />
-                            <span>Profilim</span>
+                            <span>Profîla Min</span>
                           </Link>
                           <Link href="/mylist" className="flex items-center gap-3 p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors duration-200">
                             <Heart className="w-4 h-4" />
-                            <span>Listem</span>
+                            <span>Lîsta Min</span>
                           </Link>
                           {user?.role === 'admin' && (
                             <Link href="/admin" className="flex items-center gap-3 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors duration-200">
                               <Settings className="w-4 h-4" />
-                              <span>Admin Panel</span>
+                              <span>Panela Rêvebir</span>
                             </Link>
                           )}
                           <hr className="border-slate-600 my-2" />
@@ -332,7 +335,7 @@ export function Navigation() {
                             className="w-full flex items-center gap-3 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors duration-200"
                           >
                             <LogOut className="w-4 h-4" />
-                            <span>Çıkış Yap</span>
+                            <span>Derkeve</span>
                           </button>
                         </div>
                       </div>
@@ -343,14 +346,14 @@ export function Navigation() {
                           className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                         >
                           🔑
-                          <span>Giriş Yap</span>
+                          <span>Têkeve</span>
                         </button>
                         <button 
                           onClick={() => { setIsSignupModalOpen(true); setIsUserMenuOpen(false); }}
                           className="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                         >
                           ➕
-                          <span>Hesap Oluştur</span>
+                          <span>Hesab Avêje</span>
                         </button>
                       </div>
                     )}
@@ -358,7 +361,7 @@ export function Navigation() {
                 )}
               </div>
 
-              {/* Mobile Menu Button */}
+              {/* Bişkoka Menûya Mobîl */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200"
@@ -369,7 +372,7 @@ export function Navigation() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Menûya Mobîl */}
         {isMobileMenuOpen && (
           <div
             ref={mobileMenuRef}
@@ -391,12 +394,12 @@ export function Navigation() {
         )}
       </nav>
 
-      {/* Login Modal */}
+      {/* Modala Têketinê */}
       {isLoginModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-slate-900 rounded-2xl p-8 max-w-md w-full border border-slate-700/50">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Giriş Yap</h2>
+              <h2 className="text-2xl font-bold text-white">Têkeve</h2>
               <button
                 onClick={() => setIsLoginModalOpen(false)}
                 className="text-slate-400 hover:text-white transition-colors duration-200"
@@ -424,14 +427,32 @@ export function Navigation() {
                 <label className="block text-sm font-medium text-slate-300 mb-2">
                   Şifre
                 </label>
-                <input
-                  type="password"
-                  value={loginData.password}
-                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
-                  placeholder="Şifrenizi girin"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showLoginPassword ? "text" : "password"}
+                    value={loginData.password}
+                    onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                    className="w-full px-3 py-2 pr-10 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
+                    placeholder="Şifrenizi girin"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                  >
+                    {showLoginPassword ? (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
               
               {error && (
@@ -443,19 +464,19 @@ export function Navigation() {
                 disabled={isLoading}
                 className="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200"
               >
-                {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+                {isLoading ? 'Têketin tê kirin...' : 'Têkeve'}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Signup Modal */}
+      {/* Modala Tomarkirinê */}
       {isSignupModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-slate-900 rounded-2xl p-8 max-w-md w-full border border-slate-700/50">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Hesap Oluştur</h2>
+              <h2 className="text-2xl font-bold text-white">Hesab Avêje</h2>
               <button
                 onClick={() => setIsSignupModalOpen(false)}
                 className="text-slate-400 hover:text-white transition-colors duration-200"
@@ -511,28 +532,64 @@ export function Navigation() {
                 <label className="block text-sm font-medium text-slate-300 mb-2">
                   Şifre
                 </label>
-                <input
-                  type="password"
-                  value={signupData.password}
-                  onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
-                  placeholder="Şifrenizi girin"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showSignupPassword ? "text" : "password"}
+                    value={signupData.password}
+                    onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                    className="w-full px-3 py-2 pr-10 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
+                    placeholder="Şifrenizi girin"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSignupPassword(!showSignupPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                  >
+                    {showSignupPassword ? (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
                   Şifre Tekrar
                 </label>
-                <input
-                  type="password"
-                  value={signupData.confirmPassword}
-                  onChange={(e) => setSignupData({ ...signupData, confirmPassword: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
-                  placeholder="Şifrenizi tekrar girin"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showSignupConfirmPassword ? "text" : "password"}
+                    value={signupData.confirmPassword}
+                    onChange={(e) => setSignupData({ ...signupData, confirmPassword: e.target.value })}
+                    className="w-full px-3 py-2 pr-10 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
+                    placeholder="Şifrenizi tekrar girin"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSignupConfirmPassword(!showSignupConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                  >
+                    {showSignupConfirmPassword ? (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
               
               {error && (
@@ -544,7 +601,7 @@ export function Navigation() {
                 disabled={isLoading}
                 className="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200"
               >
-                {isLoading ? 'Hesap oluşturuluyor...' : 'Hesap Oluştur'}
+                {isLoading ? 'Hesab tê avêtin...' : 'Hesab Avêje'}
               </button>
             </form>
           </div>

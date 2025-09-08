@@ -31,5 +31,5 @@ function makeUserAdmin(email) {
 }
 
 // Get email from command line argument or use default
-const email = process.argv[2] || 'sekolikeyamal@gmail.com';
+const email = process.argv[2] || 'sekolikelamineyamal@gmail.com';
 makeUserAdmin(email);

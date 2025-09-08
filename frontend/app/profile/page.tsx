@@ -27,15 +27,15 @@ export default function ProfilePage() {
   const [statsLoading, setStatsLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
-  // Backend'den kullanıcı istatistiklerini çek
+  // Ji backend'ê statîstîkên bikarhêner bikişîne
   const fetchUserStats = async () => {
     try {
       const token = localStorage.getItem('filmxane_token')
       if (!token) return
 
-      console.log('🔄 Profil verileri yenileniyor...')
+      console.log('🔄 Daneyên profîlê têne nûkirin...')
 
-      // Favori sayısını çek
+      // Hejmara dilxwaziyê bikişîne
       const favoritesResponse = await fetch('http://localhost:3005/api/favorites/my-favorites', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -46,17 +46,17 @@ export default function ProfilePage() {
         const favoritesData = await favoritesResponse.json()
         const favoritesCount = Array.isArray(favoritesData) ? favoritesData.length : 0
         
-        console.log('📊 Favori sayısı:', favoritesCount)
+        console.log('📊 Hejmara dilxwaziyê:', favoritesCount)
         
         setStats(prev => ({
           ...prev,
           favoritesCount
         }))
       } else {
-        console.error('❌ Favori verisi alınamadı:', favoritesResponse.status)
+        console.error('❌ Daneyên dilxwaziyê nehatine wergirtin:', favoritesResponse.status)
       }
 
-      // İzlenme süresini çek
+      // Dema temaşekirinê bikişîne
       try {
         const watchTimeResponse = await fetch('http://localhost:3005/api/videos/watch-time', {
           headers: {
@@ -66,9 +66,9 @@ export default function ProfilePage() {
         
         if (watchTimeResponse.ok) {
           const watchTimeData = await watchTimeResponse.json()
-          console.log('📺 İzlenme verileri:', watchTimeData)
+          console.log('📺 Daneyên temaşekirinê:', watchTimeData)
           
-          // Eğer veri yoksa varsayılan değerler kullan
+          // Heke daneyên tune be, nirxên xwerû bikar bîne
           const totalWatchTime = watchTimeData.totalMinutes || 0
           const totalViews = watchTimeData.totalViews || 0
           const completedVideos = watchTimeData.completedVideos || 0
@@ -81,8 +81,8 @@ export default function ProfilePage() {
           }))
         }
       } catch (error) {
-        console.log('İzlenme süresi endpoint\'i mevcut değil, 0 olarak ayarlandı')
-        // Varsayılan değerler
+        console.log('Endpoint\'a dema temaşekirinê mewcûd nîne, wekî 0 hat sazkirin')
+        // Nirxên xwerû
         setStats(prev => ({
           ...prev,
           totalWatchTime: 0,
@@ -91,42 +91,42 @@ export default function ProfilePage() {
         }))
       }
 
-      // Üyelik tarihini localStorage'dan al
+      // Dîroka endamtiyê ji localStorage'ê bigire
       const joinDate = localStorage.getItem('filmxane_user_joinDate') || new Date().toISOString()
       setStats(prev => ({
         ...prev,
         joinDate
       }))
 
-      console.log('✅ Profil verileri güncellendi')
+      console.log('✅ Daneyên profîlê hatine nûkirin')
 
     } catch (error) {
-      console.error('Kullanıcı istatistikleri alınamadı:', error)
+      console.error('Statîstîkên bikarhêner nehatine wergirtin:', error)
     } finally {
       setStatsLoading(false)
       setRefreshing(false)
     }
   }
 
-  // Manuel yenileme fonksiyonu
+  // Fonksiyona nûkirina destî
   const handleRefresh = () => {
-    console.log('🔄 Manuel yenileme başlatıldı')
+    console.log('🔄 Nûkirina destî dest pê kir')
     setRefreshing(true)
     setStatsLoading(true)
     fetchUserStats()
   }
 
-  // Sayfa görünür olduğunda ve focus olduğunda verileri güncelle
+  // Dema rûpel xuya dibe û focus dibe daneyên nû bike
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        console.log('👁️ Sayfa görünür oldu, veriler güncelleniyor...')
+        console.log('👁️ Rûpel xuya bû, daneyên têne nûkirin...')
         fetchUserStats()
       }
     }
 
     const handleFocus = () => {
-      console.log('🎯 Sayfa focus oldu, veriler güncelleniyor...')
+      console.log('🎯 Rûpel focus bû, daneyên têne nûkirin...')
       fetchUserStats()
     }
 
@@ -139,13 +139,13 @@ export default function ProfilePage() {
     }
   }, [])
 
-  // Favori sayısını gerçek zamanlı güncelle - Basit polling sistemi
+  // Hejmara dilxwaziyê bi dema rastîn nû bike - Pergala polling'a hêsan
   useEffect(() => {
-    // Her 2 saniyede bir favori sayısını ve izleme süresini kontrol et
+    // Her 2 çirkeyan hejmara dilxwaziyê û dema temaşekirinê kontrol bike
     const interval = setInterval(() => {
       const token = localStorage.getItem('filmxane_token')
       if (token) {
-        // Favori sayısını kontrol et
+        // Hejmara dilxwaziyê kontrol bike
         fetch('http://localhost:3005/api/favorites/my-favorites', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -155,7 +155,7 @@ export default function ProfilePage() {
         .then(data => {
           const newCount = Array.isArray(data) ? data.length : 0
           if (newCount !== stats.favoritesCount) {
-            console.log('🔄 Favori sayısı değişti:', stats.favoritesCount, '->', newCount)
+            console.log('🔄 Hejmara dilxwaziyê guherî:', stats.favoritesCount, '->', newCount)
             setStats(prev => ({
               ...prev,
               favoritesCount: newCount
@@ -163,10 +163,10 @@ export default function ProfilePage() {
           }
         })
         .catch(error => {
-          console.log('Favori sayısı kontrol edilemedi:', error)
+          console.log('Hejmara dilxwaziyê nehat kontrol kirin:', error)
         })
 
-        // İzleme süresini kontrol et
+        // Dema temaşekirinê kontrol bike
         fetch('http://localhost:3005/api/videos/watch-time', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -181,7 +181,7 @@ export default function ProfilePage() {
           if (newWatchTime !== stats.totalWatchTime || 
               newTotalViews !== stats.totalViews || 
               newCompletedVideos !== stats.completedVideos) {
-            console.log('🔄 İzleme verileri değişti:', {
+            console.log('🔄 Daneyên temaşekirinê guherîn:', {
               watchTime: newWatchTime,
               totalViews: newTotalViews,
               completedVideos: newCompletedVideos
@@ -195,22 +195,22 @@ export default function ProfilePage() {
           }
         })
         .catch(error => {
-          console.log('İzleme süresi kontrol edilemedi:', error)
+          console.log('Dema temaşekirinê nehat kontrol kirin:', error)
         })
       }
-    }, 2000) // 2 saniye
+    }, 2000) // 2 çirke
 
     return () => clearInterval(interval)
   }, [stats.favoritesCount, stats.totalWatchTime, stats.totalViews, stats.completedVideos])
 
-  // Favori işlemlerinden sonra istatistikleri güncelle
+  // Piştî operasyonên dilxwaziyê statîstîkên nû bike
   useEffect(() => {
     const handleFavoriteChange = () => {
-      console.log('❤️ Favori değişikliği algılandı, istatistikler güncelleniyor...')
+      console.log('❤️ Guhertina dilxwaziyê hat dîtin, statîstîkên têne nûkirin...')
       fetchUserStats()
     }
 
-    // Custom event dinle
+    // Event'a xwerû bihîze
     window.addEventListener('favoriteChanged', handleFavoriteChange)
     
     return () => {
@@ -218,7 +218,7 @@ export default function ProfilePage() {
     }
   }, [])
 
-  // İlk yükleme
+  // Barkirina pêşîn
   useEffect(() => {
     if (user) {
       fetchUserStats()
@@ -234,7 +234,7 @@ export default function ProfilePage() {
       }
 
       try {
-        // Backend'den kullanıcı bilgilerini çek
+        // Ji backend'ê agahiyên bikarhêner bikişîne
         const response = await fetch('http://localhost:3005/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -244,7 +244,7 @@ export default function ProfilePage() {
 
         if (response.ok) {
           const userData = await response.json()
-          console.log('✅ Backend\'den kullanıcı verisi alındı:', userData)
+          console.log('✅ Ji backend\'ê daneyên bikarhêner hatine wergirtin:', userData)
           
           setUser({
             firstName: userData.firstName || userData.name?.split(' ')[0] || 'User',
@@ -252,15 +252,15 @@ export default function ProfilePage() {
             email: userData.email
           })
           
-          // Üyelik tarihini backend'den al
+          // Dîroka endamtiyê ji backend'ê bigire
           const joinDate = userData.createdAt || userData.joinDate || new Date().toISOString()
           setStats(prev => ({
             ...prev,
             joinDate
           }))
         } else {
-          console.error('❌ Backend\'den kullanıcı verisi alınamadı:', response.status)
-          // Fallback: localStorage'dan al
+          console.error('❌ Ji backend\'ê daneyên bikarhêner nehatine wergirtin:', response.status)
+          // Fallback: ji localStorage'ê bigire
           const firstName = localStorage.getItem('filmxane_user_firstName')
           const lastName = localStorage.getItem('filmxane_user_lastName')
           const email = localStorage.getItem('filmxane_user_email')
@@ -281,8 +281,8 @@ export default function ProfilePage() {
           }
         }
       } catch (error) {
-        console.error('❌ Kullanıcı verisi çekme hatası:', error)
-        // Fallback: localStorage'dan al
+        console.error('❌ Çewtiya kişandina daneyên bikarhêner:', error)
+        // Fallback: ji localStorage'ê bigire
         const firstName = localStorage.getItem('filmxane_user_firstName')
         const lastName = localStorage.getItem('filmxane_user_lastName')
         const email = localStorage.getItem('filmxane_user_email')
@@ -331,7 +331,7 @@ export default function ProfilePage() {
     )
   }
 
-  // Üyelik tarihini formatla
+  // Dîroka endamtiyê format bike
   const formatJoinDate = (dateString: string) => {
     try {
       const date = new Date(dateString)
@@ -356,21 +356,21 @@ export default function ProfilePage() {
       
       <div className="pt-24 pb-8">
         <div className="container mx-auto px-4">
-          {/* Basit Profil Kartı */}
+          {/* Karta Profîla Hêsan */}
           <div className="max-w-md mx-auto bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/30">
-            {/* Yenileme Butonu */}
+            {/* Bişkok Nûkirinê */}
             <div className="flex justify-end mb-4">
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
                 className="p-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all duration-200 disabled:opacity-50"
-                title="Verileri Yenile"
+                title="Daneyên Nû Bike"
               >
                 <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               </button>
             </div>
 
-            {/* Profil Avatar */}
+            {/* Avatara Profîlê */}
             <div className="text-center mb-6">
               <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <User className="w-10 h-10 text-white" />
@@ -381,7 +381,7 @@ export default function ProfilePage() {
               <p className="text-gray-400">{user.email}</p>
             </div>
 
-            {/* Backend'den Gelen Bilgiler */}
+            {/* Agahiyên ji Backend'ê */}
             <div className="space-y-4">
               <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                 <Heart className="w-5 h-5 text-red-500" />
@@ -444,7 +444,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Basit Butonlar */}
+            {/* Bişkokên Hêsan */}
             <div className="mt-6 space-y-3">
               <button 
                 onClick={() => router.push('/mylist')}

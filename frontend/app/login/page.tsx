@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,18 +32,18 @@ export default function LoginPage() {
     try {
       const response = await apiClient.login(email, password)
       
-      // DEBUG: Tam yanıtı logla
-      console.log('🔍 DEBUG: Login response:', response)
+      // DEBUG: Bersivek tevahî log bike
+      console.log('🔍 DEBUG: Bersiva têketinê:', response)
       console.log('🔍 DEBUG: response.success:', response.success)
       console.log('🔍 DEBUG: response.data:', response.data)
       console.log('🔍 DEBUG: response.data?.token:', response.data?.token)
       console.log('🔍 DEBUG: response.data?.user:', response.data?.user)
       
       if (response.success && response.data && response.data.token) {
-        // Token var, devam et
-        console.log('✅ Token bulundu:', response.data.token)
+        // Token heye, berdewam bike
+        console.log('✅ Token hat dîtin:', response.data.token)
 
-        // User bilgilerini kontrol et
+        // Agahiyên bikarhêner kontrol bike
         if (!response.data.user || !response.data.user.id) {
           setError('Têketin nehatibe serkeftin - agahiyên bikarhêner nehatibe wergirtin')
           return
@@ -50,7 +51,7 @@ export default function LoginPage() {
 
         localStorage.setItem('filmxane_token', response.data.token)
         
-        // Kullanıcı bilgilerini localStorage'a kaydet
+        // Agahiyên bikarhêner di localStorage'ê de tomar bike
         if (response.data.user.firstName) {
           localStorage.setItem('filmxane_user_firstName', response.data.user.firstName)
         }
@@ -64,26 +65,26 @@ export default function LoginPage() {
           localStorage.setItem('filmxane_user_role', response.data.user.role)
         }
         
-        // Üyelik tarihini kontrol et, yoksa bugün olarak ayarla
+        // Dîroka endamtiyê kontrol bike, heke tune be îro wekî saz bike
         if (!localStorage.getItem('filmxane_user_joinDate')) {
           localStorage.setItem('filmxane_user_joinDate', new Date().toISOString())
         }
         
-        // Role kontrolü
+        // Kontrola role
         if (response.data.user?.role === 'admin') {
           router.push('/admin')
         } else {
           router.push('/')
         }
       } else {
-        // Hata durumu - response.error'dan mesaj al
-        console.log('❌ Login failed:', response.error)
+        // Rewşa çewtiyê - ji response.error mesajê bigire
+        console.log('❌ Têketin nehatibe serkeftin:', response.error)
         setError(response.error || 'Giriş başarısız - ji kerema xwe dîsa biceribîne')
       }
     } catch (error: any) {
-      console.error('Login error:', error)
+      console.error('Çewtiya têketinê:', error)
       
-      // Network/connection errors
+      // Çewtiyên tora/têkilî
       if (error.message?.includes('fetch') || error.message?.includes('network') || error.message?.includes('Failed to fetch')) {
         setError('Backend sunucusuna têkilî nayê dayîn. Ji kerema xwe backend\'ê çalak e kontrol bike.')
       } else if (error.message?.includes('401')) {
@@ -101,13 +102,13 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-900 text-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo ve Başlık */}
+        {/* Logo û Sernav */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-red-500 mb-2">FILMXANE</h1>
           <p className="text-gray-400">Platforma Sînema ya Kurdî</p>
         </div>
 
-        {/* Login Form */}
+        {/* Forma Têketinê */}
         <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-8 shadow-2xl">
           <h2 className="text-2xl font-bold text-center mb-6">Têkeve</h2>
           
@@ -136,14 +137,32 @@ export default function LoginPage() {
               <label className="block text-sm font-medium mb-2 text-gray-300">
                 Şîfre
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-                placeholder="Şîfreya xwe binivîse"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-3 pr-12 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                  placeholder="Şîfreya xwe binivîse"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                >
+                  {showPassword ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
             
             <button
@@ -155,7 +174,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Links */}
+          {/* Girêdan */}
           <div className="mt-6 text-center space-y-2">
             <Link href="/register" className="block text-red-400 hover:text-red-300 text-sm transition-colors">
               Hesabek tune? Endam bibe
