@@ -17,6 +17,7 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
 
 // Gateways
 import { AdminGateway } from './gateways/admin.gateway';
+import { HealthModule } from './modules/health/health.module';
 
 // Config
 import { DatabaseConfig } from './config/database.config';
@@ -62,6 +63,7 @@ import { DatabaseConfig } from './config/database.config';
     PaymentsModule,
     AdminModule,
     FavoritesModule,
+    HealthModule,
     
     // Gateways
     AdminGateway,

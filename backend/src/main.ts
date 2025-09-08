@@ -125,7 +125,13 @@ async function bootstrap() {
       'http://localhost:3001', 
       'http://localhost:3002',
       'http://localhost:5173',
-      'http://localhost:4173'
+      'http://localhost:4173',
+      // Railway production domains
+      'https://filmxane-frontend.railway.app',
+      'https://filmxane-backend.railway.app',
+      // Vercel domains (eğer frontend Vercel'de olacaksa)
+      'https://filmxane.vercel.app',
+      'https://filmxane-git-main.vercel.app'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
