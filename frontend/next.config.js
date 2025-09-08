@@ -15,8 +15,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Production build için
-  output: 'export',
+  // Production build için - static export kaldırıldı
+  // output: 'export',
   // Disable static generation completely
   trailingSlash: false,
   // Skip error pages during build
