@@ -13,6 +13,12 @@ import { useContent } from '@/contexts/ContentContext'
 import { getSafeImageUrl } from '@/lib/utils'
 import { useAuth } from '@/contexts/AuthContext'
 
+// generateStaticParams fonksiyonu - static export için gerekli
+export async function generateStaticParams() {
+  // Boş array döndür - dynamic routing için
+  return []
+}
+
 export default function VideoPlayerPage() {
   const params = useParams()
   const videoId = params.id as string
