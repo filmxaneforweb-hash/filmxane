@@ -16,7 +16,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   // Production build için
-  output: 'standalone',
+  output: 'export',
   // Disable static generation completely
   trailingSlash: false,
   // Skip error pages during build
