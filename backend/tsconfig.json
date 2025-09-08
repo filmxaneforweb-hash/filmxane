@@ -13,6 +13,8 @@
     "incremental": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "typeRoots": [],
+    "types": [],
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
