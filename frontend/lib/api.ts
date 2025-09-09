@@ -1,7 +1,8 @@
 // API Configuration - Environment variable
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005/api'
 
-// console.log('🔧 API Base URL set to:', API_BASE_URL)
+console.log('🔧 API Base URL set to:', API_BASE_URL)
+console.log('🔧 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL)
 
 // API Response Types
 export interface ApiResponse<T> {
