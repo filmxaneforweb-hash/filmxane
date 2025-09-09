@@ -29,7 +29,10 @@ export default function CreateAdminPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          secretKey: 'filmxane-admin-2024-secret'
+        }),
         signal: controller.signal
       });
 
@@ -100,7 +103,7 @@ export default function CreateAdminPage() {
                 value={formData.secretKey}
                 onChange={(e) => setFormData({...formData, secretKey: e.target.value})}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="filmxane-admin-2024-secret"
+                placeholder="Güvenlik anahtarını girin"
                 required
               />
             </div>
