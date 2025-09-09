@@ -19,13 +19,19 @@ export default function CreateAdminPage() {
     setMessage('');
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 saniye timeout
+
       const response = await fetch('https://filmxane-backend.onrender.com/api/admin/create-admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       const data = await response.json();
 
@@ -38,7 +44,12 @@ export default function CreateAdminPage() {
         setMessage(`❌ Hata: ${data.message}`);
       }
     } catch (error) {
-      setMessage('❌ Bağlantı hatası: ' + error);
+      console.error('Admin creation error:', error);
+      if (error.name === 'AbortError') {
+        setMessage('❌ Zaman aşımı: Backend servisi yanıt vermiyor. Lütfen daha sonra tekrar deneyin.');
+      } else {
+        setMessage('❌ Bağlantı hatası: Backend servisi çalışmıyor. Lütfen daha sonra tekrar deneyin.');
+      }
     } finally {
       setLoading(false);
     }
