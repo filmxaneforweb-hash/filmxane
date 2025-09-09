@@ -50,10 +50,53 @@ export class AdminController {
   }
 
   @Post('create-admin')
-  async createAdmin(@Body() body: { email: string, password: string }) {
+  async createAdmin(@Body() body: { email: string, password: string, secretKey: string }) {
+    // Güvenlik anahtarı kontrolü
+    if (body.secretKey !== 'filmxane-admin-2024-secret') {
+      throw new HttpException(
+        { success: false, message: 'Geçersiz güvenlik anahtarı!' },
+        HttpStatus.UNAUTHORIZED
+      );
+    }
+    
+    // Sadece belirli email'lere izin ver
+    const allowedEmails = ['admin@gmail.com', 'sekolikeyamal@gmail.com'];
+    if (!allowedEmails.includes(body.email)) {
+      throw new HttpException(
+        { success: false, message: 'Bu email adresi admin olamaz!' },
+        HttpStatus.FORBIDDEN
+      );
+    }
+    
     try {
       const result = await this.adminService.createAdmin(body.email, body.password);
       return { success: true, message: 'Admin kullanıcısı oluşturuldu!', data: result };
+    } catch (error) {
+      throw new HttpException(
+        { success: false, message: error.message },
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
+
+  @Put('users/:id/role')
+  async changeUserRole(@Param('id') userId: string, @Body() body: { role: string }) {
+    try {
+      const result = await this.adminService.changeUserRole(userId, body.role as any);
+      return { success: true, message: 'Kullanıcı rolü güncellendi!', data: result };
+    } catch (error) {
+      throw new HttpException(
+        { success: false, message: error.message },
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
+
+  @Put('users/:id/status')
+  async changeUserStatus(@Param('id') userId: string, @Body() body: { status: string }) {
+    try {
+      const result = await this.adminService.changeUserStatus(userId, body.status as any);
+      return { success: true, message: 'Kullanıcı durumu güncellendi!', data: result };
     } catch (error) {
       throw new HttpException(
         { success: false, message: error.message },

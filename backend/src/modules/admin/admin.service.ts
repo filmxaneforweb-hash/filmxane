@@ -1110,4 +1110,37 @@ export class AdminService {
       return { message: 'Admin kullanıcısı oluşturuldu!', user: savedUser };
     }
   }
+
+  // Kullanıcı rolünü değiştir
+  async changeUserRole(userId: string, newRole: UserRole) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      throw new Error('Kullanıcı bulunamadı!');
+    }
+
+    user.role = newRole;
+    user.isAdmin = newRole === UserRole.ADMIN;
+    await this.usersRepository.save(user);
+
+    return { message: 'Kullanıcı rolü güncellendi!', user };
+  }
+
+  // Kullanıcı durumunu değiştir
+  async changeUserStatus(userId: string, newStatus: UserStatus) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      throw new Error('Kullanıcı bulunamadı!');
+    }
+
+    user.status = newStatus;
+    await this.usersRepository.save(user);
+
+    return { message: 'Kullanıcı durumu güncellendi!', user };
+  }
 }
