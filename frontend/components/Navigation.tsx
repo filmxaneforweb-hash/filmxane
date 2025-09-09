@@ -13,7 +13,7 @@ import { apiClient } from '@/lib/api'
 const FilmxaneLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
   <div className="relative">
     <img 
-      src="/newlogo.png" 
+      src="/filmxaneisimsizfoto.jpg" 
       alt="Filmxane Logo" 
       className={className}
       onError={(e) => {
