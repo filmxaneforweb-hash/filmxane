@@ -26,7 +26,7 @@ const nextConfig = {
   experimental: {
     esmExternals: false,
   },
-  // Custom error pages
+  // Custom error pages and static file serving
   async rewrites() {
     return [
       {
@@ -36,6 +36,20 @@ const nextConfig = {
       {
         source: '/500',
         destination: '/500.html',
+      },
+    ]
+  },
+  // Static file serving
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
       },
     ]
   },
