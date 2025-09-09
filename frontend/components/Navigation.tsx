@@ -9,10 +9,25 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useContent } from '@/contexts/ContentContext'
 import { apiClient } from '@/lib/api'
 
-// Logo Text Component
+// Logo Component with fallback
 const FilmxaneLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
-  <div className={`${className} bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-xs`}>
-    F
+  <div className="relative">
+    <img 
+      src="/newlogo.png" 
+      alt="Filmxane Logo" 
+      className={className}
+      onError={(e) => {
+        e.currentTarget.style.display = 'none'
+        const fallback = e.currentTarget.nextElementSibling as HTMLElement
+        if (fallback) fallback.style.display = 'flex'
+      }}
+    />
+    <div 
+      className={`${className} bg-gradient-to-r from-red-600 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-xs hidden`}
+      style={{ display: 'none' }}
+    >
+      F
+    </div>
   </div>
 )
 
