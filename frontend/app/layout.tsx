@@ -72,7 +72,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="192x192" href="/logo-192x192.png" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/web-app-manifest-192x192.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
