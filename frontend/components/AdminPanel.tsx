@@ -185,12 +185,13 @@ export function AdminPanel() {
   }, [])
 
   // Check if user is admin
-  if (!user || user.role !== 'admin') {
+  if (!user || (user.role !== 'admin' && !user.isAdmin)) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">Access Denied</h1>
           <p className="text-slate-400">You need admin privileges to access this page.</p>
+          <p className="text-slate-400 mt-2">User role: {user?.role}, isAdmin: {user?.isAdmin ? 'true' : 'false'}</p>
         </div>
       </div>
     )
