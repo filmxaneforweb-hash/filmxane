@@ -20,7 +20,9 @@ export default function CreateAdminPage() {
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 saniye timeout
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 saniye timeout
+
+      console.log('Admin oluşturma isteği gönderiliyor...', formData);
 
       const response = await fetch('https://filmxane-backend.onrender.com/api/admin/create-admin', {
         method: 'POST',
@@ -32,6 +34,7 @@ export default function CreateAdminPage() {
       });
 
       clearTimeout(timeoutId);
+      console.log('Backend yanıtı:', response.status, response.statusText);
 
       const data = await response.json();
 
@@ -46,9 +49,11 @@ export default function CreateAdminPage() {
     } catch (error) {
       console.error('Admin creation error:', error);
       if (error.name === 'AbortError') {
-        setMessage('❌ Zaman aşımı: Backend servisi yanıt vermiyor. Lütfen daha sonra tekrar deneyin.');
+        setMessage('❌ Zaman aşımı: Backend servisi yanıt vermiyor. Render.com\'da backend servisini yeniden başlatın.');
+      } else if (error.message.includes('Failed to fetch')) {
+        setMessage('❌ Bağlantı hatası: Backend servisi çalışmıyor. Render.com\'da backend servisini yeniden başlatın.');
       } else {
-        setMessage('❌ Bağlantı hatası: Backend servisi çalışmıyor. Lütfen daha sonra tekrar deneyin.');
+        setMessage(`❌ Hata: ${error.message}`);
       }
     } finally {
       setLoading(false);
