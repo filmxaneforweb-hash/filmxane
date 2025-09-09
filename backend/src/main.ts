@@ -131,6 +131,7 @@ async function bootstrap() {
       'https://filmxane-backend.railway.app',
       // Render production domains
       'https://filmxane-frontend.onrender.com',
+      'https://filmxane-frontend-31yq.onrender.com',
       'https://filmxane-backend.onrender.com',
       // Vercel domains (eğer frontend Vercel'de olacaksa)
       'https://filmxane.vercel.app',
