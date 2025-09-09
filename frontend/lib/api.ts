@@ -1,5 +1,5 @@
-// API Configuration - Fixed backend port
-const API_BASE_URL = 'http://localhost:3005/api'
+// API Configuration - Environment variable
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005/api'
 
 // console.log('🔧 API Base URL set to:', API_BASE_URL)
 
