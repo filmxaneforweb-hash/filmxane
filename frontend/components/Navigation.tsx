@@ -9,13 +9,11 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useContent } from '@/contexts/ContentContext'
 import { apiClient } from '@/lib/api'
 
-// Logo PNG Component
+// Logo Text Component
 const FilmxaneLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
-  <img 
-    src="/newlogo.png" 
-    alt="Filmxane Logo" 
-    className={className}
-  />
+  <div className={`${className} bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-xs`}>
+    F
+  </div>
 )
 
 export function Navigation() {
