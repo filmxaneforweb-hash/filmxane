@@ -135,7 +135,10 @@ async function bootstrap() {
       'https://filmxane-backend.onrender.com',
       // Vercel domains (eğer frontend Vercel'de olacaksa)
       'https://filmxane.vercel.app',
-      'https://filmxane-git-main.vercel.app'
+      'https://filmxane-git-main.vercel.app',
+      // Custom domain
+      'https://filmxane.com',
+      'https://www.filmxane.com'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
