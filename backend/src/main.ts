@@ -11,6 +11,14 @@ if (!process.env.JWT_SECRET) {
   process.env.JWT_SECRET = 'filmxane_super_secret_key_2024';
 }
 
+// Set admin credentials from environment
+if (!process.env.ADMIN_EMAIL) {
+  process.env.ADMIN_EMAIL = 'admin@gmail.com';
+}
+if (!process.env.ADMIN_PASSWORD) {
+  process.env.ADMIN_PASSWORD = 'filmxaneadmin219546';
+}
+
 // Process protection - prevent crashes
 process.on('uncaughtException', (error) => {
   console.error('❌ Uncaught Exception:', error);
@@ -55,7 +63,65 @@ const createUploadsDirectories = () => {
   console.log('📁 Upload directories created successfully');
 };
 
+// Function to create admin user if not exists
+async function createAdminIfNotExists() {
+  try {
+    const { DataSource } = require('typeorm');
+    const { User } = require('./entities/user.entity');
+    
+    const dataSource = new DataSource({
+      type: 'sqlite',
+      database: path.join(__dirname, '..', 'filmxane.db'),
+      entities: [User],
+      synchronize: true,
+    });
+    
+    await dataSource.initialize();
+    
+    const userRepository = dataSource.getRepository(User);
+    
+    // Check if admin exists
+    const existingAdmin = await userRepository.findOne({
+      where: { email: process.env.ADMIN_EMAIL }
+    });
+    
+    if (!existingAdmin) {
+      console.log('🔐 Creating admin user...');
+      
+      // Create admin user
+      const adminUser = userRepository.create({
+        email: process.env.ADMIN_EMAIL,
+        password: require('bcryptjs').hashSync(process.env.ADMIN_PASSWORD, 10),
+        firstName: 'Admin',
+        lastName: 'User',
+        role: 'admin',
+        status: 'active',
+        emailVerified: true
+      });
+      
+      await userRepository.save(adminUser);
+      console.log('✅ Admin user created successfully!');
+    } else {
+      // Update existing user to admin role
+      if (existingAdmin.role !== 'admin') {
+        existingAdmin.role = 'admin';
+        await userRepository.save(existingAdmin);
+        console.log('✅ Existing user updated to admin role!');
+      } else {
+        console.log('✅ Admin user already exists!');
+      }
+    }
+    
+    await dataSource.destroy();
+  } catch (error) {
+    console.error('❌ Error creating admin user:', error);
+  }
+}
+
 async function bootstrap() {
+  // Create admin user first
+  await createAdminIfNotExists();
+  
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: false, // Disable default body parser
   });

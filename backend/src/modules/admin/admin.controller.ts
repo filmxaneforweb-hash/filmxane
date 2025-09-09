@@ -1,4 +1,4 @@
-import { 
+﻿import { 
   Controller, 
   Get, 
   Post, 
@@ -79,18 +79,6 @@ export class AdminController {
     }
   }
 
-  @Put('users/:id/role')
-  async changeUserRole(@Param('id') userId: string, @Body() body: { role: string }) {
-    try {
-      const result = await this.adminService.changeUserRole(userId, body.role as any);
-      return { success: true, message: 'Kullanıcı rolü güncellendi!', data: result };
-    } catch (error) {
-      throw new HttpException(
-        { success: false, message: error.message },
-        HttpStatus.BAD_REQUEST
-      );
-    }
-  }
 
   @Put('users/:id/status')
   async changeUserStatus(@Param('id') userId: string, @Body() body: { status: string }) {
@@ -200,7 +188,7 @@ export class AdminController {
         ],
         fileIsRequired: true, // Video file is required
       }),
-    ) files: Express.Multer.File[],
+    ) files: any[],
   ) {
     try {
       console.log('🎬 ===== VIDEO UPLOAD STARTED =====')
@@ -361,7 +349,7 @@ export class AdminController {
         ],
         fileIsRequired: true, // At least one file is required
       }),
-    ) files: Express.Multer.File[],
+    ) files: any[],
   ) {
     try {
       console.log('📝 Received series data:', createSeriesDto);
