@@ -31,7 +31,7 @@ export default function SeriesPage() {
         console.log('🔍 Fetching series...')
         
         // Direct API call for faster loading
-        const response = await fetch('http://localhost:3005/api/videos')
+        const response = await fetch('https://filmxane-backend.onrender.com/api/videos')
         const allVideos = await response.json()
         
         // Filter series only
@@ -47,10 +47,10 @@ export default function SeriesPage() {
           // Extract genres and years for filters
           const genres = [...new Set(seriesData.flatMap(series => 
             typeof series.genre === 'string' ? JSON.parse(series.genre) : series.genre || []
-          ))]
+          ))] as string[]
           setAllGenres(genres)
           
-          const years = [...new Set(seriesData.map(series => series.year).filter(Boolean))]
+          const years = [...new Set(seriesData.map(series => series.year).filter(Boolean))] as number[]
           setAllYears(years.sort((a, b) => b - a))
         } else {
           console.log('📊 No series found')

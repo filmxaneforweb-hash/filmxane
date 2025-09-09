@@ -50,7 +50,7 @@ export default function TestFavoritesPage() {
           <h3 className="text-lg font-semibold mb-4">🔍 Debug Bilgileri:</h3>
           <div className="space-y-2 text-sm text-gray-300">
             <p>• Video ID: <code className="bg-slate-700 px-2 py-1 rounded">{testVideo.id}</code></p>
-            <p>• Backend URL: <code className="bg-slate-700 px-2 py-1 rounded">http://localhost:3005/api/favorites</code></p>
+            <p>• Backend URL: <code className="bg-slate-700 px-2 py-1 rounded">https://filmxane-backend.onrender.com/api/favorites</code></p>
             <p>• Console'u açın (F12) ve Network sekmesini kontrol edin</p>
             <p>• Backend terminal'inde log'ları kontrol edin</p>
           </div>

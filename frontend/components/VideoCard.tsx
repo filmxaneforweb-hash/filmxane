@@ -52,7 +52,7 @@ export function VideoCard({
         const token = localStorage.getItem('filmxane_token')
         if (!token) return
 
-        const response = await fetch(`http://localhost:3005/api/favorites/check`, {
+        const response = await fetch(`https://filmxane-backend.onrender.com/api/favorites/check`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ export function VideoCard({
         const token = localStorage.getItem('filmxane_token')
         if (!token) return
 
-        const response = await fetch(`http://localhost:3005/api/videos/watch-progress/${id}`, {
+        const response = await fetch(`https://filmxane-backend.onrender.com/api/videos/watch-progress/${id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -138,7 +138,7 @@ export function VideoCard({
       if (localIsFavorite) {
         // Favorilerden çıkar
         console.log('🔍 Favori çıkarma isteği gönderiliyor...')
-        const response = await fetch(`http://localhost:3005/api/favorites`, {
+        const response = await fetch(`https://filmxane-backend.onrender.com/api/favorites`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ export function VideoCard({
       } else {
         // Favorilere ekle
         console.log('🔍 Favori ekleme isteği gönderiliyor...')
-        const response = await fetch(`http://localhost:3005/api/favorites`, {
+        const response = await fetch(`https://filmxane-backend.onrender.com/api/favorites`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

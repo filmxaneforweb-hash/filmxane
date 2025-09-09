@@ -42,7 +42,7 @@ export default function ApiTestPage() {
       // Test 4: Auth Test Endpoint
       console.log('🧪 Testing Auth Test Endpoint...')
       try {
-        const authTestResponse = await fetch('http://localhost:3005/api/auth/test')
+        const authTestResponse = await fetch('https://filmxane-backend.onrender.com/api/auth/test')
         const authTestData = await authTestResponse.json()
         results.authTest = {
           success: authTestResponse.ok,
@@ -75,9 +75,9 @@ export default function ApiTestPage() {
           <div className="space-y-2 text-sm">
             <p><strong>Base URL:</strong> {typeof window !== 'undefined' ? window.location.origin : 'Server-side'}</p>
             <p><strong>Current Port:</strong> {typeof window !== 'undefined' ? window.location.port : 'Unknown'}</p>
-            <p><strong>Expected Backend:</strong> localhost:3005</p>
+            <p><strong>Expected Backend:</strong> filmxane-backend.onrender.com</p>
             <p><strong>API Endpoint:</strong> /api</p>
-            <p><strong>Full API URL:</strong> http://localhost:3005/api</p>
+            <p><strong>Full API URL:</strong> https://filmxane-backend.onrender.com/api</p>
           </div>
         </div>
 

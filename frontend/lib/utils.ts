@@ -34,7 +34,7 @@ export const getSafeImageUrl = (url: string | null | undefined, width: number, h
   
   // Eğer relative path ise (uploads/...), backend URL'ini ekle
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:3005${url}`
+    return `https://filmxane-backend.onrender.com${url}`
   }
   
   try {

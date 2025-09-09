@@ -5,7 +5,7 @@ const nextConfig = {
     unoptimized: true,
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005/api',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://filmxane-backend.onrender.com/api',
   },
   // Disable ESLint during build
   eslint: {

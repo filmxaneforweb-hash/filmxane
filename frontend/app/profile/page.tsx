@@ -36,7 +36,7 @@ export default function ProfilePage() {
       console.log('🔄 Daneyên profîlê têne nûkirin...')
 
       // Hejmara dilxwaziyê bikişîne
-      const favoritesResponse = await fetch('http://localhost:3005/api/favorites/my-favorites', {
+      const favoritesResponse = await fetch('https://filmxane-backend.onrender.com/api/favorites/my-favorites', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -58,7 +58,7 @@ export default function ProfilePage() {
 
       // Dema temaşekirinê bikişîne
       try {
-        const watchTimeResponse = await fetch('http://localhost:3005/api/videos/watch-time', {
+        const watchTimeResponse = await fetch('https://filmxane-backend.onrender.com/api/videos/watch-time', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -146,7 +146,7 @@ export default function ProfilePage() {
       const token = localStorage.getItem('filmxane_token')
       if (token) {
         // Hejmara dilxwaziyê kontrol bike
-        fetch('http://localhost:3005/api/favorites/my-favorites', {
+        fetch('https://filmxane-backend.onrender.com/api/favorites/my-favorites', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -167,7 +167,7 @@ export default function ProfilePage() {
         })
 
         // Dema temaşekirinê kontrol bike
-        fetch('http://localhost:3005/api/videos/watch-time', {
+        fetch('https://filmxane-backend.onrender.com/api/videos/watch-time', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -235,7 +235,7 @@ export default function ProfilePage() {
 
       try {
         // Ji backend'ê agahiyên bikarhêner bikişîne
-        const response = await fetch('http://localhost:3005/api/auth/me', {
+        const response = await fetch('https://filmxane-backend.onrender.com/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

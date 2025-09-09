@@ -73,7 +73,7 @@ export const ContentProvider = ({ children }: ContentProviderProps) => {
     try {
       setIsLoading(true)
       // Doğrudan tüm videoları getir ve movie tipini filtrele
-      const response = await fetch('http://localhost:3005/api/videos')
+      const response = await fetch('https://filmxane-backend.onrender.com/api/videos')
       if (response.ok) {
         const allVideos = await response.json()
         const movieVideos = allVideos.filter((v: any) => v.type === 'movie')
@@ -94,7 +94,7 @@ export const ContentProvider = ({ children }: ContentProviderProps) => {
     try {
       setIsLoading(true)
       // Doğrudan tüm videoları getir ve series tipini filtrele
-      const response = await fetch('http://localhost:3005/api/videos')
+      const response = await fetch('https://filmxane-backend.onrender.com/api/videos')
       if (response.ok) {
         const allVideos = await response.json()
         const seriesVideos = allVideos.filter((v: any) => v.type === 'series')

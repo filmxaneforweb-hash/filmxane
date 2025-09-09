@@ -31,7 +31,7 @@ export default function MyListPage() {
       const token = localStorage.getItem('filmxane_token')
       if (!token) return null
 
-      const response = await fetch(`http://localhost:3005/api/videos/watch-progress/${videoId}`, {
+      const response = await fetch(`https://filmxane-backend.onrender.com/api/videos/watch-progress/${videoId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -64,7 +64,7 @@ export default function MyListPage() {
         
         // Backend'den favorileri çek
         const token = localStorage.getItem('filmxane_token')
-        const response = await fetch('http://localhost:3005/api/favorites/my-favorites', {
+        const response = await fetch('https://filmxane-backend.onrender.com/api/favorites/my-favorites', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -92,7 +92,7 @@ export default function MyListPage() {
               })
               
               // Backend URL'lerini düzelt
-              const baseUrl = 'http://localhost:3005'
+              const baseUrl = 'https://filmxane-backend.onrender.com'
               const thumbnailUrl = favorite.video?.thumbnailUrl || favorite.video?.thumbnailPath
               const posterUrl = favorite.video?.posterUrl
               
@@ -162,7 +162,7 @@ export default function MyListPage() {
       console.log('🔍 Favori çıkarılıyor:', contentId)
       
       const token = localStorage.getItem('filmxane_token')
-      const response = await fetch('http://localhost:3005/api/favorites', {
+      const response = await fetch('https://filmxane-backend.onrender.com/api/favorites', {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

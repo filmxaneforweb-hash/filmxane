@@ -47,7 +47,7 @@ export default function VideoPlayerPage() {
       try {
         setLoading(true)
         // Doğrudan tüm videoları getir
-        const response = await fetch('http://localhost:3005/api/videos')
+        const response = await fetch('https://filmxane-backend.onrender.com/api/videos')
         if (response.ok) {
           const videos = await response.json()
           const foundVideo = videos.find((v: any) => v.id === videoId)
@@ -242,7 +242,7 @@ export default function VideoPlayerPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3005/api/videos/${videoId}/views`, {
+      const response = await fetch(`https://filmxane-backend.onrender.com/api/videos/${videoId}/views`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -273,7 +273,7 @@ export default function VideoPlayerPage() {
       // Saniyeyi dakikaya çevir (doğru hesaplama)
       const watchDurationMinutes = Math.round(watchDuration / 60)
 
-      const response = await fetch('http://localhost:3005/api/videos/watch-history', {
+      const response = await fetch('https://filmxane-backend.onrender.com/api/videos/watch-history', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -355,7 +355,7 @@ export default function VideoPlayerPage() {
     
     try {
       setIsLoadingFavorite(true)
-      const response = await fetch(`http://localhost:3005/api/favorites`, {
+      const response = await fetch(`https://filmxane-backend.onrender.com/api/favorites`, {
         method: isMovie ? 'DELETE' : 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -402,7 +402,7 @@ export default function VideoPlayerPage() {
       
       // Backend'e hejmara parvekirinê bişîne
       try {
-        await fetch(`http://localhost:3005/api/videos/${video.id}/share`, {
+        await fetch(`https://filmxane-backend.onrender.com/api/videos/${video.id}/share`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -432,7 +432,7 @@ export default function VideoPlayerPage() {
     if (!video) return
     
     try {
-      const response = await fetch(`http://localhost:3005/api/favorites/check`, {
+      const response = await fetch(`https://filmxane-backend.onrender.com/api/favorites/check`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -492,7 +492,7 @@ export default function VideoPlayerPage() {
           {/* React Player */}
           <ReactPlayer
             ref={playerRef}
-            url={isMovie ? ((video as any).videoUrl || (video as any).videoPath ? `http://localhost:3005${(video as any).videoUrl || (video as any).videoPath}` : undefined) : undefined}
+            url={isMovie ? ((video as any).videoUrl || (video as any).videoPath ? `https://filmxane-backend.onrender.com${(video as any).videoUrl || (video as any).videoPath}` : undefined) : undefined}
             playing={isPlaying}
             muted={isMuted}
             width="100%"
@@ -1156,7 +1156,7 @@ export default function VideoPlayerPage() {
                 {video.trailerUrl ? (
                   <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden">
                     <ReactPlayer
-                      url={video.trailerUrl.startsWith('http') ? video.trailerUrl : `http://localhost:3005${video.trailerUrl}`}
+                      url={video.trailerUrl.startsWith('http') ? video.trailerUrl : `https://filmxane-backend.onrender.com${video.trailerUrl}`}
                       width="100%"
                       height="100%"
                       controls={true}

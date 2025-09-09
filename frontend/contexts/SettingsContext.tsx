@@ -65,7 +65,7 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005/api'
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://filmxane-backend.onrender.com/api'
 
   const loadSettings = async () => {
     try {

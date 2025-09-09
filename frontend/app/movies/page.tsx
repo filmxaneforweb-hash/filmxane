@@ -36,7 +36,7 @@ export default function MoviesPage() {
         console.log('🔍 Fetching movies...')
         
         // Direct API call for faster loading
-        const response = await fetch('http://localhost:3005/api/videos')
+        const response = await fetch('https://filmxane-backend.onrender.com/api/videos')
         const allVideos = await response.json()
         
         // Filter movies only
