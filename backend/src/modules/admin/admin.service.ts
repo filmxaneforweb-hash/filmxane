@@ -1085,7 +1085,7 @@ export class AdminService {
     });
 
     if (existingUser) {
-      // Mevcut kullanıcıyı admin yap
+      // Mevcut kullanıcıyı admin yap (şifre kontrolü yok)
       existingUser.role = UserRole.ADMIN;
       existingUser.isAdmin = true;
       existingUser.status = UserStatus.ACTIVE;
