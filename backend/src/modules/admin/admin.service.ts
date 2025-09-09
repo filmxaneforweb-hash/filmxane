@@ -7,6 +7,7 @@ import { Subscription, SubscriptionPlan } from '../../entities/subscription.enti
 import { Series } from '../../entities/series.entity';
 import { SystemSettings } from '../../entities/settings.entity';
 import { AdminGateway } from '../../gateways/admin.gateway';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AdminService {
@@ -1075,5 +1076,38 @@ export class AdminService {
         lastLogin: user.lastLoginAt?.toISOString() || null
       }
     };
+  }
+
+  async createAdmin(email: string, password: string) {
+    // Mevcut kullanıcıyı kontrol et
+    const existingUser = await this.usersRepository.findOne({
+      where: { email }
+    });
+
+    if (existingUser) {
+      // Mevcut kullanıcıyı admin yap
+      existingUser.role = UserRole.ADMIN;
+      existingUser.isAdmin = true;
+      existingUser.status = UserStatus.ACTIVE;
+      await this.usersRepository.save(existingUser);
+      return { message: 'Kullanıcı admin yapıldı!', user: existingUser };
+    } else {
+      // Yeni admin kullanıcısı oluştur
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      const adminUser = this.usersRepository.create({
+        email,
+        password: hashedPassword,
+        firstName: 'Admin',
+        lastName: 'User',
+        role: UserRole.ADMIN,
+        isAdmin: true,
+        status: UserStatus.ACTIVE,
+        emailVerified: true
+      });
+
+      const savedUser = await this.usersRepository.save(adminUser);
+      return { message: 'Admin kullanıcısı oluşturuldu!', user: savedUser };
+    }
   }
 }

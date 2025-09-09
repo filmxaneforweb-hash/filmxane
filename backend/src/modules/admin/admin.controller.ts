@@ -49,6 +49,19 @@ export class AdminController {
     return this.adminService.getTopContent();
   }
 
+  @Post('create-admin')
+  async createAdmin(@Body() body: { email: string, password: string }) {
+    try {
+      const result = await this.adminService.createAdmin(body.email, body.password);
+      return { success: true, message: 'Admin kullanıcısı oluşturuldu!', data: result };
+    } catch (error) {
+      throw new HttpException(
+        { success: false, message: error.message },
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
+
   @Get('genres')
   getGenres() {
     return this.adminService.getGenres();
