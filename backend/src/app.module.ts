@@ -15,6 +15,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { SubtitlesModule } from './modules/subtitles/subtitles.module';
+import { PublicModule } from './modules/public/public.module';
 
 // Gateways
 import { AdminGateway } from './gateways/admin.gateway';
@@ -65,6 +66,7 @@ import { DatabaseConfig } from './config/database.config';
     AdminModule,
     FavoritesModule,
     SubtitlesModule,
+    PublicModule,
     HealthModule,
     
     // Gateways

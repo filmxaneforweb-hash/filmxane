@@ -585,7 +585,9 @@ export default function VideoPlayerPage() {
           {/* React Player */}
           <ReactPlayer
             ref={playerRef}
-            url={isMovie ? ((video as any).videoUrl || (video as any).videoPath ? `https://filmxane-backend.onrender.com${(video as any).videoUrl || (video as any).videoPath}` : undefined) : undefined}
+            url={isMovie ? ((video as any).videoUrl || (video as any).videoPath ? 
+              `https://filmxane-backend.onrender.com/api/public/video/${((video as any).videoUrl || (video as any).videoPath).split('/').pop()}` : 
+              undefined) : undefined}
             playing={isPlaying}
             muted={isMuted}
             width="100%"
