@@ -50,30 +50,54 @@ export default function VideoPlayerPage() {
   const fetchSubtitles = async (videoId: string) => {
     try {
       console.log('🎬 Fetching subtitles for video:', videoId)
-      const response = await apiClient.getSubtitlesByVideoId(videoId)
-      console.log('📝 Subtitles response:', response)
       
-      if (response.success && response.data) {
-        setSubtitles(response.data)
+      // Önce altyazı API'sinin var olup olmadığını kontrol et
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://filmxane-backend.onrender.com/api'}/subtitles/video/${videoId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      
+      console.log('📝 Subtitles API response status:', response.status)
+      
+      if (response.status === 404) {
+        console.log('ℹ️ Subtitles API not found - skipping subtitles')
+        setSubtitles([])
+        setSubtitleTracks([])
+        return
+      }
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('📝 Subtitles response:', data)
         
-        // Varsayılan altyazıyı seç
-        const defaultSubtitle = response.data.find(sub => sub.isDefault)
-        if (defaultSubtitle) {
-          setSelectedSubtitle(defaultSubtitle)
+        if (data.success && data.data) {
+          setSubtitles(data.data)
+          
+          // Varsayılan altyazıyı seç
+          const defaultSubtitle = data.data.find((sub: any) => sub.isDefault)
+          if (defaultSubtitle) {
+            setSelectedSubtitle(defaultSubtitle)
+          }
+          
+          // ReactPlayer için track formatına dönüştür
+          const tracks = data.data.map((sub: any) => ({
+            kind: 'subtitles',
+            src: `${process.env.NEXT_PUBLIC_API_URL || 'https://filmxane-backend.onrender.com/api'}/subtitles/${sub.id}/content`,
+            srcLang: sub.language,
+            label: sub.languageName,
+            default: sub.isDefault
+          }))
+          setSubtitleTracks(tracks)
+          console.log('✅ Subtitles loaded successfully:', tracks.length, 'tracks')
+        } else {
+          console.log('ℹ️ No subtitles found for this video')
+          setSubtitles([])
+          setSubtitleTracks([])
         }
-        
-        // ReactPlayer için track formatına dönüştür
-        const tracks = response.data.map(sub => ({
-          kind: 'subtitles',
-          src: `${process.env.NEXT_PUBLIC_API_URL || 'https://filmxane-backend.onrender.com/api'}/subtitles/${sub.id}/content`,
-          srcLang: sub.language,
-          label: sub.languageName,
-          default: sub.isDefault
-        }))
-        setSubtitleTracks(tracks)
-        console.log('✅ Subtitles loaded successfully:', tracks.length, 'tracks')
       } else {
-        console.log('ℹ️ No subtitles found for this video')
+        console.log('⚠️ Subtitles API error:', response.status, response.statusText)
         setSubtitles([])
         setSubtitleTracks([])
       }
