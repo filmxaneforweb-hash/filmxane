@@ -197,7 +197,7 @@ export class Video {
     if (!this.duration) return '';
     const hours = Math.floor(this.duration / 3600);
     const minutes = Math.floor((this.duration % 3600) / 60);
-    return hours > 0 ? `${hours}s ${minutes}d` : `${minutes}d`;
+    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
   }
 
   get averageRating(): number {
