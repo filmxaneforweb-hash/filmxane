@@ -1,7 +1,7 @@
 'use client'
 
 // import { motion } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
-import { Play, Info, Star, Clock, Users } from 'lucide-react'
+import { Play, Info, Star, Users } from 'lucide-react'
 import Link from 'next/link'
 
 interface HeroProps {
@@ -18,19 +18,6 @@ interface HeroProps {
 }
 
 export function Hero({ featuredVideo }: HeroProps) {
-  const formatDuration = (seconds: number) => {
-  // Float değerleri yuvarla ve negatif değerleri kontrol et
-  const safeSeconds = Math.max(0, Math.round(seconds))
-  
-  const hours = Math.floor(safeSeconds / 3600)
-  const minutes = Math.floor((safeSeconds % 3600) / 60)
-  
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`
-  } else {
-    return `${minutes}m`
-  }
-}
 
   return (
     <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
@@ -75,15 +62,11 @@ export function Hero({ featuredVideo }: HeroProps) {
               <span>{featuredVideo?.rating || '9.2'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-400" />
-              <span>{featuredVideo?.duration ? formatDuration(featuredVideo.duration) : '2h 15m'}</span>
-            </div>
-            <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-green-400" />
               <span>{featuredVideo?.viewers || '1.2M'}</span>
             </div>
             <div className="px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full text-red-300 text-xs font-medium">
-              {featuredVideo?.year || '2024'}
+              {featuredVideo?.year ? featuredVideo.year.toString() : '2024'}
             </div>
           </div>
           
