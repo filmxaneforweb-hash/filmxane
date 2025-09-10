@@ -526,36 +526,39 @@ export function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Admin Panel</h1>
-          <p className="text-slate-400">Manage your platform content and users</p>
+        <div className="mb-4 sm:mb-8">
+          <h1 className="text-xl sm:text-3xl font-bold mb-2">Admin Panel</h1>
+          <p className="text-sm sm:text-base text-slate-400">Manage your platform content and users</p>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex gap-4 mb-8 border-b border-slate-800">
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-            { id: 'upload', label: 'Upload Content', icon: Upload },
-            { id: 'movies', label: 'Movies', icon: Film },
-            { id: 'series', label: 'Series', icon: Tv },
-            { id: 'users', label: 'Users', icon: Users },
-            { id: 'settings', label: 'Settings', icon: Settings }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors duration-200 ${
-                activeTab === tab.id
-                  ? 'border-red-500 text-red-500'
-                  : 'border-transparent text-slate-400 hover:text-white'
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          ))}
+        {/* Navigation Tabs - Mobile Responsive */}
+        <div className="mb-4 sm:mb-8 border-b border-slate-800 overflow-x-auto">
+          <div className="flex gap-2 sm:gap-4 min-w-max">
+            {[
+              { id: 'dashboard', label: 'Dashboard', shortLabel: 'Dash', icon: BarChart3 },
+              { id: 'upload', label: 'Upload Content', shortLabel: 'Upload', icon: Upload },
+              { id: 'movies', label: 'Movies', shortLabel: 'Movies', icon: Film },
+              { id: 'series', label: 'Series', shortLabel: 'Series', icon: Tv },
+              { id: 'users', label: 'Users', shortLabel: 'Users', icon: Users },
+              { id: 'settings', label: 'Settings', shortLabel: 'Settings', icon: Settings }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-b-2 transition-colors duration-200 whitespace-nowrap text-xs sm:text-sm ${
+                  activeTab === tab.id
+                    ? 'border-red-500 text-red-500'
+                    : 'border-transparent text-slate-400 hover:text-white'
+                }`}
+              >
+                <tab.icon className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.shortLabel}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Tab Content */}
@@ -638,11 +641,11 @@ export function AdminPanel() {
 
           {/* Upload Tab */}
           {activeTab === 'upload' && (
-            <div className="max-w-2xl">
-              <h3 className="text-xl font-semibold mb-6">Naveroka Nû Barkirin</h3>
+            <div className="max-w-4xl">
+              <h3 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6">Naveroka Nû Barkirin</h3>
               
-              <form onSubmit={handleUpload} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <form onSubmit={handleUpload} className="space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Cureya Naverokê</label>
                     <select
@@ -884,14 +887,14 @@ export function AdminPanel() {
                 </div>
 
                 {/* Altyazı Dosyaları */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Dosyeyên Altyazî</label>
+                <div className="col-span-1 sm:col-span-2">
+                  <label className="block text-sm font-medium mb-2">Dosyeyên Altyazî (Opsiyonel)</label>
                   <input
                     type="file"
                     accept=".srt,.vtt,.ass,.ssa"
                     multiple
                     onChange={(e) => handleSubtitleFileAdd(e.target.files)}
-                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 file:mr-2 sm:mr-4 file:py-1 sm:py-2 file:px-2 sm:px-4 file:rounded-full file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700"
                   />
                   <p className="text-xs text-slate-400 mt-1">Formên piştgirî: SRT, VTT, ASS, SSA</p>
                   
@@ -901,16 +904,16 @@ export function AdminPanel() {
                       <h4 className="text-sm font-medium text-slate-300">Hilbijartî:</h4>
                       {uploadForm.subtitleFiles.map((file, index) => (
                         <div key={index} className="flex items-center justify-between p-2 bg-slate-800 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-slate-300">{file.name}</span>
-                            <span className="text-xs text-slate-400">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <span className="text-xs sm:text-sm text-slate-300 truncate">{file.name}</span>
+                            <span className="text-xs text-slate-400 whitespace-nowrap">
                               ({uploadForm.subtitleLanguageNames[index]})
                             </span>
                           </div>
                           <button
                             type="button"
                             onClick={() => handleSubtitleFileRemove(index)}
-                            className="text-red-400 hover:text-red-300 text-sm"
+                            className="text-red-400 hover:text-red-300 text-xs sm:text-sm ml-2 flex-shrink-0"
                           >
                             Kaldır
                           </button>
@@ -920,7 +923,7 @@ export function AdminPanel() {
                   )}
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 col-span-1 sm:col-span-2">
                   <label className="flex items-center">
                     <input
                       type="checkbox"
@@ -928,7 +931,7 @@ export function AdminPanel() {
                       onChange={(e) => setUploadForm({ ...uploadForm, isFeatured: e.target.checked })}
                       className="mr-2"
                     />
-                    <span className="text-sm">Naveroka Taybet</span>
+                    <span className="text-xs sm:text-sm">Naveroka Taybet</span>
                   </label>
 
                   <label className="flex items-center">
@@ -938,7 +941,7 @@ export function AdminPanel() {
                       onChange={(e) => setUploadForm({ ...uploadForm, isNew: e.target.checked })}
                       className="mr-2"
                     />
-                    <span className="text-sm">Berhemê Nû</span>
+                    <span className="text-xs sm:text-sm">Berhemê Nû</span>
                   </label>
                 </div>
 
