@@ -99,18 +99,17 @@ export function VideoCard({
     fetchWatchProgress()
   }, [id])
 
-  const formatDuration = (seconds: number) => {
-    // Float değerleri yuvarla ve negatif değerleri kontrol et
-    const safeSeconds = Math.max(0, Math.round(seconds))
+  const formatDuration = (minutes: number) => {
+    // Dakika olarak gelen değeri formatla
+    const safeMinutes = Math.max(0, Math.round(minutes))
     
-    const hours = Math.floor(safeSeconds / 3600)
-    const minutes = Math.floor((safeSeconds % 3600) / 60)
-    const secs = safeSeconds % 60
+    const hours = Math.floor(safeMinutes / 60)
+    const mins = safeMinutes % 60
     
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+      return `${hours}:${mins.toString().padStart(2, '0')}`
     } else {
-      return `${minutes}:${secs.toString().padStart(2, '0')}`
+      return `${mins}m`
     }
   }
 

@@ -634,7 +634,7 @@ export class AdminService {
         genre: JSON.stringify(genreArray), // JSON string olarak sakla
         year: parseInt(createVideoDto.year) || new Date().getFullYear(),
         releaseYear: parseInt(createVideoDto.year) || new Date().getFullYear(),
-        duration: (parseInt(createVideoDto.duration) || 0) * 60, // Dakikayı saniyeye çevir
+        duration: parseInt(createVideoDto.duration) || 0, // Dakika olarak kaydet
         isFeatured: Boolean(createVideoDto.isFeatured),
         isNew: Boolean(createVideoDto.isNew),
         type: createVideoDto.type || VideoType.MOVIE, // DTO'dan type'ı al
