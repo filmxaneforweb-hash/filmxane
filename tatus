@@ -1,0 +1,5 @@
+[33mb1cc119[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Remove duration display from Hero and fix year formatting
+[33mc86291e[m Fix video duration formatting in backend entity
+[33m0873b5b[m Fix favicon order and ensure proper favicon files are in place
+[33m2cacf97[m Fix AdminPanel TypeScript error and improve academic Kurdish translations
+[33m56bce81[m Convert all Turkish texts to academic Kurdish across frontend and backend

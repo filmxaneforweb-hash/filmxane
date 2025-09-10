@@ -73,10 +73,7 @@ export default function HomePage() {
                 )}
                 {movies[0]?.duration && (
                   <span>
-                    {movies[0]?.duration > 60 ? 
-                      `${Math.floor((movies[0]?.duration || 0) / 60)}d ${Math.floor((movies[0]?.duration || 0) % 60)}m` : 
-                      `${Math.floor((movies[0]?.duration || 0))}s`
-                    }
+                    {Math.floor((movies[0]?.duration || 0) / 60)}m
                   </span>
                 )}
                 <span className="bg-gray-800 px-2 py-1 rounded text-sm">HD</span>
@@ -306,7 +303,7 @@ export default function HomePage() {
                       {featuredMovie.duration && (
                         <div className="flex items-center gap-2">
                           🕐
-                          <span>{Math.floor(featuredMovie.duration / 60)}d</span>
+                          <span>{Math.floor(featuredMovie.duration / 60)}m</span>
                         </div>
                       )}
                       <span className="bg-red-600 px-3 py-1 rounded text-sm font-semibold">HD</span>
@@ -406,7 +403,7 @@ export default function HomePage() {
                          {featuredMovie.duration && (
                            <div className="flex items-center justify-between">
                              <span className="text-gray-400">Dirêjahî:</span>
-                             <span className="text-white font-medium">{Math.floor(featuredMovie.duration / 60)} deqîqe</span>
+                             <span className="text-white font-medium">{Math.floor(featuredMovie.duration / 60)}m</span>
                            </div>
                          )}
                          {featuredMovie.rating && (

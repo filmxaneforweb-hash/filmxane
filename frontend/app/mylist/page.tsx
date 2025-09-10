@@ -332,7 +332,7 @@ export default function MyListPage() {
                   <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      {content.duration ? `${Math.floor(content.duration / 60)}d ${Math.floor(content.duration % 60)}m` : 'Nenas'}
+                      {content.duration ? `${Math.floor(content.duration / 60)}m` : 'Nenas'}
                     </span>
                     <span className="flex items-center gap-1">
                       <Star className="w-4 h4 text-yellow-500" />
