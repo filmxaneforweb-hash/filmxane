@@ -33,6 +33,23 @@ export interface AuthResponse {
   refreshToken?: string
 }
 
+// Subtitle Types
+export interface Subtitle {
+  id: string
+  language: string
+  languageName: string
+  format: 'srt' | 'vtt' | 'ass' | 'ssa'
+  fileUrl: string
+  filePath?: string
+  isDefault: boolean
+  isActive: boolean
+  description?: string
+  downloadCount: number
+  createdAt: string
+  updatedAt: string
+  videoId: string
+}
+
 // Content Types
 export interface Movie {
   id: string
@@ -721,6 +738,128 @@ class ApiClient {
     newCount: number;
   }>> {
     return this.request('/videos/stats/overview');
+  }
+
+  // Subtitle Methods
+  async getSubtitlesByVideoId(videoId: string): Promise<ApiResponse<Subtitle[]>> {
+    return this.request(`/subtitles/video/${videoId}`);
+  }
+
+  async getSubtitleById(id: string): Promise<ApiResponse<Subtitle>> {
+    return this.request(`/subtitles/${id}`);
+  }
+
+  async getSubtitleContent(id: string): Promise<string> {
+    const response = await fetch(`${this.baseUrl}/subtitles/${id}/content`);
+    if (!response.ok) {
+      throw new Error('Subtitle content not found');
+    }
+    return await response.text();
+  }
+
+  async createSubtitle(
+    videoId: string,
+    language: string,
+    languageName: string,
+    format: 'srt' | 'vtt' | 'ass' | 'ssa',
+    file: File,
+    description?: string
+  ): Promise<ApiResponse<Subtitle>> {
+    const formData = new FormData();
+    formData.append('videoId', videoId);
+    formData.append('language', language);
+    formData.append('languageName', languageName);
+    formData.append('format', format);
+    formData.append('file', file);
+    if (description) {
+      formData.append('description', description);
+    }
+
+    const token = localStorage.getItem('filmxane_token');
+    if (!token) {
+      throw new Error('Token bulunamadı');
+    }
+
+    const response = await fetch(`${this.baseUrl}/subtitles`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    return await response.json();
+  }
+
+  async updateSubtitle(id: string, updates: Partial<Subtitle>): Promise<ApiResponse<Subtitle>> {
+    const token = localStorage.getItem('filmxane_token');
+    if (!token) {
+      throw new Error('Token bulunamadı');
+    }
+
+    const response = await fetch(`${this.baseUrl}/subtitles/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updates),
+    });
+
+    return await response.json();
+  }
+
+  async setDefaultSubtitle(id: string): Promise<ApiResponse<Subtitle>> {
+    const token = localStorage.getItem('filmxane_token');
+    if (!token) {
+      throw new Error('Token bulunamadı');
+    }
+
+    const response = await fetch(`${this.baseUrl}/subtitles/${id}/set-default`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return await response.json();
+  }
+
+  async deleteSubtitle(id: string): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem('filmxane_token');
+    if (!token) {
+      throw new Error('Token bulunamadı');
+    }
+
+    const response = await fetch(`${this.baseUrl}/subtitles/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    return await response.json();
+  }
+
+  async getAvailableLanguages(): Promise<ApiResponse<{ language: string; languageName: string }[]>> {
+    return this.request('/subtitles/languages/available');
+  }
+
+  async incrementSubtitleDownloadCount(id: string): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem('filmxane_token');
+    if (!token) {
+      throw new Error('Token bulunamadı');
+    }
+
+    const response = await fetch(`${this.baseUrl}/subtitles/${id}/download`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    return await response.json();
   }
 }
 

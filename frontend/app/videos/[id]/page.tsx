@@ -4,10 +4,10 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 // import { motion, AnimatePresence } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
-import { Play, Pause, Volume2, VolumeX, Maximize, Heart, Share2, Download, Clock, Star, Eye, X, Info, Calendar, Users, Award, Globe, Film, Tv, ExternalLink } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, Maximize, Heart, Share2, Download, Clock, Star, Eye, X, Info, Calendar, Users, Award, Globe, Film, Tv, ExternalLink, Subtitles } from 'lucide-react'
 import ReactPlayer from 'react-player'
 import { apiClient } from '@/lib/api'
-import { Movie, Series } from '@/lib/api'
+import { Movie, Series, Subtitle } from '@/lib/api'
 import { VideoCard } from '@/components/VideoCard'
 import { useContent } from '@/contexts/ContentContext'
 import { getSafeImageUrl } from '@/lib/utils'
@@ -40,7 +40,39 @@ export default function VideoPlayerPage() {
   const [isSeeking, setIsSeeking] = useState(false)
   const [seekTime, setSeekTime] = useState(0)
   const [showStartOptions, setShowStartOptions] = useState(false) // Başlangıçta false
+  const [subtitles, setSubtitles] = useState<Subtitle[]>([])
+  const [selectedSubtitle, setSelectedSubtitle] = useState<Subtitle | null>(null)
+  const [showSubtitleControls, setShowSubtitleControls] = useState(false)
+  const [subtitleTracks, setSubtitleTracks] = useState<any[]>([])
   const playerRef = useRef<ReactPlayer>(null)
+
+  // Altyazıları yükle
+  const fetchSubtitles = async (videoId: string) => {
+    try {
+      const response = await apiClient.getSubtitlesByVideoId(videoId)
+      if (response.success && response.data) {
+        setSubtitles(response.data)
+        
+        // Varsayılan altyazıyı seç
+        const defaultSubtitle = response.data.find(sub => sub.isDefault)
+        if (defaultSubtitle) {
+          setSelectedSubtitle(defaultSubtitle)
+        }
+        
+        // ReactPlayer için track formatına dönüştür
+        const tracks = response.data.map(sub => ({
+          kind: 'subtitles',
+          src: `${process.env.NEXT_PUBLIC_API_URL || 'https://filmxane-backend.onrender.com/api'}/subtitles/${sub.id}/content`,
+          srcLang: sub.language,
+          label: sub.languageName,
+          default: sub.isDefault
+        }))
+        setSubtitleTracks(tracks)
+      }
+    } catch (error) {
+      console.error('Altyazılar yüklenemedi:', error)
+    }
+  }
 
   useEffect(() => {
     const fetchVideo = async () => {
@@ -60,6 +92,9 @@ export default function VideoPlayerPage() {
               hasTrailer: !!foundVideo.trailerUrl
             })
             setVideo(foundVideo)
+            
+            // Altyazıları yükle
+            await fetchSubtitles(foundVideo.id)
             
             // İlgili videoları ContentContext'ten al
             const related = getRelatedContent(videoId, foundVideo.type as 'movie' | 'series')
@@ -504,6 +539,14 @@ export default function VideoPlayerPage() {
             onEnded={handleEnded}
             controls={false}
             style={{ objectFit: 'cover' }}
+            config={{
+              file: {
+                tracks: subtitleTracks,
+                attributes: {
+                  crossOrigin: 'anonymous'
+                }
+              }
+            }}
             fallback={
               <div className="w-full h-full bg-gradient-to-br from-slate-900 to-black flex items-center justify-center relative">
                 {(video.thumbnail || video.thumbnailUrl || (video as any).thumbnailPath) && (
@@ -713,6 +756,18 @@ export default function VideoPlayerPage() {
                 >
                   <Share2 className="w-6 h-6" />
                 </button>
+                
+                {/* Altyazı Kontrol Butonu */}
+                {subtitles.length > 0 && (
+                  <button 
+                    onClick={() => setShowSubtitleControls(!showSubtitleControls)}
+                    className={`text-white hover:text-red-500 transition-colors p-2 ${
+                      selectedSubtitle ? 'text-red-500' : ''
+                    }`}
+                  >
+                    <Subtitles className="w-6 h-6" />
+                  </button>
+                )}
                 <button 
                   onClick={toggleFullscreen}
                   className="text-white hover:text-red-500 transition-colors p-2"
@@ -722,6 +777,48 @@ export default function VideoPlayerPage() {
               </div>
             </div>
           </div>
+          
+          {/* Altyazı Kontrol Paneli */}
+          {showSubtitleControls && subtitles.length > 0 && (
+            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-black/90 backdrop-blur-md rounded-lg p-4 min-w-64">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-white font-medium">Altyazı Seçenekleri</h3>
+                <button
+                  onClick={() => setShowSubtitleControls(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <div className="space-y-2">
+                <button
+                  onClick={() => setSelectedSubtitle(null)}
+                  className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                    !selectedSubtitle 
+                      ? 'bg-red-600 text-white' 
+                      : 'text-gray-300 hover:bg-gray-700'
+                  }`}
+                >
+                  Altyazı Kapalı
+                </button>
+                
+                {subtitles.map((subtitle) => (
+                  <button
+                    key={subtitle.id}
+                    onClick={() => setSelectedSubtitle(subtitle)}
+                    className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                      selectedSubtitle?.id === subtitle.id 
+                        ? 'bg-red-600 text-white' 
+                        : 'text-gray-300 hover:bg-gray-700'
+                    }`}
+                  >
+                    {subtitle.languageName} {subtitle.isDefault && '(Varsayılan)'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

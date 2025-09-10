@@ -13,6 +13,7 @@ import {
 import { User } from './user.entity';
 import { Category } from './category.entity';
 import { Favorite } from './favorite.entity';
+import { Subtitle } from './subtitle.entity';
 
 export enum VideoType {
   MOVIE = 'movie',
@@ -183,6 +184,9 @@ export class Video {
 
   @OneToMany(() => Favorite, (favorite) => favorite.video)
   favorites: Favorite[];
+
+  @OneToMany(() => Subtitle, (subtitle) => subtitle.video)
+  subtitles: Subtitle[];
 
   // Virtual properties
   get isSeries(): boolean {

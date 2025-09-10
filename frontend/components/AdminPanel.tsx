@@ -70,12 +70,22 @@ export function AdminPanel() {
     episodeNumber: 0,
     seriesId: '',
     videoFile: null as File | null,
-    thumbnailFile: null as File | null
+    thumbnailFile: null as File | null,
+    subtitleFiles: [] as File[],
+    subtitleLanguages: [] as string[],
+    subtitleLanguageNames: [] as string[]
   })
   const [availableGenres, setAvailableGenres] = useState<string[]>([
     'Aksiyon', 'Drama', 'Thriller', 'Komedî', 'Romantîk', 
     'Horror', 'Sci-Fi', 'Fantastîk', 'Crime', 'Mystery',
     'Adventure', 'Animation', 'Documentary', 'Biography', 'History'
+  ])
+  const [availableLanguages] = useState([
+    { code: 'tr', name: 'Türkçe' },
+    { code: 'en', name: 'English' },
+    { code: 'ku', name: 'Kurdish' },
+    { code: 'ar', name: 'العربية' },
+    { code: 'fa', name: 'فارسی' }
   ])
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
@@ -196,6 +206,56 @@ export function AdminPanel() {
     )
   }
 
+  // Altyazı dosyası ekleme
+  const handleSubtitleFileAdd = (files: FileList | null) => {
+    if (!files) return
+    
+    const newFiles = Array.from(files)
+    const newLanguages: string[] = []
+    const newLanguageNames: string[] = []
+    
+    newFiles.forEach((file, index) => {
+      const fileName = file.name.toLowerCase()
+      let language = 'tr' // varsayılan
+      let languageName = 'Türkçe'
+      
+      // Dosya adından dil tespiti
+      if (fileName.includes('english') || fileName.includes('en')) {
+        language = 'en'
+        languageName = 'English'
+      } else if (fileName.includes('kurdish') || fileName.includes('ku')) {
+        language = 'ku'
+        languageName = 'Kurdish'
+      } else if (fileName.includes('arabic') || fileName.includes('ar')) {
+        language = 'ar'
+        languageName = 'العربية'
+      } else if (fileName.includes('persian') || fileName.includes('fa')) {
+        language = 'fa'
+        languageName = 'فارسی'
+      }
+      
+      newLanguages.push(language)
+      newLanguageNames.push(languageName)
+    })
+    
+    setUploadForm(prev => ({
+      ...prev,
+      subtitleFiles: [...prev.subtitleFiles, ...newFiles],
+      subtitleLanguages: [...prev.subtitleLanguages, ...newLanguages],
+      subtitleLanguageNames: [...prev.subtitleLanguageNames, ...newLanguageNames]
+    }))
+  }
+
+  // Altyazı dosyası kaldırma
+  const handleSubtitleFileRemove = (index: number) => {
+    setUploadForm(prev => ({
+      ...prev,
+      subtitleFiles: prev.subtitleFiles.filter((_, i) => i !== index),
+      subtitleLanguages: prev.subtitleLanguages.filter((_, i) => i !== index),
+      subtitleLanguageNames: prev.subtitleLanguageNames.filter((_, i) => i !== index)
+    }))
+  }
+
   // Handle content upload
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -271,7 +331,10 @@ export function AdminPanel() {
           episodeNumber: 0,
           seriesId: '',
           videoFile: null,
-          thumbnailFile: null
+          thumbnailFile: null,
+          subtitleFiles: [],
+          subtitleLanguages: [],
+          subtitleLanguageNames: []
         })
         
         // Refresh content
@@ -818,6 +881,43 @@ export function AdminPanel() {
                     )}
                     <p className="text-xs text-slate-400 mt-1">Formên piştgirî: JPG, PNG, GIF</p>
                   </div>
+                </div>
+
+                {/* Altyazı Dosyaları */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Dosyeyên Altyazî</label>
+                  <input
+                    type="file"
+                    accept=".srt,.vtt,.ass,.ssa"
+                    multiple
+                    onChange={(e) => handleSubtitleFileAdd(e.target.files)}
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700"
+                  />
+                  <p className="text-xs text-slate-400 mt-1">Formên piştgirî: SRT, VTT, ASS, SSA</p>
+                  
+                  {/* Seçilen Altyazı Dosyaları */}
+                  {uploadForm.subtitleFiles.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      <h4 className="text-sm font-medium text-slate-300">Hilbijartî:</h4>
+                      {uploadForm.subtitleFiles.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-slate-800 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-slate-300">{file.name}</span>
+                            <span className="text-xs text-slate-400">
+                              ({uploadForm.subtitleLanguageNames[index]})
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleSubtitleFileRemove(index)}
+                            className="text-red-400 hover:text-red-300 text-sm"
+                          >
+                            Kaldır
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-4">
