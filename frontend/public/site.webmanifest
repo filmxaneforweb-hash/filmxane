@@ -1,7 +1,7 @@
 {
-  "name": "Filmxane - Kurdish Cinema Platform",
+  "name": "Filmxane - Platforma Sînema ya Kurdî",
   "short_name": "Filmxane",
-  "description": "The ultimate Kurdish cinema platform with movies, series, and exclusive content",
+  "description": "Platforma herî baş a sînema ya kurdî bi fîlm, rêzefîlm û naveroka taybet",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",

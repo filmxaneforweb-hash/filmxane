@@ -9,9 +9,9 @@ import { SettingsProvider } from '@/contexts/SettingsContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Filmxane - Kurdish Cinema Platform',
-  description: 'The ultimate Kurdish cinema platform with movies, series, and exclusive content',
-  keywords: 'Kurdish, cinema, movies, series, film, entertainment',
+  title: 'Filmxane - Platforma Sînema ya Kurdî',
+  description: 'Platforma herî baş a sînema ya kurdî bi fîlm, rêzefîlm û naveroka taybet',
+  keywords: 'kurdî, sînema, fîlm, rêzefîlm, fîlm, şahî',
   authors: [{ name: 'Filmxane Team' }],
   creator: 'Filmxane',
   publisher: 'Filmxane',
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL('https://filmxane.com'),
   openGraph: {
-    title: 'Filmxane - Kurdish Cinema Platform',
-    description: 'The ultimate Kurdish cinema platform with movies, series, and exclusive content',
+    title: 'Filmxane - Platforma Sînema ya Kurdî',
+    description: 'Platforma herî baş a sînema ya kurdî bi fîlm, rêzefîlm û naveroka taybet',
     url: 'https://filmxane.com',
     siteName: 'Filmxane',
     images: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Filmxane - Kurdish Cinema Platform',
+        alt: 'Filmxane - Platforma Sînema ya Kurdî',
       },
     ],
     locale: 'en_US',
@@ -39,8 +39,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Filmxane - Kurdish Cinema Platform',
-    description: 'The ultimate Kurdish cinema platform with movies, series, and exclusive content',
+    title: 'Filmxane - Platforma Sînema ya Kurdî',
+    description: 'Platforma herî baş a sînema ya kurdî bi fîlm, rêzefîlm û naveroka taybet',
     images: ['/og-image.jpg'],
   },
   robots: {

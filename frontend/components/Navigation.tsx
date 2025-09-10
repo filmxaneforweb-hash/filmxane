@@ -115,7 +115,7 @@ export function Navigation() {
         setError('Têketin nehatibe serkeftin. Ji kerema xwe agahiyên xwe kontrol bike.')
       }
     } catch (err) {
-      setError('Bir hata oluştu. Lütfen tekrar deneyin.')
+      setError('Çewtiyek çêbû. Ji kerema xwe dîsa biceribîne.')
     } finally {
       setIsLoading(false)
     }
@@ -175,7 +175,7 @@ export function Navigation() {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-red-100 bg-clip-text text-transparent">
                   Filmxane
                 </h1>
-                <p className="text-xs text-slate-400 font-medium">KURDISH CINEMA</p>
+                <p className="text-xs text-slate-400 font-medium">SÎNEMA YA KURDÎ</p>
               </div>
             </Link>
 
@@ -438,7 +438,7 @@ export function Navigation() {
               
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Şifre
+                  Şîfre
                 </label>
                 <div className="relative">
                   <input
@@ -446,7 +446,7 @@ export function Navigation() {
                     value={loginData.password}
                     onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                     className="w-full px-3 py-2 pr-10 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
-                    placeholder="Şifrenizi girin"
+                    placeholder="Şîfreya xwe binivîse"
                     required
                   />
                   <button
@@ -508,7 +508,7 @@ export function Navigation() {
                   value={signupData.firstName}
                   onChange={(e) => setSignupData({ ...signupData, firstName: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
-                  placeholder="Adınızı girin"
+                  placeholder="Navê xwe binivîse"
                   required
                 />
               </div>
@@ -522,7 +522,7 @@ export function Navigation() {
                   value={signupData.lastName}
                   onChange={(e) => setSignupData({ ...signupData, lastName: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
-                  placeholder="Soyadınızı girin"
+                  placeholder="Paşnavê xwe binivîse"
                   required
                 />
               </div>
@@ -543,7 +543,7 @@ export function Navigation() {
               
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Şifre
+                  Şîfre
                 </label>
                 <div className="relative">
                   <input
@@ -551,7 +551,7 @@ export function Navigation() {
                     value={signupData.password}
                     onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
                     className="w-full px-3 py-2 pr-10 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
-                    placeholder="Şifrenizi girin"
+                    placeholder="Şîfreya xwe binivîse"
                     required
                   />
                   <button
@@ -575,7 +575,7 @@ export function Navigation() {
               
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Şifre Tekrar
+                  Şîfre Tekrar
                 </label>
                 <div className="relative">
                   <input
@@ -583,7 +583,7 @@ export function Navigation() {
                     value={signupData.confirmPassword}
                     onChange={(e) => setSignupData({ ...signupData, confirmPassword: e.target.value })}
                     className="w-full px-3 py-2 pr-10 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
-                    placeholder="Şifrenizi tekrar girin"
+                    placeholder="Şîfreya xwe dîsa binivîse"
                     required
                   />
                   <button

@@ -54,7 +54,7 @@ export class AdminController {
     // Güvenlik anahtarı kontrolü
     if (body.secretKey !== 'filmxane-admin-2024-secret') {
       throw new HttpException(
-        { success: false, message: 'Geçersiz güvenlik anahtarı!' },
+        { success: false, message: 'Mifteya ewlehiyê nederbasdar e!' },
         HttpStatus.UNAUTHORIZED
       );
     }
@@ -63,14 +63,14 @@ export class AdminController {
     const allowedEmails = ['admin@gmail.com', 'sekolikeyamal@gmail.com'];
     if (!allowedEmails.includes(body.email)) {
       throw new HttpException(
-        { success: false, message: 'Bu email adresi admin olamaz!' },
+        { success: false, message: 'Ev navnîşana emaîlê nikare bibe rêveber!' },
         HttpStatus.FORBIDDEN
       );
     }
     
     try {
       const result = await this.adminService.createAdmin(body.email, body.password);
-      return { success: true, message: 'Admin kullanıcısı oluşturuldu!', data: result };
+      return { success: true, message: 'Bikarhênera rêveberê hat çêkirin!', data: result };
     } catch (error) {
       throw new HttpException(
         { success: false, message: error.message },
@@ -84,7 +84,7 @@ export class AdminController {
   async changeUserStatus(@Param('id') userId: string, @Body() body: { status: string }) {
     try {
       const result = await this.adminService.changeUserStatus(userId, body.status as any);
-      return { success: true, message: 'Kullanıcı durumu güncellendi!', data: result };
+      return { success: true, message: 'Rewşa bikarhênerê hat nûkirin!', data: result };
     } catch (error) {
       throw new HttpException(
         { success: false, message: error.message },
@@ -294,7 +294,7 @@ export class AdminController {
       return {
         success: true,
         data: result,
-        message: 'Video başarıyla oluşturuldu'
+        message: 'Vîdyo bi serkeftî hat çêkirin'
       };
       
     } catch (error) {
@@ -305,7 +305,7 @@ export class AdminController {
       }
       
       throw new HttpException(
-        error.message || 'Video oluşturulurken bir hata oluştu',
+        error.message || 'Dema çêkirina vîdyoyê de çewtiyek çêbû',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

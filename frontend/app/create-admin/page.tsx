@@ -42,7 +42,7 @@ export default function CreateAdminPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage('✅ Admin kullanıcısı başarıyla oluşturuldu!');
+        setMessage('✅ Bikarhênera rêveberê bi serkeftî hat çêkirin!');
         setTimeout(() => {
           router.push('/admin');
         }, 2000);
@@ -52,11 +52,11 @@ export default function CreateAdminPage() {
     } catch (error) {
       console.error('Admin creation error:', error);
       if (error.name === 'AbortError') {
-        setMessage('❌ Zaman aşımı: Backend servisi yanıt vermiyor. Render.com\'da backend servisini yeniden başlatın.');
+        setMessage('❌ Dema derbasbûnê: Servîsa backend bersiv nade. Servîsa backend li Render.com\'ê dîsa destpêk bikin.');
       } else if (error.message.includes('Failed to fetch')) {
-        setMessage('❌ Bağlantı hatası: Backend servisi çalışmıyor. Render.com\'da backend servisini yeniden başlatın.');
+        setMessage('❌ Çewtiya girêdanê: Servîsa backend naxebite. Servîsa backend li Render.com\'ê dîsa destpêk bikin.');
       } else {
-        setMessage(`❌ Hata: ${error.message}`);
+        setMessage(`❌ Çewtî: ${error.message}`);
       }
     } finally {
       setLoading(false);
@@ -68,7 +68,7 @@ export default function CreateAdminPage() {
       <div className="max-w-md w-full mx-4">
         <div className="bg-gray-900 p-8 rounded-lg shadow-lg">
           <h1 className="text-2xl font-bold text-center mb-6 text-red-500">
-            Admin Hesabı Oluştur
+            Hesaba Rêveberê Çêke
           </h1>
           
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -85,25 +85,25 @@ export default function CreateAdminPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Şifre</label>
+              <label className="block text-sm font-medium mb-2">Şîfre</label>
               <input
                 type="password"
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Güçlü bir şifre girin"
+                placeholder="Şîfreya xurt binivîse"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Güvenlik Anahtarı</label>
+              <label className="block text-sm font-medium mb-2">Mifteya Ewlehiyê</label>
               <input
                 type="password"
                 value={formData.secretKey}
                 onChange={(e) => setFormData({...formData, secretKey: e.target.value})}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Güvenlik anahtarını girin"
+                placeholder="Mifteya ewlehiyê binivîse"
                 required
               />
             </div>
@@ -113,7 +113,7 @@ export default function CreateAdminPage() {
               disabled={loading}
               className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition duration-200"
             >
-              {loading ? 'Oluşturuluyor...' : 'Admin Oluştur'}
+              {loading ? 'Tê çêkirin...' : 'Rêveber Çêke'}
             </button>
           </form>
 
@@ -130,7 +130,7 @@ export default function CreateAdminPage() {
               onClick={() => router.push('/')}
               className="text-gray-400 hover:text-white transition duration-200"
             >
-              ← Ana Sayfaya Dön
+              ← Vegere Serê Rûpelê
             </button>
           </div>
         </div>
