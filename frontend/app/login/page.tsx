@@ -175,12 +175,9 @@ export default function LoginPage() {
           </form>
 
           {/* Girêdan */}
-          <div className="mt-6 text-center space-y-2">
+          <div className="mt-6 text-center">
             <Link href="/register" className="block text-red-400 hover:text-red-300 text-sm transition-colors">
               Hesabek tune? Endam bibe
-            </Link>
-            <Link href="/forgot-password" className="block text-gray-400 hover:text-gray-300 text-sm transition-colors">
-              Şîfreya xwe ji bîr kir?
             </Link>
           </div>
         </div>
