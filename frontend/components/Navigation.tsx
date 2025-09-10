@@ -64,10 +64,10 @@ export function Navigation() {
 
   // Navigation tabs
   const tabs = [
-    { name: 'Serê Rûpelê', href: '/' },
-    { name: 'Fîlmên', href: '/movies' },
-    { name: 'Rêzefîlmên', href: '/series' },
-    { name: 'Lîsta Min', href: '/mylist' },
+    { name: 'Destpêka Rûpelê', href: '/' },
+    { name: 'Fîlm', href: '/movies' },
+    { name: 'Rêzefîlm', href: '/series' },
+    { name: 'Lîsteya Min', href: '/mylist' },
   ]
 
   // Menuyên bigire dema li derve tê kişandin
