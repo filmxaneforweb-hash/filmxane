@@ -46,19 +46,24 @@ export default function VideoPlayerPage() {
   const [subtitleTracks, setSubtitleTracks] = useState<any[]>([])
   const playerRef = useRef<ReactPlayer>(null)
 
-  // Altyazıları yükle
+  // Altyazıları yükle (opsiyonel)
   const fetchSubtitles = async (videoId: string) => {
     try {
       console.log('🎬 Fetching subtitles for video:', videoId)
       
-      // Önce altyazı API'sinin var olup olmadığını kontrol et
+      // Altyazı API'sini timeout ile dene
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 3000) // 3 saniye timeout
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://filmxane-backend.onrender.com/api'}/subtitles/video/${videoId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: controller.signal
       })
       
+      clearTimeout(timeoutId)
       console.log('📝 Subtitles API response status:', response.status)
       
       if (response.status === 404) {
@@ -72,7 +77,7 @@ export default function VideoPlayerPage() {
         const data = await response.json()
         console.log('📝 Subtitles response:', data)
         
-        if (data.success && data.data) {
+        if (data.success && data.data && data.data.length > 0) {
           setSubtitles(data.data)
           
           // Varsayılan altyazıyı seç
@@ -102,7 +107,11 @@ export default function VideoPlayerPage() {
         setSubtitleTracks([])
       }
     } catch (error) {
-      console.error('❌ Altyazılar yüklenemedi:', error)
+      if (error.name === 'AbortError') {
+        console.log('⏰ Subtitles API timeout - skipping subtitles')
+      } else {
+        console.error('❌ Altyazılar yüklenemedi:', error)
+      }
       // Altyazı hatası video yüklenmesini engellemesin
       setSubtitles([])
       setSubtitleTracks([])
@@ -137,12 +146,11 @@ export default function VideoPlayerPage() {
             })
             setVideo(foundVideo)
             
-            // Altyazıları yükle (hata olsa bile video yüklensin)
-            try {
-              await fetchSubtitles(foundVideo.id)
-            } catch (subtitleError) {
+            // Altyazıları yükle (opsiyonel - hata olsa bile video yüklensin)
+            // Altyazı yükleme işlemini arka planda yap, video yüklenmesini engellemesin
+            fetchSubtitles(foundVideo.id).catch(subtitleError => {
               console.warn('⚠️ Subtitle loading failed, but continuing with video:', subtitleError)
-            }
+            })
             
             // İlgili videoları ContentContext'ten al
             const related = getRelatedContent(videoId, foundVideo.type as 'movie' | 'series')
@@ -591,7 +599,7 @@ export default function VideoPlayerPage() {
             style={{ objectFit: 'cover' }}
             config={{
               file: {
-                tracks: subtitleTracks,
+                ...(subtitleTracks.length > 0 && { tracks: subtitleTracks }),
                 attributes: {
                   crossOrigin: 'anonymous'
                 }
