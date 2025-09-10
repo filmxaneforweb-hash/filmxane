@@ -49,7 +49,10 @@ export default function VideoPlayerPage() {
   // Altyazıları yükle
   const fetchSubtitles = async (videoId: string) => {
     try {
+      console.log('🎬 Fetching subtitles for video:', videoId)
       const response = await apiClient.getSubtitlesByVideoId(videoId)
+      console.log('📝 Subtitles response:', response)
+      
       if (response.success && response.data) {
         setSubtitles(response.data)
         
@@ -68,9 +71,17 @@ export default function VideoPlayerPage() {
           default: sub.isDefault
         }))
         setSubtitleTracks(tracks)
+        console.log('✅ Subtitles loaded successfully:', tracks.length, 'tracks')
+      } else {
+        console.log('ℹ️ No subtitles found for this video')
+        setSubtitles([])
+        setSubtitleTracks([])
       }
     } catch (error) {
-      console.error('Altyazılar yüklenemedi:', error)
+      console.error('❌ Altyazılar yüklenemedi:', error)
+      // Altyazı hatası video yüklenmesini engellemesin
+      setSubtitles([])
+      setSubtitleTracks([])
     }
   }
 
@@ -78,36 +89,51 @@ export default function VideoPlayerPage() {
     const fetchVideo = async () => {
       try {
         setLoading(true)
+        setError('')
+        console.log('🎬 Fetching video with ID:', videoId)
+        
         // Doğrudan tüm videoları getir
         const response = await fetch('https://filmxane-backend.onrender.com/api/videos')
+        console.log('📡 API Response status:', response.status)
+        
         if (response.ok) {
           const videos = await response.json()
+          console.log('📹 Total videos found:', videos.length)
+          
           const foundVideo = videos.find((v: any) => v.id === videoId)
           if (foundVideo) {
-            console.log('🔍 Video debug:', {
+            console.log('✅ Video found:', {
               id: foundVideo.id,
               title: foundVideo.title,
               duration: foundVideo.duration,
+              videoUrl: foundVideo.videoUrl,
+              videoPath: foundVideo.videoPath,
               trailerUrl: foundVideo.trailerUrl,
               hasTrailer: !!foundVideo.trailerUrl
             })
             setVideo(foundVideo)
             
-            // Altyazıları yükle
-            await fetchSubtitles(foundVideo.id)
+            // Altyazıları yükle (hata olsa bile video yüklensin)
+            try {
+              await fetchSubtitles(foundVideo.id)
+            } catch (subtitleError) {
+              console.warn('⚠️ Subtitle loading failed, but continuing with video:', subtitleError)
+            }
             
             // İlgili videoları ContentContext'ten al
             const related = getRelatedContent(videoId, foundVideo.type as 'movie' | 'series')
             setRelatedVideos(related)
-      } else {
-        setError('Vîdyo nehatibe dîtin')
-      }
-    } else {
-      setError('Vîdyo nehatibe barkirin')
-    }
-  } catch (error) {
-    console.error('Çewtiya barkirina vîdyoyê:', error)
-    setError('Di barkirina vîdyoyê de çewtiya çêbûye')
+          } else {
+            console.log('❌ Video not found in API response')
+            setError('Vîdyo nehatibe dîtin')
+          }
+        } else {
+          console.log('❌ API request failed:', response.status, response.statusText)
+          setError('Vîdyo nehatibe barkirin - API Error: ' + response.status)
+        }
+      } catch (error) {
+        console.error('❌ Çewtiya barkirina vîdyoyê:', error)
+        setError('Di barkirina vîdyoyê de çewtiya çêbûye: ' + (error as Error).message)
       } finally {
         setLoading(false)
       }
