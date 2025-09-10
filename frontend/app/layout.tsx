@@ -10,8 +10,8 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Filmxane - Platforma Sînema ya Kurdî',
-  description: 'Platforma herî baş a sînema ya kurdî bi fîlm, rêzefîlm û naveroka taybet',
-  keywords: 'kurdî, sînema, fîlm, rêzefîlm, fîlm, şahî',
+  description: 'Platforma herî pêşkeftî ya sînema ya kurdî bi fîlm, rêzefîlm û naveroka taybet',
+  keywords: 'kurdî, sînema, fîlm, rêzefîlm, şahî, naverok',
   authors: [{ name: 'Filmxane Team' }],
   creator: 'Filmxane',
   publisher: 'Filmxane',
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://filmxane.com'),
   openGraph: {
     title: 'Filmxane - Platforma Sînema ya Kurdî',
-    description: 'Platforma herî baş a sînema ya kurdî bi fîlm, rêzefîlm û naveroka taybet',
+    description: 'Platforma herî pêşkeftî ya sînema ya kurdî bi fîlm, rêzefîlm û naveroka taybet',
     url: 'https://filmxane.com',
     siteName: 'Filmxane',
     images: [
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Filmxane - Platforma Sînema ya Kurdî',
-    description: 'Platforma herî baş a sînema ya kurdî bi fîlm, rêzefîlm û naveroka taybet',
+    description: 'Platforma herî pêşkeftî ya sînema ya kurdî bi fîlm, rêzefîlm û naveroka taybet',
     images: ['/og-image.jpg'],
   },
   robots: {

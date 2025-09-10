@@ -46,7 +46,7 @@ interface SettingsProviderProps {
 export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   const [settings, setSettings] = useState<SystemSettings | null>({
     siteName: 'Filmxane',
-    siteDescription: 'Kurdish Video Platform',
+    siteDescription: 'Platforma Sînema ya Kurdî',
     maintenanceMode: false,
     allowRegistrations: true,
     contactEmail: 'admin@filmxane.com',
@@ -87,7 +87,7 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
       console.log('Using default settings - backend settings endpoints not implemented yet')
       setSettings({
         siteName: 'Filmxane',
-        siteDescription: 'Kurdish Video Platform',
+        siteDescription: 'Platforma Sînema ya Kurdî',
         maintenanceMode: false,
         allowRegistrations: true,
         contactEmail: 'admin@filmxane.com',

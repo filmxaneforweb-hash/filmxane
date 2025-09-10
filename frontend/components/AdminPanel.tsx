@@ -185,7 +185,7 @@ export function AdminPanel() {
   }, [])
 
   // Check if user is admin
-  if (!user || (user.role !== 'admin' && !user.isAdmin)) {
+  if (!user || user.role !== 'admin') {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
@@ -608,7 +608,7 @@ export function AdminPanel() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Sernav (Kurdish)</label>
+                  <label className="block text-sm font-medium mb-2">Sernav (Kurdî)</label>
                   <input
                     type="text"
                     value={uploadForm.titleKurdish}
@@ -619,7 +619,7 @@ export function AdminPanel() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Danasîn (Kurdish)</label>
+                  <label className="block text-sm font-medium mb-2">Danasîn (Kurdî)</label>
                   <textarea
                     value={uploadForm.descriptionKurdish}
                     onChange={(e) => setUploadForm({ ...uploadForm, descriptionKurdish: e.target.value })}

@@ -70,7 +70,7 @@ export class AdminController {
     
     try {
       const result = await this.adminService.createAdmin(body.email, body.password);
-      return { success: true, message: 'Bikarhênera rêveberê hat çêkirin!', data: result };
+      return { success: true, message: 'Bikarhênera rêveberê bi serkeftî hat afirandin!', data: result };
     } catch (error) {
       throw new HttpException(
         { success: false, message: error.message },
@@ -84,7 +84,7 @@ export class AdminController {
   async changeUserStatus(@Param('id') userId: string, @Body() body: { status: string }) {
     try {
       const result = await this.adminService.changeUserStatus(userId, body.status as any);
-      return { success: true, message: 'Rewşa bikarhênerê hat nûkirin!', data: result };
+      return { success: true, message: 'Rewşa bikarhênerê bi serkeftî hat nûkirin!', data: result };
     } catch (error) {
       throw new HttpException(
         { success: false, message: error.message },
@@ -294,7 +294,7 @@ export class AdminController {
       return {
         success: true,
         data: result,
-        message: 'Vîdyo bi serkeftî hat çêkirin'
+        message: 'Fîlm bi serkeftî hat afirandin'
       };
       
     } catch (error) {
@@ -305,7 +305,7 @@ export class AdminController {
       }
       
       throw new HttpException(
-        error.message || 'Dema çêkirina vîdyoyê de çewtiyek çêbû',
+        error.message || 'Dema afirandina fîlmê de çewtiyek çêbû',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

@@ -42,7 +42,7 @@ export default function CreateAdminPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage('✅ Bikarhênera rêveberê bi serkeftî hat çêkirin!');
+        setMessage('✅ Bikarhênera rêveberê bi serkeftî hat afirandin!');
         setTimeout(() => {
           router.push('/admin');
         }, 2000);
@@ -68,7 +68,7 @@ export default function CreateAdminPage() {
       <div className="max-w-md w-full mx-4">
         <div className="bg-gray-900 p-8 rounded-lg shadow-lg">
           <h1 className="text-2xl font-bold text-center mb-6 text-red-500">
-            Hesaba Rêveberê Çêke
+            Hesaba Rêveberê Afirîne
           </h1>
           
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -113,7 +113,7 @@ export default function CreateAdminPage() {
               disabled={loading}
               className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition duration-200"
             >
-              {loading ? 'Tê çêkirin...' : 'Rêveber Çêke'}
+              {loading ? 'Tê afirandin...' : 'Rêveber Afirîne'}
             </button>
           </form>
 
