@@ -168,14 +168,14 @@ export function Navigation() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-black/25 transition-all duration-300">
-                <FilmxaneLogo className="w-6 h-6" />
+              <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-black/25 transition-all duration-300">
+                <FilmxaneLogo className="w-8 h-8" />
               </div>
               <div className="flex flex-col">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-red-100 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-red-100 bg-clip-text text-transparent">
                   Filmxane
                 </h1>
-                <p className="text-xs text-slate-400 font-medium">SÎNEMA YA KURDÎ</p>
+                <p className="text-sm text-slate-400 font-medium">SÎNEMA YA KURDÎ</p>
               </div>
             </Link>
 
