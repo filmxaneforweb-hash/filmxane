@@ -205,7 +205,13 @@ export function Navigation() {
                 </button>
                 
                 {isSearchOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-96 bg-slate-900/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-700/50 p-4 max-h-96 overflow-y-auto">
+                  <div className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-slate-900/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-700/50 p-4 max-h-96 overflow-y-auto z-50"
+                       style={{ 
+                         right: '0',
+                         maxWidth: 'calc(100vw - 1rem)',
+                         minWidth: '280px',
+                         transform: 'translateX(0)'
+                       }}>
                     <form onSubmit={handleSearch} className="space-y-3">
                       <input
                         ref={searchRef}
