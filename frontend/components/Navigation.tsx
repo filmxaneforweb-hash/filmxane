@@ -207,8 +207,8 @@ export function Navigation() {
                 {isSearchOpen && (
                   <div className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-slate-900/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-700/50 p-4 max-h-96 overflow-y-auto z-50"
                        style={{ 
-                         right: '0',
-                         maxWidth: 'calc(100vw - 1rem)',
+                         right: '-10px',
+                         maxWidth: 'calc(100vw - 2rem)',
                          minWidth: '280px',
                          transform: 'translateX(0)'
                        }}>
