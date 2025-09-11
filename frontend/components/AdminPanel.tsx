@@ -994,79 +994,81 @@ export function AdminPanel() {
               </div>
 
               <div className="bg-slate-800 rounded-lg overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-slate-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Movie</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Year</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Rating</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Views</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-700">
-                    {isLoading ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[600px]">
+                    <thead className="bg-slate-700">
                       <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
-                          Loading movies...
-                        </td>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Movie</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Year</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Rating</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Views</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Actions</th>
                       </tr>
-                    ) : movies.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
-                          No movies found
-                        </td>
-                      </tr>
-                    ) : (
-                      movies.map((movie) => (
-                      <tr key={movie.id} className="hover:bg-slate-700/50">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <img src={movie.thumbnail} alt={movie.title} className="w-12 h-16 object-cover rounded mr-4" />
-                            <div>
-                              <div className="text-sm font-medium text-white">{movie.title}</div>
-                              <div className="text-sm text-slate-400">{movie.titleKurdish}</div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-700">
+                      {isLoading ? (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
+                            Loading movies...
+                          </td>
+                        </tr>
+                      ) : movies.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
+                            No movies found
+                          </td>
+                        </tr>
+                      ) : (
+                        movies.map((movie) => (
+                        <tr key={movie.id} className="hover:bg-slate-700/50">
+                          <td className="px-3 sm:px-6 py-4">
+                            <div className="flex items-center">
+                              <img src={movie.thumbnail} alt={movie.title} className="w-10 h-12 sm:w-12 sm:h-16 object-cover rounded mr-2 sm:mr-4" />
+                              <div className="min-w-0 flex-1">
+                                <div className="text-sm font-medium text-white truncate">{movie.title}</div>
+                                <div className="text-xs sm:text-sm text-slate-400 truncate">{movie.titleKurdish}</div>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-300">{movie.year || 'N/A'}</td>
-                        <td className="px-6 py-4 text-sm text-slate-300">
-                          <div className="flex items-center">
-                            <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
-                            {movie.rating || 0}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-300">{(movie.views || 0).toLocaleString()}</td>
-                        <td className="px-6 py-4 text-sm font-medium">
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => handleView(movie.id)}
-                              className="text-green-400 hover:text-green-300 p-1 rounded hover:bg-green-400/10 transition-colors"
-                              title="View Movie"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <button 
-                              onClick={() => handleEdit(movie.id, 'movie')}
-                              className="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-400/10 transition-colors"
-                              title="Edit Movie"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button 
-                              onClick={() => handleDelete(movie.id, 'movie')}
-                              className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-400/10 transition-colors"
-                              title="Delete Movie"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">{movie.year || 'N/A'}</td>
+                          <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">
+                            <div className="flex items-center">
+                              <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
+                              {movie.rating || 0}
+                            </div>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">{(movie.views || 0).toLocaleString()}</td>
+                          <td className="px-3 sm:px-6 py-4 text-sm font-medium">
+                            <div className="flex gap-1 sm:gap-2">
+                              <button 
+                                onClick={() => handleView(movie.id)}
+                                className="text-green-400 hover:text-green-300 p-1 rounded hover:bg-green-400/10 transition-colors"
+                                title="View Movie"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => handleEdit(movie.id, 'movie')}
+                                className="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-400/10 transition-colors"
+                                title="Edit Movie"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(movie.id, 'movie')}
+                                className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-400/10 transition-colors"
+                                title="Delete Movie"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
@@ -1079,79 +1081,81 @@ export function AdminPanel() {
               </div>
 
               <div className="bg-slate-800 rounded-lg overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-slate-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Series</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Seasons</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Rating</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Views</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-700">
-                    {isLoading ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[600px]">
+                    <thead className="bg-slate-700">
                       <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
-                          Loading series...
-                        </td>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Series</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Seasons</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Rating</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Views</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Actions</th>
                       </tr>
-                    ) : series.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
-                          No series found
-                        </td>
-                      </tr>
-                    ) : (
-                      series.map((show) => (
-                      <tr key={show.id} className="hover:bg-slate-700/50">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <img src={show.thumbnail} alt={show.title} className="w-12 h-16 object-cover rounded mr-4" />
-                            <div>
-                              <div className="text-sm font-medium text-white">{show.title}</div>
-                              <div className="text-sm text-slate-400">{show.titleKurdish}</div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-700">
+                      {isLoading ? (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
+                            Loading series...
+                          </td>
+                        </tr>
+                      ) : series.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
+                            No series found
+                          </td>
+                        </tr>
+                      ) : (
+                        series.map((show) => (
+                        <tr key={show.id} className="hover:bg-slate-700/50">
+                          <td className="px-3 sm:px-6 py-4">
+                            <div className="flex items-center">
+                              <img src={show.thumbnail} alt={show.title} className="w-10 h-12 sm:w-12 sm:h-16 object-cover rounded mr-2 sm:mr-4" />
+                              <div className="min-w-0 flex-1">
+                                <div className="text-sm font-medium text-white truncate">{show.title}</div>
+                                <div className="text-xs sm:text-sm text-slate-400 truncate">{show.titleKurdish}</div>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-300">{show.seasons?.length || 0}</td>
-                        <td className="px-6 py-4 text-sm text-slate-300">
-                          <div className="flex items-center">
-                            <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
-                            {show.rating || 0}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-300">{(show.views || 0).toLocaleString()}</td>
-                        <td className="px-6 py-4 text-sm font-medium">
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => handleView(show.id)}
-                              className="text-green-400 hover:text-green-300 p-1 rounded hover:bg-green-400/10 transition-colors"
-                              title="View Series"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <button 
-                              onClick={() => handleEdit(show.id, 'series')}
-                              className="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-400/10 transition-colors"
-                              title="Edit Series"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button 
-                              onClick={() => handleDelete(show.id, 'series')}
-                              className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-400/10 transition-colors"
-                              title="Delete Series"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">{show.seasons?.length || 0}</td>
+                          <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">
+                            <div className="flex items-center">
+                              <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
+                              {show.rating || 0}
+                            </div>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">{(show.views || 0).toLocaleString()}</td>
+                          <td className="px-3 sm:px-6 py-4 text-sm font-medium">
+                            <div className="flex gap-1 sm:gap-2">
+                              <button 
+                                onClick={() => handleView(show.id)}
+                                className="text-green-400 hover:text-green-300 p-1 rounded hover:bg-green-400/10 transition-colors"
+                                title="View Series"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => handleEdit(show.id, 'series')}
+                                className="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-400/10 transition-colors"
+                                title="Edit Series"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(show.id, 'series')}
+                                className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-400/10 transition-colors"
+                                title="Delete Series"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
@@ -1211,94 +1215,96 @@ export function AdminPanel() {
 
               {/* Users Table */}
               <div className="bg-slate-800 rounded-lg overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-slate-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">User</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Role</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Joined</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Last Login</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-700">
-                    {users.map((user) => (
-                      <tr key={user.id} className="hover:bg-slate-700/50">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center mr-3">
-                              <span className="text-white font-bold text-sm">
-                                {(user.firstName || user.name)?.charAt(0).toUpperCase() || 'U'}
-                              </span>
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium text-white">
-                                {user.firstName && user.lastName 
-                                  ? `${user.firstName} ${user.lastName}` 
-                                  : user.name || 'Unknown User'
-                                }
-                              </div>
-                              <div className="text-sm text-slate-400">{user.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            user.role === 'admin' 
-                              ? 'bg-red-100 text-red-800' 
-                              : user.role === 'moderator'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-green-100 text-green-800'
-                          }`}>
-                            {user.role}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            user.status === 'active' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {user.status || 'inactive'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-300">
-                          {new Date(user.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-300">
-                          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-medium">
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => handleEditUser(user)}
-                              className="text-blue-400 hover:text-blue-300"
-                              title="Edit User"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button 
-                              onClick={() => handleChangeRole(user)}
-                              className="text-yellow-400 hover:text-yellow-300"
-                              title="Change Role"
-                            >
-                              <Settings className="w-4 h-4" />
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteUser(user)}
-                              className={`${user.role === 'admin' ? 'text-gray-500 cursor-not-allowed' : 'text-red-400 hover:text-red-300'}`}
-                              title={user.role === 'admin' ? 'Cannot delete admin users' : 'Delete User'}
-                              disabled={user.role === 'admin'}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[700px]">
+                    <thead className="bg-slate-700">
+                      <tr>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">User</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Role</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Status</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Joined</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Last Login</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-700">
+                      {users.map((user) => (
+                        <tr key={user.id} className="hover:bg-slate-700/50">
+                          <td className="px-3 sm:px-6 py-4">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                                <span className="text-white font-bold text-xs sm:text-sm">
+                                  {(user.firstName || user.name)?.charAt(0).toUpperCase() || 'U'}
+                                </span>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="text-sm font-medium text-white truncate">
+                                  {user.firstName && user.lastName 
+                                    ? `${user.firstName} ${user.lastName}` 
+                                    : user.name || 'Unknown User'
+                                  }
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-400 truncate">{user.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              user.role === 'admin' 
+                                ? 'bg-red-100 text-red-800' 
+                                : user.role === 'moderator'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-green-100 text-green-800'
+                            }`}>
+                              {user.role}
+                            </span>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              user.status === 'active' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {user.status || 'inactive'}
+                            </span>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">
+                            {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
+                          </td>
+                          <td className="px-3 sm:px-6 py-4 text-sm font-medium">
+                            <div className="flex gap-1 sm:gap-2">
+                              <button 
+                                onClick={() => handleEditUser(user)}
+                                className="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-400/10 transition-colors"
+                                title="Edit User"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => handleChangeRole(user)}
+                                className="text-yellow-400 hover:text-yellow-300 p-1 rounded hover:bg-yellow-400/10 transition-colors"
+                                title="Change Role"
+                              >
+                                <Settings className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteUser(user)}
+                                className={`p-1 rounded transition-colors ${user.role === 'admin' ? 'text-gray-500 cursor-not-allowed' : 'text-red-400 hover:text-red-300 hover:bg-red-400/10'}`}
+                                title={user.role === 'admin' ? 'Cannot delete admin users' : 'Delete User'}
+                                disabled={user.role === 'admin'}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
