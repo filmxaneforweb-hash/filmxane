@@ -26,6 +26,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [statsLoading, setStatsLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [hasInitialized, setHasInitialized] = useState(false)
 
   // Ji backend'ê statîstîkên bikarhêner bikişîne
   const fetchUserStats = async () => {
@@ -116,92 +117,25 @@ export default function ProfilePage() {
     fetchUserStats()
   }
 
-  // Dema rûpel xuya dibe û focus dibe daneyên nû bike
+  // Dema rûpel xuya dibe û focus dibe daneyên nû bike - Sadece manuel refresh
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        console.log('👁️ Rûpel xuya bû, daneyên têne nûkirin...')
-        fetchUserStats()
-      }
-    }
-
-    const handleFocus = () => {
-      console.log('🎯 Rûpel focus bû, daneyên têne nûkirin...')
-      fetchUserStats()
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    window.addEventListener('focus', handleFocus)
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      window.removeEventListener('focus', handleFocus)
-    }
+    // Bu event'leri kaldırıyoruz çünkü sürekli yenilenmeye neden oluyor
+    // Kullanıcı manuel olarak refresh butonuna basabilir
   }, [])
 
   // Hejmara dilxwaziyê bi dema rastîn nû bike - Pergala polling'a hêsan
   useEffect(() => {
-    // Her 2 çirkeyan hejmara dilxwaziyê û dema temaşekirinê kontrol bike
+    // Her 30 saniyede bir kontrol et (daha az sıklıkta)
     const interval = setInterval(() => {
       const token = localStorage.getItem('filmxane_token')
       if (token) {
-        // Hejmara dilxwaziyê kontrol bike
-        fetch('https://filmxane-backend.onrender.com/api/favorites/my-favorites', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          const newCount = Array.isArray(data) ? data.length : 0
-          if (newCount !== stats.favoritesCount) {
-            console.log('🔄 Hejmara dilxwaziyê guherî:', stats.favoritesCount, '->', newCount)
-            setStats(prev => ({
-              ...prev,
-              favoritesCount: newCount
-            }))
-          }
-        })
-        .catch(error => {
-          console.log('Hejmara dilxwaziyê nehat kontrol kirin:', error)
-        })
-
-        // Dema temaşekirinê kontrol bike
-        fetch('https://filmxane-backend.onrender.com/api/videos/watch-time', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          const newWatchTime = data.totalMinutes || 0
-          const newTotalViews = data.totalViews || 0
-          const newCompletedVideos = data.completedVideos || 0
-          
-          if (newWatchTime !== stats.totalWatchTime || 
-              newTotalViews !== stats.totalViews || 
-              newCompletedVideos !== stats.completedVideos) {
-            console.log('🔄 Daneyên temaşekirinê guherîn:', {
-              watchTime: newWatchTime,
-              totalViews: newTotalViews,
-              completedVideos: newCompletedVideos
-            })
-            setStats(prev => ({
-              ...prev,
-              totalWatchTime: newWatchTime,
-              totalViews: newTotalViews,
-              completedVideos: newCompletedVideos
-            }))
-          }
-        })
-        .catch(error => {
-          console.log('Dema temaşekirinê nehat kontrol kirin:', error)
-        })
+        // Sadece bir kez fetchUserStats çağır
+        fetchUserStats()
       }
-    }, 2000) // 2 çirke
+    }, 30000) // 30 saniye
 
     return () => clearInterval(interval)
-  }, [stats.favoritesCount, stats.totalWatchTime, stats.totalViews, stats.completedVideos])
+  }, []) // Dependency array'i boş bırak
 
   // Piştî operasyonên dilxwaziyê statîstîkên nû bike
   useEffect(() => {
@@ -218,12 +152,13 @@ export default function ProfilePage() {
     }
   }, [])
 
-  // Barkirina pêşîn
+  // Barkirina pêşîn - Sadece bir kez çalıştır
   useEffect(() => {
-    if (user) {
+    if (user && !hasInitialized) {
       fetchUserStats()
+      setHasInitialized(true)
     }
-  }, [user])
+  }, [user, hasInitialized])
 
   useEffect(() => {
     const checkAuth = async () => {
