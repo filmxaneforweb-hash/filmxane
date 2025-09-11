@@ -175,6 +175,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Clear local state regardless of API call success
       setUser(null)
       apiClient.clearToken()
+      
       if (typeof window !== 'undefined') {
         // Tüm localStorage verilerini temizle
         localStorage.removeItem('filmxane_token')
@@ -185,8 +186,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         localStorage.removeItem('filmxane_user_joinDate')
         console.log('✅ Tüm kullanıcı verileri temizlendi')
         
-        // Sayfayı yenile veya ana sayfaya yönlendir
-        window.location.href = '/'
+        // Sayfayı tamamen yenile - bu en güvenilir yöntem
+        window.location.reload()
       }
     }
   }
