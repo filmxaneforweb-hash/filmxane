@@ -9,16 +9,69 @@ export default function ProfilePage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    favoritesCount: 0,
+    totalWatchTime: 0,
+    totalViews: 0,
+    completedVideos: 0
+  })
+  const [statsLoaded, setStatsLoaded] = useState(false)
+
+  // Veri çekme fonksiyonu - sadece bir kez çalışır
+  const fetchStats = async () => {
+    if (statsLoaded) return // Zaten yüklenmişse tekrar yükleme
+    
+    try {
+      const token = localStorage.getItem('filmxane_token')
+      if (!token) return
+
+      // Favorites sayısını çek
+      const favoritesResponse = await fetch('https://filmxane-backend.onrender.com/api/favorites/my-favorites', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      
+      if (favoritesResponse.ok) {
+        const favoritesData = await favoritesResponse.json()
+        const favoritesCount = Array.isArray(favoritesData) ? favoritesData.length : 0
+        setStats(prev => ({ ...prev, favoritesCount }))
+      }
+
+      // Watch time verilerini çek
+      try {
+        const watchTimeResponse = await fetch('https://filmxane-backend.onrender.com/api/videos/watch-time', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        
+        if (watchTimeResponse.ok) {
+          const watchTimeData = await watchTimeResponse.json()
+          setStats(prev => ({
+            ...prev,
+            totalWatchTime: watchTimeData.totalMinutes || 0,
+            totalViews: watchTimeData.totalViews || 0,
+            completedVideos: watchTimeData.completedVideos || 0
+          }))
+        }
+      } catch (error) {
+        // Watch time endpoint'i yoksa varsayılan değerler
+      }
+      
+      setStatsLoaded(true)
+    } catch (error) {
+      console.error('Stats fetch error:', error)
+    }
+  }
 
   // Basit kullanıcı bilgilerini yükle
   useEffect(() => {
-    const loadUser = () => {
+    const loadUser = async () => {
       const firstName = localStorage.getItem('filmxane_user_firstName')
       const lastName = localStorage.getItem('filmxane_user_lastName')
       const email = localStorage.getItem('filmxane_user_email')
       
       if (firstName && lastName && email) {
         setUser({ firstName, lastName, email })
+        // Kullanıcı yüklendikten sonra stats'ı çek
+        await fetchStats()
       }
       setLoading(false)
     }
@@ -77,6 +130,20 @@ export default function ProfilePage() {
         <div className="container mx-auto px-4">
           {/* Karta Profîla Hêsan */}
           <div className="max-w-md mx-auto bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/30">
+            {/* Refresh Butonu */}
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={() => {
+                  setStatsLoaded(false)
+                  fetchStats()
+                }}
+                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all duration-200"
+                title="Daneyên Nû Bike"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            </div>
+
             {/* Avatara Profîlê */}
             <div className="text-center mb-6">
               <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -88,30 +155,38 @@ export default function ProfilePage() {
               <p className="text-gray-400">{user?.email}</p>
             </div>
 
-            {/* Basit İstatistikler */}
+            {/* İstatistikler */}
             <div className="space-y-4">
               <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                 <Heart className="w-5 h-5 text-red-500" />
                 <span className="text-white">Fîlmên Dilxwazî</span>
-                <span className="ml-auto text-gray-400">0</span>
+                <span className="ml-auto text-gray-400">
+                  {statsLoaded ? stats.favoritesCount : '...'}
+                </span>
               </div>
               
               <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                 <Clock className="w-5 h-5 text-blue-500" />
                 <span className="text-white">Demê Temaşekirinê</span>
-                <span className="ml-auto text-gray-400">0 dk</span>
+                <span className="ml-auto text-gray-400">
+                  {statsLoaded ? `${stats.totalWatchTime} dk` : '...'}
+                </span>
               </div>
 
               <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                 <Eye className="w-5 h-5 text-purple-500" />
                 <span className="text-white">Tevahiya Temaşekirinê</span>
-                <span className="ml-auto text-gray-400">0</span>
+                <span className="ml-auto text-gray-400">
+                  {statsLoaded ? stats.totalViews : '...'}
+                </span>
               </div>
 
               <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                 <CheckCircle className="w-5 h-5 text-green-500" />
                 <span className="text-white">Temamkirî</span>
-                <span className="ml-auto text-gray-400">0</span>
+                <span className="ml-auto text-gray-400">
+                  {statsLoaded ? stats.completedVideos : '...'}
+                </span>
               </div>
               
               <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
