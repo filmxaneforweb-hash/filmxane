@@ -91,7 +91,7 @@ export default function HomePage() {
                   className="px-8 py-4 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition-colors text-lg flex items-center justify-center cursor-pointer"
                 >
                   <span className="mr-2">▶️</span>
-                  Bixwîne
+                  Temaşe bike
                 </button>
                 
                 {/* Fragman Butonu - Sadece Filmler İçin */}
