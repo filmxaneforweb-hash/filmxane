@@ -156,9 +156,33 @@ export function Navigation() {
 
   // Derketinê birêve bibe
   const handleLogout = async () => {
-    await logout()
-    setIsUserMenuOpen(false)
-    // AuthContext'te zaten yönlendirme yapılıyor, burada ek yönlendirme gerekmiyor
+    try {
+      setIsUserMenuOpen(false)
+      
+      // localStorage'ı temizle
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('filmxane_token')
+        localStorage.removeItem('filmxane_refresh_token')
+        localStorage.removeItem('filmxane_user_firstName')
+        localStorage.removeItem('filmxane_user_lastName')
+        localStorage.removeItem('filmxane_user_email')
+        localStorage.removeItem('filmxane_user_joinDate')
+      }
+      
+      // API logout çağrısı (opsiyonel)
+      try {
+        await apiClient.logout()
+      } catch (error) {
+        console.error('Logout API error:', error)
+      }
+      
+      // Sayfayı yenile - bu en güvenilir yöntem
+      if (typeof window !== 'undefined') {
+        window.location.reload()
+      }
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
   }
 
   return (
