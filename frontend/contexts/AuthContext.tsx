@@ -184,6 +184,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         localStorage.removeItem('filmxane_user_email')
         localStorage.removeItem('filmxane_user_joinDate')
         console.log('✅ Tüm kullanıcı verileri temizlendi')
+        
+        // Sayfayı yenile veya ana sayfaya yönlendir
+        window.location.href = '/'
       }
     }
   }

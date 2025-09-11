@@ -158,7 +158,7 @@ export function Navigation() {
   const handleLogout = async () => {
     await logout()
     setIsUserMenuOpen(false)
-    router.push('/')
+    // AuthContext'te zaten yönlendirme yapılıyor, burada ek yönlendirme gerekmiyor
   }
 
   return (
