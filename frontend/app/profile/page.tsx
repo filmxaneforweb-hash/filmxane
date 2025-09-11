@@ -26,15 +26,12 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [statsLoading, setStatsLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [hasInitialized, setHasInitialized] = useState(false)
 
   // Ji backend'ê statîstîkên bikarhêner bikişîne
   const fetchUserStats = async () => {
     try {
       const token = localStorage.getItem('filmxane_token')
       if (!token) return
-
-      console.log('🔄 Daneyên profîlê têne nûkirin...')
 
       // Hejmara dilxwaziyê bikişîne
       const favoritesResponse = await fetch('https://filmxane-backend.onrender.com/api/favorites/my-favorites', {
@@ -47,14 +44,10 @@ export default function ProfilePage() {
         const favoritesData = await favoritesResponse.json()
         const favoritesCount = Array.isArray(favoritesData) ? favoritesData.length : 0
         
-        console.log('📊 Hejmara dilxwaziyê:', favoritesCount)
-        
         setStats(prev => ({
           ...prev,
           favoritesCount
         }))
-      } else {
-        console.error('❌ Daneyên dilxwaziyê nehatine wergirtin:', favoritesResponse.status)
       }
 
       // Dema temaşekirinê bikişîne
@@ -67,9 +60,7 @@ export default function ProfilePage() {
         
         if (watchTimeResponse.ok) {
           const watchTimeData = await watchTimeResponse.json()
-          console.log('📺 Daneyên temaşekirinê:', watchTimeData)
           
-          // Heke daneyên tune be, nirxên xwerû bikar bîne
           const totalWatchTime = watchTimeData.totalMinutes || 0
           const totalViews = watchTimeData.totalViews || 0
           const completedVideos = watchTimeData.completedVideos || 0
@@ -82,7 +73,6 @@ export default function ProfilePage() {
           }))
         }
       } catch (error) {
-        console.log('Endpoint\'a dema temaşekirinê mewcûd nîne, wekî 0 hat sazkirin')
         // Nirxên xwerû
         setStats(prev => ({
           ...prev,
@@ -99,8 +89,6 @@ export default function ProfilePage() {
         joinDate
       }))
 
-      console.log('✅ Daneyên profîlê hatine nûkirin')
-
     } catch (error) {
       console.error('Statîstîkên bikarhêner nehatine wergirtin:', error)
     } finally {
@@ -111,54 +99,17 @@ export default function ProfilePage() {
 
   // Fonksiyona nûkirina destî
   const handleRefresh = () => {
-    console.log('🔄 Nûkirina destî dest pê kir')
     setRefreshing(true)
     setStatsLoading(true)
     fetchUserStats()
   }
 
-  // Dema rûpel xuya dibe û focus dibe daneyên nû bike - Sadece manuel refresh
+  // Sadece sayfa yüklendiğinde bir kez çalıştır
   useEffect(() => {
-    // Bu event'leri kaldırıyoruz çünkü sürekli yenilenmeye neden oluyor
-    // Kullanıcı manuel olarak refresh butonuna basabilir
-  }, [])
-
-  // Hejmara dilxwaziyê bi dema rastîn nû bike - Pergala polling'a hêsan
-  useEffect(() => {
-    // Her 30 saniyede bir kontrol et (daha az sıklıkta)
-    const interval = setInterval(() => {
-      const token = localStorage.getItem('filmxane_token')
-      if (token) {
-        // Sadece bir kez fetchUserStats çağır
-        fetchUserStats()
-      }
-    }, 30000) // 30 saniye
-
-    return () => clearInterval(interval)
-  }, []) // Dependency array'i boş bırak
-
-  // Piştî operasyonên dilxwaziyê statîstîkên nû bike
-  useEffect(() => {
-    const handleFavoriteChange = () => {
-      console.log('❤️ Guhertina dilxwaziyê hat dîtin, statîstîkên têne nûkirin...')
+    if (user) {
       fetchUserStats()
     }
-
-    // Event'a xwerû bihîze
-    window.addEventListener('favoriteChanged', handleFavoriteChange)
-    
-    return () => {
-      window.removeEventListener('favoriteChanged', handleFavoriteChange)
-    }
-  }, [])
-
-  // Barkirina pêşîn - Sadece bir kez çalıştır
-  useEffect(() => {
-    if (user && !hasInitialized) {
-      fetchUserStats()
-      setHasInitialized(true)
-    }
-  }, [user, hasInitialized])
+  }, []) // Sadece mount'ta çalışır
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -179,7 +130,6 @@ export default function ProfilePage() {
 
         if (response.ok) {
           const userData = await response.json()
-          console.log('✅ Ji backend\'ê daneyên bikarhêner hatine wergirtin:', userData)
           
           setUser({
             firstName: userData.firstName || userData.name?.split(' ')[0] || 'User',
@@ -194,7 +144,6 @@ export default function ProfilePage() {
             joinDate
           }))
         } else {
-          console.error('❌ Ji backend\'ê daneyên bikarhêner nehatine wergirtin:', response.status)
           // Fallback: ji localStorage'ê bigire
           const firstName = localStorage.getItem('filmxane_user_firstName')
           const lastName = localStorage.getItem('filmxane_user_lastName')
@@ -216,7 +165,6 @@ export default function ProfilePage() {
           }
         }
       } catch (error) {
-        console.error('❌ Çewtiya kişandina daneyên bikarhêner:', error)
         // Fallback: ji localStorage'ê bigire
         const firstName = localStorage.getItem('filmxane_user_firstName')
         const lastName = localStorage.getItem('filmxane_user_lastName')
