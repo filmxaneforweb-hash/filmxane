@@ -196,7 +196,7 @@ export const ContentProvider = ({ children }: ContentProviderProps) => {
     // Featured content (high rating and views)
     const featured = allContent
       .filter(content => content.isFeatured)
-      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+      .sort((a, b) => (b.views || 0) - (a.views || 0))
       .slice(0, 10)
     
     setFeaturedContent(featured)
