@@ -60,6 +60,7 @@ export function Navigation() {
   // Refs
   const searchRef = useRef<HTMLInputElement>(null)
   const searchButtonRef = useRef<HTMLButtonElement>(null)
+  const searchDropdownRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
 
@@ -82,6 +83,12 @@ export function Navigation() {
       // Mobil menü kapat
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
         setIsMobileMenuOpen(false)
+      }
+      
+      // Arama dropdown'ı kapat
+      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target as Node) && 
+          searchButtonRef.current && !searchButtonRef.current.contains(event.target as Node)) {
+        setIsSearchOpen(false)
       }
       
       // Arama kısmına tıklandığında profil menüsünü kapat
@@ -200,7 +207,7 @@ export function Navigation() {
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link href="/" onClick={() => setIsSearchOpen(false)} className="flex items-center gap-3 group">
               <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-black/25 transition-all duration-300">
                 <FilmxaneLogo className="w-8 h-8" />
               </div>
@@ -218,6 +225,7 @@ export function Navigation() {
                 <Link
                   key={tab.name}
                   href={tab.href}
+                  onClick={() => setIsSearchOpen(false)}
                   className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-800/50"
                 >
                   {tab.name}
@@ -242,13 +250,15 @@ export function Navigation() {
                 </button>
                 
                 {isSearchOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-slate-900/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-700/50 p-4 max-h-96 overflow-y-auto z-50"
-                       style={{ 
-                         right: '-10px',
-                         maxWidth: 'calc(100vw - 2rem)',
-                         minWidth: '280px',
-                         transform: 'translateX(0)'
-                       }}>
+                  <div 
+                    ref={searchDropdownRef}
+                    className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-slate-900/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-700/50 p-4 max-h-96 overflow-y-auto z-50"
+                    style={{ 
+                      right: '-10px',
+                      maxWidth: 'calc(100vw - 2rem)',
+                      minWidth: '280px',
+                      transform: 'translateX(0)'
+                    }}>
                     <form onSubmit={handleSearch} className="space-y-3">
                       <input
                         ref={searchRef}
@@ -440,7 +450,10 @@ export function Navigation() {
                   key={tab.name} 
                   href={tab.href}
                   className="block px-4 py-3 text-lg font-medium rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/50"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false)
+                    setIsSearchOpen(false)
+                  }}
                 >
                   {tab.name}
                 </Link>
