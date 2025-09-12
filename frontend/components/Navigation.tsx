@@ -59,6 +59,7 @@ export function Navigation() {
 
   // Refs
   const searchRef = useRef<HTMLInputElement>(null)
+  const searchButtonRef = useRef<HTMLButtonElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
 
@@ -73,11 +74,19 @@ export function Navigation() {
   // Menuyên bigire dema li derve tê kişandin
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Profil menüsü kapat
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false)
       }
+      
+      // Mobil menü kapat
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
         setIsMobileMenuOpen(false)
+      }
+      
+      // Arama kısmına tıklandığında profil menüsünü kapat
+      if (searchButtonRef.current && searchButtonRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false)
       }
     }
 
@@ -221,7 +230,11 @@ export function Navigation() {
               {/* Lêgerîn */}
               <div className="relative">
                 <button
-                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  ref={searchButtonRef}
+                  onClick={() => {
+                    setIsSearchOpen(!isSearchOpen)
+                    setIsUserMenuOpen(false) // Profil menüsünü kapat
+                  }}
                   className="p-2.5 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200"
                   title="Lêgerîn"
                 >
