@@ -11,7 +11,6 @@ interface HeroProps {
     year?: number
     type: string
     language: string
-    rating?: number
     duration?: number
     viewers?: number
   }
@@ -57,10 +56,6 @@ export function Hero({ featuredVideo }: HeroProps) {
           
           {/* Modern meta info with icons */}
           <div className="flex items-center justify-center gap-6 text-sm text-slate-300 mb-8">
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-              <span>{featuredVideo?.rating || '9.2'}</span>
-            </div>
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-green-400" />
               <span>{featuredVideo?.viewers || '1.2M'}</span>

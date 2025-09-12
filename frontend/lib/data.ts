@@ -4,7 +4,6 @@ export interface Video {
   description: string
   thumbnailUrl: string | null
   duration?: number
-  rating?: number
   viewCount?: number
   progress?: number
   category: string
@@ -34,7 +33,6 @@ export const mockVideos: Video[] = [
     type: 'movie',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.5,
     viewCount: 1250
   },
   {
@@ -47,7 +45,6 @@ export const mockVideos: Video[] = [
     type: 'series',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.2,
     viewCount: 890
   },
   {
@@ -60,7 +57,6 @@ export const mockVideos: Video[] = [
     type: 'movie',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.7,
     viewCount: 2100
   },
   {
@@ -73,7 +69,6 @@ export const mockVideos: Video[] = [
     type: 'series',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.3,
     viewCount: 1560
   },
   {
@@ -86,7 +81,6 @@ export const mockVideos: Video[] = [
     type: 'movie',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.6,
     viewCount: 980
   },
   {
@@ -99,7 +93,6 @@ export const mockVideos: Video[] = [
     type: 'series',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.1,
     viewCount: 3200
   },
 
@@ -114,7 +107,6 @@ export const mockVideos: Video[] = [
     type: 'movie',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.5,
     viewCount: 2500
   },
   {
@@ -127,7 +119,6 @@ export const mockVideos: Video[] = [
     type: 'series',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.2,
     viewCount: 1800
   },
   {
@@ -140,7 +131,6 @@ export const mockVideos: Video[] = [
     type: 'movie',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.7,
     viewCount: 3200
   },
   {
@@ -153,7 +143,6 @@ export const mockVideos: Video[] = [
     type: 'series',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.0,
     viewCount: 2100
   },
   {
@@ -166,7 +155,6 @@ export const mockVideos: Video[] = [
     type: 'movie',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.8,
     viewCount: 4100
   },
   {
@@ -179,7 +167,6 @@ export const mockVideos: Video[] = [
     type: 'series',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.3,
     viewCount: 1900
   },
 
@@ -194,7 +181,6 @@ export const mockVideos: Video[] = [
     type: 'movie',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.6,
     viewCount: 3200,
     progress: 65
   },
@@ -208,7 +194,6 @@ export const mockVideos: Video[] = [
     type: 'series',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.1,
     viewCount: 2100,
     progress: 30
   },
@@ -222,7 +207,6 @@ export const mockVideos: Video[] = [
     type: 'movie',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.4,
     viewCount: 2800,
     progress: 80
   },
@@ -236,7 +220,6 @@ export const mockVideos: Video[] = [
     type: 'series',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.3,
     viewCount: 1900,
     progress: 45
   },
@@ -250,7 +233,6 @@ export const mockVideos: Video[] = [
     type: 'movie',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.7,
     viewCount: 3500,
     progress: 20
   },
@@ -264,7 +246,6 @@ export const mockVideos: Video[] = [
     type: 'series',
     language: 'Kurdî',
     year: 2024,
-    rating: 4.0,
     viewCount: 1600,
     progress: 90
   }

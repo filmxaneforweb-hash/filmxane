@@ -143,10 +143,6 @@ export function ContentGrid({
 
                         {/* Meta Info */}
                         <div className="flex items-center justify-between text-sm text-slate-500">
-                          <div className="flex items-center gap-2">
-                            <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                            <span>{item.rating}</span>
-                          </div>
                           
                           <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4" />

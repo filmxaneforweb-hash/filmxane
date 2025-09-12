@@ -12,7 +12,6 @@ export function ContinueWatching() {
       description: 'Fîlmeke ciwan û balkêş',
       thumbnail: null,
       duration: 7200,
-      rating: 4.6,
 
       progress: 65, // Progress percentage
     },
@@ -22,7 +21,6 @@ export function ContinueWatching() {
       description: 'Çîrokeke têkildar û balkêş',
       thumbnail: null,
       duration: 5400,
-      rating: 4.1,
 
       progress: 30,
     },
@@ -32,7 +30,6 @@ export function ContinueWatching() {
       description: 'Fîlmeke serkeftin û balkêş',
       thumbnail: null,
       duration: 6300,
-      rating: 4.4,
 
       progress: 80,
     },
@@ -42,7 +39,6 @@ export function ContinueWatching() {
       description: 'Fîlmeke hêstbizin û balkêş',
       thumbnail: null,
       duration: 4800,
-      rating: 4.3,
 
       progress: 45,
     },
@@ -52,7 +48,6 @@ export function ContinueWatching() {
       description: 'Fîlmeke tirs û balkêş',
       thumbnail: null,
       duration: 5400,
-      rating: 4.7,
 
       progress: 20,
     },
@@ -62,7 +57,6 @@ export function ContinueWatching() {
       description: 'Fîlmeke komedî û balkêş',
       thumbnail: null,
       duration: 4500,
-      rating: 4.0,
 
       progress: 90,
     },
@@ -106,7 +100,6 @@ export function ContinueWatching() {
                 description={video.description}
                 thumbnail={video.thumbnail || undefined}
                 duration={video.duration}
-                rating={video.rating}
               />
               
               {/* Progress Bar */}

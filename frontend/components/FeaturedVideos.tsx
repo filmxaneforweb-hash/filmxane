@@ -14,7 +14,6 @@ interface Video {
   thumbnail: string
   duration: number
   category: string
-  rating?: number
   uploadedBy: {
     firstName: string
     lastName: string
@@ -39,7 +38,6 @@ export function FeaturedVideos() {
     duration: 'duration' in content ? content.duration : 0,
     category: content.genre?.[0] || 'Unknown',
 
-    rating: 'rating' in content ? content.rating : 0,
     uploadedBy: {
       firstName: content.director || 'Unknown',
       lastName: 'Director'
@@ -106,7 +104,6 @@ export function FeaturedVideos() {
                 description={video.description}
                 thumbnail={video.thumbnail}
                 duration={video.duration}
-                rating={video.rating}
               />
             </div>
           ))}

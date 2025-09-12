@@ -62,7 +62,6 @@ export function AdminPanel() {
     quality: 'HD' as const,
     contentType: 'movie' as 'movie' | 'series',
     duration: 0,
-    rating: 0,
     isFeatured: false,
     isNew: false,
     trailerUrl: '',
@@ -271,7 +270,6 @@ export function AdminPanel() {
         genre: uploadForm.genre,
         year: uploadForm.year,
         duration: uploadForm.duration,
-        rating: uploadForm.rating,
         isFeatured: uploadForm.isFeatured,
         isNew: uploadForm.isNew,
         type: uploadForm.contentType === 'movie' ? 'movie' : 'series',
@@ -323,7 +321,6 @@ export function AdminPanel() {
           quality: 'HD',
           contentType: 'movie',
           duration: 0,
-          rating: 0,
           isFeatured: false,
           isNew: false,
           trailerUrl: '',
@@ -400,7 +397,6 @@ export function AdminPanel() {
         titleKurdish: editingContent.titleKurdish,
         description: editingContent.description,
         year: editingContent.year,
-        rating: editingContent.rating,
         isFeatured: editingContent.isFeatured,
         isNew: editingContent.isNew
       })
@@ -778,18 +774,6 @@ export function AdminPanel() {
                   />
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium mb-2">Nirxandin (0-10)</label>
-                  <input
-                      type="number"
-                      value={uploadForm.rating}
-                      onChange={(e) => setUploadForm({ ...uploadForm, rating: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                      min="0"
-                      max="10"
-                      step="0.1"
-                    />
-                  </div>
                 </div>
 
                 <div>
@@ -1000,7 +984,6 @@ export function AdminPanel() {
                       <tr>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Movie</th>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Year</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Rating</th>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Views</th>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Actions</th>
                       </tr>
@@ -1031,12 +1014,6 @@ export function AdminPanel() {
                             </div>
                           </td>
                           <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">{movie.year || 'N/A'}</td>
-                          <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">
-                            <div className="flex items-center">
-                              <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
-                              {movie.rating || 0}
-                            </div>
-                          </td>
                           <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">{(movie.views || 0).toLocaleString()}</td>
                           <td className="px-3 sm:px-6 py-4 text-sm font-medium">
                             <div className="flex gap-1 sm:gap-2">
@@ -1087,7 +1064,6 @@ export function AdminPanel() {
                       <tr>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Series</th>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Seasons</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Rating</th>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Views</th>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Actions</th>
                       </tr>
@@ -1118,12 +1094,6 @@ export function AdminPanel() {
                             </div>
                           </td>
                           <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">{show.seasons?.length || 0}</td>
-                          <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">
-                            <div className="flex items-center">
-                              <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
-                              {show.rating || 0}
-                            </div>
-                          </td>
                           <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">{(show.views || 0).toLocaleString()}</td>
                           <td className="px-3 sm:px-6 py-4 text-sm font-medium">
                             <div className="flex gap-1 sm:gap-2">
@@ -1703,24 +1673,6 @@ export function AdminPanel() {
                   />
                 </div>
 
-                {/* Rating */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Rating
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="10"
-                    value={editingContent.rating || ''}
-                    onChange={(e) => setEditingContent({
-                      ...editingContent,
-                      rating: parseFloat(e.target.value) || 0
-                    })}
-                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-red-500"
-                  />
-                </div>
 
                 {/* Featured & New */}
                 <div className="flex gap-4">

@@ -13,7 +13,6 @@ export function TrendingNow() {
       description: 'Fîlmeke serkeftin û balkêş',
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 7200,
-      rating: 4.5,
 
     },
     {
@@ -22,7 +21,6 @@ export function TrendingNow() {
       description: 'Fîlmeke hêstbizin û balkêş',
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 5400,
-      rating: 4.2,
 
     },
     {
@@ -31,7 +29,6 @@ export function TrendingNow() {
       description: 'Fîlmeke tirs û balkêş',
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 6300,
-      rating: 4.7,
 
     },
     {
@@ -40,7 +37,6 @@ export function TrendingNow() {
       description: 'Fîlmeke komedî û balkêş',
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 4800,
-      rating: 4.0,
 
     },
     {
@@ -49,7 +45,6 @@ export function TrendingNow() {
       description: 'Fîlmeke aksiyon û balkêş',
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 6600,
-      rating: 4.8,
 
     },
     {
@@ -58,7 +53,6 @@ export function TrendingNow() {
       description: 'Fîlmeke dramatîk û balkêş',
       thumbnail: getSafeImageUrl(null, 300, 200, 'thumbnail'),
       duration: 5700,
-      rating: 4.3,
 
     },
   ]
@@ -100,7 +94,6 @@ export function TrendingNow() {
                 description={video.description}
                 thumbnail={video.thumbnail}
                 duration={video.duration}
-                rating={video.rating}
               />
             </div>
           ))}

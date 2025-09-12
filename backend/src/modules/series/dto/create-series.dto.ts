@@ -21,8 +21,6 @@ export class CreateSeriesDto {
   @Transform(({ value }) => parseInt(value))
   year: number;
 
-  @Transform(({ value }) => parseFloat(value))
-  rating: number;
 
   @IsEnum(SeriesStatus)
   status: SeriesStatus;

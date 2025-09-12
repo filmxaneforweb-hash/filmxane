@@ -23,8 +23,6 @@ export class Series {
   @Column()
   year: number;
 
-  @Column('decimal', { precision: 3, scale: 1, default: 0 })
-  rating: number;
 
   @Column({
     type: 'text',

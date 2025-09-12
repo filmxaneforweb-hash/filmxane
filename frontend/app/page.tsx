@@ -62,12 +62,6 @@ export default function HomePage() {
 
               {/* Movie Meta Info */}
               <div className="flex items-center space-x-6 text-gray-300 mb-6 text-lg">
-                {movies[0]?.rating && (
-                  <span className="flex items-center">
-                    <span className="text-green-400 mr-2">●</span>
-                    {movies[0]?.rating}
-                  </span>
-                )}
                 {movies[0]?.year && (
                   <span>{movies[0]?.year}</span>
                 )}
@@ -288,12 +282,6 @@ export default function HomePage() {
                       {featuredMovie.title}
                     </h2>
                     <div className="flex items-center gap-4 text-gray-300">
-                      {featuredMovie.rating && (
-                        <div className="flex items-center gap-2">
-                          ⭐
-                          <span className="font-semibold">{featuredMovie.rating}</span>
-                        </div>
-                      )}
                       {featuredMovie.year && (
                         <div className="flex items-center gap-2">
                           📅
@@ -404,15 +392,6 @@ export default function HomePage() {
                            <div className="flex items-center justify-between">
                              <span className="text-gray-400">Dirêjahî:</span>
                              <span className="text-white font-medium">{featuredMovie.duration}m</span>
-                           </div>
-                         )}
-                         {featuredMovie.rating && (
-                           <div className="flex items-center justify-between">
-                             <span className="text-gray-400">Nirx:</span>
-                             <span className="text-white font-medium flex items-center gap-2">
-                               ⭐
-                               {featuredMovie.rating}
-                             </span>
                            </div>
                          )}
 

@@ -85,20 +85,11 @@ export class Video {
   @Column({ nullable: true })
   ageRating?: string;
 
-  @Column({ type: 'decimal', precision: 3, scale: 1, nullable: true })
-  rating?: number;
-
   @Column({ default: 0 })
   viewCount: number;
 
   @Column({ default: 0 })
   views: number;
-
-  @Column({ default: 0 })
-  likeCount: number;
-
-  @Column({ default: 0 })
-  dislikeCount: number;
 
   @Column({ default: 0 })
   shares: number;
@@ -204,10 +195,6 @@ export class Video {
     return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
   }
 
-  get averageRating(): number {
-    const totalVotes = this.likeCount + this.dislikeCount;
-    return totalVotes > 0 ? (this.likeCount / totalVotes) * 5 : 0;
-  }
 
   // Genre için getter ve setter
   get parsedGenre(): string[] {

@@ -65,7 +65,6 @@ export interface Movie {
   trailerUrl?: string
   videoUrl: string
   duration: number // in minutes
-  rating: number
   year: number
   genre: string[]
   director: string
@@ -105,7 +104,6 @@ export interface Series {
   isNew: boolean
   views: number
   likes: number
-  rating: number
   type: 'series'
   seasons: Season[]
   createdAt: string
@@ -159,8 +157,7 @@ export interface SearchFilters {
   quality?: string[]
   language?: string[]
   duration?: number[]
-  rating?: number
-  sortBy?: 'title' | 'year' | 'rating' | 'views' | 'createdAt'
+  sortBy?: 'title' | 'year' | 'views' | 'createdAt'
   sortOrder?: 'asc' | 'desc'
   page?: number
   limit?: number
@@ -625,7 +622,6 @@ class ApiClient {
     query?: string,
     genre?: string,
     year?: string,
-    rating?: string,
     page?: number,
     limit?: number
   }): Promise<any> {
@@ -666,10 +662,6 @@ class ApiClient {
         allVideos = allVideos.filter((video: any) => video.year === parseInt(filters.year!));
       }
       
-      // Rating filter uygula
-      if (filters.rating && filters.rating !== 'all') {
-        allVideos = allVideos.filter((video: any) => video.rating === filters.rating);
-      }
       
       // Pagination uygula
       const page = filters.page || 1;

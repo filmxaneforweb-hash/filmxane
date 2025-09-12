@@ -16,7 +16,6 @@ interface VideoCardProps {
   posterUrl?: string
   thumbnailPath?: string
   duration?: number
-  rating?: number
   isFavorite?: boolean
   onFavoriteToggle?: () => void
   onWatch?: () => void
@@ -31,7 +30,6 @@ export function VideoCard({
   posterUrl,
   thumbnailPath,
   duration,
-  rating,
   isFavorite = false,
   onFavoriteToggle,
   onWatch,
@@ -321,12 +319,6 @@ export function VideoCard({
         {/* Meta info */}
         <div className="flex items-center justify-between text-xs text-slate-500">
           <div className="flex items-center gap-2">
-            {rating && (
-              <div className="flex items-center gap-1">
-                <span className="text-yellow-400">★</span>
-                <span>{rating}</span>
-              </div>
-            )}
 
           </div>
         </div>

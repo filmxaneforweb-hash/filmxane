@@ -12,7 +12,6 @@ interface Video {
   thumbnailUrl?: string
   posterUrl?: string
   duration?: number
-  rating?: number
   progress?: number
 }
 
@@ -105,7 +104,6 @@ export function VideoRow({
                 thumbnailUrl={video.thumbnailUrl}
                 posterUrl={video.posterUrl}
                 duration={video.duration}
-                rating={video.rating}
               />
               
               {/* Enhanced Progress Bar with modern design */}

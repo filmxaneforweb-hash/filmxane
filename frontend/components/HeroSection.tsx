@@ -76,10 +76,6 @@ export function HeroSection() {
 
             {/* Meta Information */}
             <div className="flex items-center gap-4 mb-6 text-sm text-slate-300">
-              <span className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                {currentContent.rating}/10
-              </span>
               <span>{currentContent.year}</span>
               <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />

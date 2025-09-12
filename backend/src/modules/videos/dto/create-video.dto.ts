@@ -18,10 +18,6 @@ export class CreateVideoDto {
   @IsNumber()
   year: number;
 
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  rating?: number;
 
   @Type(() => Number)
   @IsNumber()

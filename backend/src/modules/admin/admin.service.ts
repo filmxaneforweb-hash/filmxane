@@ -221,7 +221,6 @@ export class AdminService {
       title: video.title,
       type: video.type === VideoType.MOVIE ? 'Movie' : 'Series',
       views: video.views.toLocaleString(),
-      rating: video.rating || 0,
       thumbnail: video.thumbnailUrl || '🎬',
     }));
   }
@@ -640,7 +639,6 @@ export class AdminService {
         type: createVideoDto.type || VideoType.MOVIE, // DTO'dan type'ı al
         views: 0,
         viewCount: 0,
-        rating: 0,
         videoPath: `/uploads/videos/${videoFilename}`,
         thumbnailPath: thumbnailPath,
         thumbnailUrl: thumbnailPath, // thumbnailUrl'yi de set et
@@ -683,7 +681,6 @@ export class AdminService {
       if (updateContentDto.title) content.title = updateContentDto.title
       if (updateContentDto.description) content.description = updateContentDto.description
       if (updateContentDto.year) content.year = parseInt(updateContentDto.year)
-      if (updateContentDto.rating) content.rating = parseFloat(updateContentDto.rating)
       if (updateContentDto.isFeatured !== undefined) content.isFeatured = Boolean(updateContentDto.isFeatured)
       if (updateContentDto.isNew !== undefined) content.isNew = Boolean(updateContentDto.isNew)
       if (updateContentDto.trailerUrl !== undefined) content.trailerUrl = updateContentDto.trailerUrl // Fragman URL'ini güncelle
@@ -757,7 +754,6 @@ export class AdminService {
         description: createSeriesDto.description,
         genre: JSON.stringify(genreArray), // JSON string olarak sakla
         year: createSeriesDto.year,
-        rating: createSeriesDto.rating || 0,
         status: createSeriesDto.status || 'ongoing',
         totalSeasons: totalSeasons,
         totalEpisodes: totalEpisodes,
@@ -814,7 +810,6 @@ export class AdminService {
       type: video.type === VideoType.MOVIE ? 'movie' : 'series',
       thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/300x200/3B82F6/FFFFFF?text=Content',
       views: video.views || 0,
-      rating: video.rating || 0,
       isFeatured: video.isFeatured || false,
       isNew: new Date().getTime() - video.createdAt.getTime() < 7 * 24 * 60 * 60 * 1000, // 7 days
       status: video.status || 'published',

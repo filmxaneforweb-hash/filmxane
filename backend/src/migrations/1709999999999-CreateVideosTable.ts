@@ -40,14 +40,6 @@ export class CreateVideosTable1709999999999 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: 'rating',
-            type: 'decimal',
-            precision: 3,
-            scale: 1,
-            default: 0,
-            isNullable: true,
-          },
-          {
             name: 'views',
             type: 'int',
             default: 0,
