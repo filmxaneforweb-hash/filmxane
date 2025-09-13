@@ -14,28 +14,75 @@ export default function ProfilePage() {
     totalViews: 0,
     completedVideos: 0
   })
+  const [statsLoaded, setStatsLoaded] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  // Basit veri çekme fonksiyonu - sadece localStorage'dan
-  const fetchStats = () => {
+  // Backend'den gerçek verileri çek
+  const fetchStats = async () => {
+    if (isLoading) return // Zaten yükleniyorsa tekrar yükleme
+    
     try {
-      // Sadece localStorage'dan basit verileri al
-      const favoritesCount = parseInt(localStorage.getItem('filmxane_favorites_count') || '0')
-      const totalWatchTime = parseInt(localStorage.getItem('filmxane_watch_time') || '0')
-      const totalViews = parseInt(localStorage.getItem('filmxane_total_views') || '0')
-      const completedVideos = parseInt(localStorage.getItem('filmxane_completed_videos') || '0')
+      setIsLoading(true)
+      setStatsLoaded(false)
       
-      setStats({
-        favoritesCount,
-        totalWatchTime,
-        totalViews,
-        completedVideos
-      })
+      const token = localStorage.getItem('filmxane_token')
+      if (!token) {
+        console.log('❌ Token bulunamadı')
+        return
+      }
+
+      console.log('🔍 Profil istatistikleri çekiliyor...')
+
+      // Favorites sayısını çek
+      try {
+        const favoritesResponse = await fetch('https://filmxane-backend.onrender.com/api/favorites/my-favorites', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        
+        if (favoritesResponse.ok) {
+          const favoritesData = await favoritesResponse.json()
+          const favoritesCount = Array.isArray(favoritesData.data) ? favoritesData.data.length : 0
+          setStats(prev => ({ ...prev, favoritesCount }))
+          console.log('✅ Favoriler yüklendi:', favoritesCount)
+        } else {
+          console.log('⚠️ Favoriler yüklenemedi:', favoritesResponse.status)
+        }
+      } catch (error) {
+        console.error('❌ Favoriler hatası:', error)
+      }
+
+      // Watch time verilerini çek
+      try {
+        const watchTimeResponse = await fetch('https://filmxane-backend.onrender.com/api/videos/watch-time', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        
+        if (watchTimeResponse.ok) {
+          const watchTimeData = await watchTimeResponse.json()
+          setStats(prev => ({
+            ...prev,
+            totalWatchTime: watchTimeData.totalMinutes || 0,
+            totalViews: watchTimeData.totalViews || 0,
+            completedVideos: watchTimeData.completedVideos || 0
+          }))
+          console.log('✅ Watch time verileri yüklendi:', watchTimeData)
+        } else {
+          console.log('⚠️ Watch time verileri yüklenemedi:', watchTimeResponse.status)
+        }
+      } catch (error) {
+        console.error('❌ Watch time hatası:', error)
+      }
+      
+      setStatsLoaded(true)
+      console.log('✅ Tüm istatistikler yüklendi')
     } catch (error) {
-      console.error('Stats fetch error:', error)
+      console.error('❌ Stats fetch error:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  // Basit kullanıcı bilgilerini yükle
+  // Kullanıcı bilgilerini yükle ve stats'ı çek
   useEffect(() => {
     const loadUser = () => {
       try {
@@ -55,6 +102,13 @@ export default function ProfilePage() {
 
     loadUser()
   }, [])
+
+  // Sadece bir kez stats'ı çek
+  useEffect(() => {
+    if (user && !statsLoaded && !isLoading) {
+      fetchStats()
+    }
+  }, [user, statsLoaded, isLoading])
 
   // Auth kontrolü
   useEffect(() => {
@@ -101,12 +155,16 @@ export default function ProfilePage() {
             <div className="flex justify-end mb-4">
               <button
                 onClick={() => {
+                  setStatsLoaded(false)
                   fetchStats()
                 }}
-                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all duration-200"
-                title="Daneyên Nû Bike"
+                disabled={isLoading}
+                className={`p-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all duration-200 ${
+                  isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                title={isLoading ? 'Tê Barkirin...' : 'Daneyên Nû Bike'}
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               </button>
             </div>
 
@@ -127,7 +185,7 @@ export default function ProfilePage() {
                 <Heart className="w-5 h-5 text-red-500" />
                 <span className="text-white">Fîlmên Dilxwazî</span>
                 <span className="ml-auto text-gray-400">
-                  {stats.favoritesCount}
+                  {isLoading ? '...' : stats.favoritesCount}
                 </span>
               </div>
               
@@ -135,7 +193,7 @@ export default function ProfilePage() {
                 <Clock className="w-5 h-5 text-blue-500" />
                 <span className="text-white">Demê Temaşekirinê</span>
                 <span className="ml-auto text-gray-400">
-                  {stats.totalWatchTime} dk
+                  {isLoading ? '...' : `${stats.totalWatchTime} dk`}
                 </span>
               </div>
 
@@ -143,7 +201,7 @@ export default function ProfilePage() {
                 <Eye className="w-5 h-5 text-purple-500" />
                 <span className="text-white">Tevahiya Temaşekirinê</span>
                 <span className="ml-auto text-gray-400">
-                  {stats.totalViews}
+                  {isLoading ? '...' : stats.totalViews}
                 </span>
               </div>
 
@@ -151,7 +209,7 @@ export default function ProfilePage() {
                 <CheckCircle className="w-5 h-5 text-green-500" />
                 <span className="text-white">Temamkirî</span>
                 <span className="ml-auto text-gray-400">
-                  {stats.completedVideos}
+                  {isLoading ? '...' : stats.completedVideos}
                 </span>
               </div>
               
