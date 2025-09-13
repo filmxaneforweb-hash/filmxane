@@ -8,36 +8,25 @@ import { User, Heart, Clock, Calendar, RefreshCw, Eye, CheckCircle } from 'lucid
 export default function ProfilePage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
-  const [stats, setStats] = useState({
-    favoritesCount: 0,
-    totalWatchTime: 0,
-    totalViews: 0,
-    completedVideos: 0
-  })
-  const [statsLoaded, setStatsLoaded] = useState(false)
+  const [favoritesCount, setFavoritesCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Backend'den gerçek verileri çek
-  const fetchStats = async () => {
-    if (isLoading) return // Zaten yükleniyorsa tekrar yükleme
+  // Sadece favorileri çek
+  const fetchFavorites = async () => {
+    if (isLoading) return
     
     try {
       setIsLoading(true)
-      setStatsLoaded(false)
       
       const token = localStorage.getItem('filmxane_token')
       if (!token) {
         console.log('❌ Token bulunamadı')
-        alert('Oturum süreniz dolmuş, lütfen tekrar giriş yapın')
         return
       }
 
-      console.log('🔍 Profil istatistikleri çekiliyor...')
-      console.log('🔑 Token:', token.substring(0, 20) + '...')
+      console.log('🔍 Favoriler çekiliyor...')
 
-      // Favorites sayısını çek
       try {
-        console.log('📤 Favoriler API çağrısı yapılıyor...')
         const favoritesResponse = await fetch('https://filmxane-backend.onrender.com/api/favorites/my-favorites', {
           method: 'GET',
           headers: { 
@@ -46,81 +35,27 @@ export default function ProfilePage() {
           }
         })
         
-        console.log('📥 Favoriler API yanıtı:', {
-          status: favoritesResponse.status,
-          statusText: favoritesResponse.statusText,
-          ok: favoritesResponse.ok
-        })
-        
         if (favoritesResponse.ok) {
           const favoritesData = await favoritesResponse.json()
-          console.log('📊 Favoriler verisi:', favoritesData)
-          
-          const favoritesCount = Array.isArray(favoritesData.data) ? favoritesData.data.length : 0
-          setStats(prev => ({ ...prev, favoritesCount }))
-          console.log('✅ Favoriler yüklendi:', favoritesCount)
+          const count = Array.isArray(favoritesData.data) ? favoritesData.data.length : 0
+          setFavoritesCount(count)
+          console.log('✅ Favoriler yüklendi:', count)
         } else {
-          const errorData = await favoritesResponse.json().catch(() => ({}))
-          console.error('❌ Favoriler API hatası:', {
-            status: favoritesResponse.status,
-            statusText: favoritesResponse.statusText,
-            error: errorData
-          })
+          console.log('⚠️ Favoriler yüklenemedi:', favoritesResponse.status)
+          setFavoritesCount(0)
         }
       } catch (error) {
-        console.error('❌ Favoriler network hatası:', error)
+        console.error('❌ Favoriler hatası:', error)
+        setFavoritesCount(0)
       }
-
-      // Watch time verilerini çek
-      try {
-        console.log('📤 Watch time API çağrısı yapılıyor...')
-        const watchTimeResponse = await fetch('https://filmxane-backend.onrender.com/api/videos/watch-time', {
-          method: 'GET',
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        })
-        
-        console.log('📥 Watch time API yanıtı:', {
-          status: watchTimeResponse.status,
-          statusText: watchTimeResponse.statusText,
-          ok: watchTimeResponse.ok
-        })
-        
-        if (watchTimeResponse.ok) {
-          const watchTimeData = await watchTimeResponse.json()
-          console.log('📊 Watch time verisi:', watchTimeData)
-          
-          setStats(prev => ({
-            ...prev,
-            totalWatchTime: watchTimeData.totalMinutes || 0,
-            totalViews: watchTimeData.totalViews || 0,
-            completedVideos: watchTimeData.completedVideos || 0
-          }))
-          console.log('✅ Watch time verileri yüklendi:', watchTimeData)
-        } else {
-          const errorData = await watchTimeResponse.json().catch(() => ({}))
-          console.error('❌ Watch time API hatası:', {
-            status: watchTimeResponse.status,
-            statusText: watchTimeResponse.statusText,
-            error: errorData
-          })
-        }
-      } catch (error) {
-        console.error('❌ Watch time network hatası:', error)
-      }
-      
-      setStatsLoaded(true)
-      console.log('✅ Tüm istatistikler yüklendi')
     } catch (error) {
-      console.error('❌ Stats fetch error:', error)
+      console.error('❌ Fetch error:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Kullanıcı bilgilerini yükle ve stats'ı çek
+  // Kullanıcı bilgilerini yükle ve favorileri çek
   useEffect(() => {
     const loadUser = () => {
       try {
@@ -130,8 +65,8 @@ export default function ProfilePage() {
         
         if (firstName && lastName && email) {
           setUser({ firstName, lastName, email })
-          // Kullanıcı yüklendikten sonra stats'ı çek
-          fetchStats()
+          // Kullanıcı yüklendikten sonra favorileri çek
+          fetchFavorites()
         }
       } catch (error) {
         console.error('User load error:', error)
@@ -140,13 +75,6 @@ export default function ProfilePage() {
 
     loadUser()
   }, [])
-
-  // Sadece bir kez stats'ı çek
-  useEffect(() => {
-    if (user && !statsLoaded && !isLoading) {
-      fetchStats()
-    }
-  }, [user, statsLoaded, isLoading])
 
   // Auth kontrolü
   useEffect(() => {
@@ -193,14 +121,13 @@ export default function ProfilePage() {
             <div className="flex justify-end mb-4">
               <button
                 onClick={() => {
-                  setStatsLoaded(false)
-                  fetchStats()
+                  fetchFavorites()
                 }}
                 disabled={isLoading}
                 className={`p-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all duration-200 ${
                   isLoading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
-                title={isLoading ? 'Tê Barkirin...' : 'Daneyên Nû Bike'}
+                title={isLoading ? 'Tê Barkirin...' : 'Favorileri Yenile'}
               >
                 <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               </button>
@@ -223,31 +150,7 @@ export default function ProfilePage() {
                 <Heart className="w-5 h-5 text-red-500" />
                 <span className="text-white">Fîlmên Dilxwazî</span>
                 <span className="ml-auto text-gray-400">
-                  {isLoading ? '...' : stats.favoritesCount}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
-                <Clock className="w-5 h-5 text-blue-500" />
-                <span className="text-white">Demê Temaşekirinê</span>
-                <span className="ml-auto text-gray-400">
-                  {isLoading ? '...' : `${stats.totalWatchTime} dk`}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
-                <Eye className="w-5 h-5 text-purple-500" />
-                <span className="text-white">Tevahiya Temaşekirinê</span>
-                <span className="ml-auto text-gray-400">
-                  {isLoading ? '...' : stats.totalViews}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-green-500" />
-                <span className="text-white">Temamkirî</span>
-                <span className="ml-auto text-gray-400">
-                  {isLoading ? '...' : stats.completedVideos}
+                  {isLoading ? '...' : favoritesCount}
                 </span>
               </div>
               
