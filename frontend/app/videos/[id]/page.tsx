@@ -782,12 +782,6 @@ export default function VideoPlayerPage() {
                   </h1>
                   
                   <div className="flex items-center gap-6 text-gray-300 mb-6">
-                    {video.rating && (
-                      <div className="flex items-center gap-2">
-                        <Star className="w-6 h-6 text-yellow-500 fill-current" />
-                        <span className="text-lg">{video.rating}</span>
-                      </div>
-                    )}
                     {video.year && video.year > 1900 && video.year < 2030 && (
                       <span className="text-lg">{video.year}</span>
                     )}
@@ -1058,12 +1052,6 @@ export default function VideoPlayerPage() {
                 </div>
                 
                 <div className="flex items-center gap-8 text-gray-300 mb-8">
-                  {video.rating && (
-                    <div className="flex items-center gap-3">
-                      <Star className="w-7 h-7 text-yellow-500 fill-current" />
-                      <span className="text-xl font-semibold">{video.rating}</span>
-                    </div>
-                  )}
 
                   {(video as any).duration && (
                     <div className="flex items-center gap-3">
@@ -1217,7 +1205,6 @@ export default function VideoPlayerPage() {
                           thumbnailUrl={relatedVideo.thumbnailUrl}
                           posterUrl={relatedVideo.posterUrl}
                           duration={(relatedVideo as any).duration}
-                          rating={relatedVideo.rating}
                         />
                       </Link>
                     ))}
@@ -1288,15 +1275,6 @@ export default function VideoPlayerPage() {
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Dirêjahî:</span>
                             <span className="text-white font-medium">{formatDuration((video as any).duration)}</span>
-                          </div>
-                        )}
-                        {video.rating && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Nirx:</span>
-                            <span className="text-white font-medium flex items-center gap-2">
-                              <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                              {video.rating}
-                            </span>
                           </div>
                         )}
 
