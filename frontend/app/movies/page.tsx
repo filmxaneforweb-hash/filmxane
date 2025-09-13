@@ -87,7 +87,7 @@ export default function MoviesPage() {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setSearchQuery(inputValue)
-    }, 800) // 800ms delay for input
+    }, 1200) // 1200ms delay for input
 
     return () => clearTimeout(timeoutId)
   }, [inputValue])
@@ -275,7 +275,6 @@ export default function MoviesPage() {
                   thumbnailUrl={movie.thumbnailUrl}
                   posterUrl={movie.posterUrl}
                   duration={movie.duration}
-                  rating={movie.rating}
                 />
               </div>
             ))}

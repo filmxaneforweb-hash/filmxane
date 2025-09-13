@@ -108,7 +108,7 @@ export default function SearchPage() {
     const timeoutId = setTimeout(() => {
       setSearchQuery(inputValue)
       setCurrentPage(1)
-    }, 800) // 800ms delay for input
+    }, 1200) // 1200ms delay for input
 
     return () => clearTimeout(timeoutId)
   }, [inputValue])
