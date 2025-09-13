@@ -5,7 +5,7 @@ import { ContentGrid } from '@/components/ContentGrid'
 import { useContent } from '@/contexts/ContentContext'
 // import { motion, AnimatePresence } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
 import { getSafeImageUrl } from '@/lib/utils'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 // import { X, Star, Calendar, Clock, Award, Users, Film, Eye, Heart, Share2 } from 'lucide-react' // SSR sorunu nedeniyle kaldırıldı
 
 export default function HomePage() {
@@ -18,6 +18,11 @@ export default function HomePage() {
   } = useContent()
 
   const [showInfoModal, setShowInfoModal] = useState(false)
+
+  // Console imzası
+  useEffect(() => {
+    console.log("🐦‍⬛ Powered by Stufks 🐦‍⬛")
+  }, [])
 
   // Loading state'inde sadece basit loading göster
   if (isLoading) {
