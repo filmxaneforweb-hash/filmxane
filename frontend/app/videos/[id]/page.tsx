@@ -319,10 +319,7 @@ export default function VideoPlayerPage() {
       setCurrentTime(newTime);
     }
     
-    // Seeking state'ini kısa süre sonra sıfırla
-    setTimeout(() => {
-      setIsSeeking(false);
-    }, 100);
+    console.log('Progress bar clicked, seeking to:', newTime, 'isPlaying:', isPlaying);
   }
 
   // View count'ı backend'e gönder - sadece bir kez
@@ -421,11 +418,16 @@ export default function VideoPlayerPage() {
     setDuration(safeDuration)
   }
   const handleSeek = (seconds: number) => {
-    if (playerRef.current) {
-      playerRef.current.seekTo(seconds)
-      // Seek işlemi tamamlandığında seeking state'ini sıfırla
-      setIsSeeking(false)
-    }
+    // onSeek event'i sadece seek başladığında tetiklenir
+    // Seeking state'ini true yap
+    setIsSeeking(true)
+    console.log('Seek started to:', seconds)
+  }
+
+  const handleSeeked = (seconds: number) => {
+    // onSeeked event'i seek işlemi tamamlandığında tetiklenir
+    setIsSeeking(false)
+    console.log('Seek completed to:', seconds)
   }
 
   const handleReady = () => {
@@ -682,6 +684,7 @@ export default function VideoPlayerPage() {
             onEnded={handleEnded}
             onReady={handleReady}
             onSeek={handleSeek}
+            onSeeked={handleSeeked}
             onBuffer={handleBuffer}
             onBufferEnd={handleBufferEnd}
             onError={handleError}
