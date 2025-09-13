@@ -14,6 +14,7 @@ export default function SearchPage() {
   const query = searchParams.get('q') || ''
   
   const [searchQuery, setSearchQuery] = useState(query)
+  const [inputValue, setInputValue] = useState(query) // Separate state for input
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [selectedYear, setSelectedYear] = useState('all')
   const [selectedRating, setSelectedRating] = useState('all')
@@ -67,10 +68,10 @@ export default function SearchPage() {
       }
     }
 
-    // Debounce search - wait 500ms after user stops typing
+    // Debounce search - wait 1000ms after user stops typing
     const timeoutId = setTimeout(() => {
       performSearch()
-    }, 500)
+    }, 1000)
 
     return () => clearTimeout(timeoutId)
   }, [searchQuery, selectedGenre, selectedYear, selectedRating, currentPage])
@@ -102,9 +103,18 @@ export default function SearchPage() {
   const genres = ['all', ...allGenres]
   const years = ['all', ...allYears]
 
+  // Debounce input changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setSearchQuery(inputValue)
+      setCurrentPage(1)
+    }, 800) // 800ms delay for input
+
+    return () => clearTimeout(timeoutId)
+  }, [inputValue])
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-    setCurrentPage(1)
+    setInputValue(e.target.value)
   }
 
   const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -188,7 +198,7 @@ export default function SearchPage() {
             <input
               type="text"
               placeholder="Fîlm an rêzefîlmek bigere..."
-              value={searchQuery}
+              value={inputValue}
               onChange={handleSearch}
               className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />

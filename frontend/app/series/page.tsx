@@ -11,6 +11,7 @@ import { getSafeImageUrl } from '@/lib/utils'
 export default function SeriesPage() {
 
   const [searchQuery, setSearchQuery] = useState('')
+  const [inputValue, setInputValue] = useState('') // Separate state for input
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [selectedYear, setSelectedYear] = useState('all')
   const [selectedRating, setSelectedRating] = useState('all')
@@ -77,8 +78,17 @@ export default function SeriesPage() {
   // Series are already filtered by backend
   const filteredSeries = series
 
+  // Debounce input changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setSearchQuery(inputValue)
+    }, 800) // 800ms delay for input
+
+    return () => clearTimeout(timeoutId)
+  }, [inputValue])
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
+    setInputValue(e.target.value)
   }
 
   const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -103,6 +113,7 @@ export default function SeriesPage() {
 
   const resetFilters = () => {
     setSearchQuery('')
+    setInputValue('')
     setSelectedGenre('all')
     setSelectedYear('all')
     setSelectedRating('all')
@@ -163,7 +174,7 @@ export default function SeriesPage() {
             <input
               type="text"
               placeholder="Rêzefîlmek bigere..."
-              value={searchQuery}
+              value={inputValue}
               onChange={handleSearch}
               className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -259,7 +270,6 @@ export default function SeriesPage() {
                   thumbnailUrl={show.thumbnailUrl}
                   posterUrl={show.posterUrl}
                   duration={show.duration}
-                  rating={show.rating}
                 />
               </div>
             ))}

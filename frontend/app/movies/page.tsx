@@ -11,6 +11,7 @@ import { getSafeImageUrl } from '@/lib/utils'
 export default function MoviesPage() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
+  const [inputValue, setInputValue] = useState('') // Separate state for input
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [selectedYear, setSelectedYear] = useState('all')
   const [selectedRating, setSelectedRating] = useState('all')
@@ -82,8 +83,17 @@ export default function MoviesPage() {
   // Movies are already filtered by backend
   const filteredMovies = movies
 
+  // Debounce input changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setSearchQuery(inputValue)
+    }, 800) // 800ms delay for input
+
+    return () => clearTimeout(timeoutId)
+  }, [inputValue])
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
+    setInputValue(e.target.value)
   }
 
   const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -108,6 +118,7 @@ export default function MoviesPage() {
 
   const resetFilters = () => {
     setSearchQuery('')
+    setInputValue('')
     setSelectedGenre('all')
     setSelectedYear('all')
     setSelectedRating('all')
@@ -168,7 +179,7 @@ export default function MoviesPage() {
             <input
               type="text"
               placeholder="Fîlmek bigere..."
-              value={searchQuery}
+              value={inputValue}
               onChange={handleSearch}
               className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
