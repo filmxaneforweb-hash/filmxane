@@ -423,6 +423,22 @@ export default function VideoPlayerPage() {
       playerRef.current.seekTo(seconds)
     }
   }
+
+  const handleReady = () => {
+    console.log('Video player ready')
+  }
+
+  const handleBuffer = () => {
+    console.log('Video buffering')
+  }
+
+  const handleBufferEnd = () => {
+    console.log('Video buffer ended')
+  }
+
+  const handleError = (error: any) => {
+    console.error('Video player error:', error)
+  }
   const toggleMute = () => setIsMuted(!isMuted)
   const toggleFullscreen = () => {
     if (playerRef.current) {
