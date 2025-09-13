@@ -1032,7 +1032,7 @@ export default function VideoPlayerPage() {
                       className="px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center gap-3"
                     >
                       <Play className="w-5 h-5" />
-                      Fragmanê Bixwîne
+                      Fragman Temaşe Bike
                     </button>
                   )}
                   
