@@ -115,6 +115,7 @@ export function Navigation() {
     }
   }
 
+
   // Têketinê birêve bibe
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -174,28 +175,8 @@ export function Navigation() {
   const handleLogout = async () => {
     try {
       setIsUserMenuOpen(false)
-      
-      // localStorage'ı temizle
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('filmxane_token')
-        localStorage.removeItem('filmxane_refresh_token')
-        localStorage.removeItem('filmxane_user_firstName')
-        localStorage.removeItem('filmxane_user_lastName')
-        localStorage.removeItem('filmxane_user_email')
-        localStorage.removeItem('filmxane_user_joinDate')
-      }
-      
-      // API logout çağrısı (opsiyonel)
-      try {
-        await apiClient.logout()
-      } catch (error) {
-        console.error('Logout API error:', error)
-      }
-      
-      // Sayfayı yenile - bu en güvenilir yöntem
-      if (typeof window !== 'undefined') {
-        window.location.reload()
-      }
+      await logout()
+      // AuthContext'teki logout fonksiyonu zaten sayfayı yeniliyor
     } catch (error) {
       console.error('Logout error:', error)
     }
