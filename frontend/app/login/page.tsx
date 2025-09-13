@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { apiClient } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -30,55 +31,20 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const response = await apiClient.login(email, password)
+      const response = await login(email, password)
       
-      // DEBUG: Bersivek tevahî log bike
-      console.log('🔍 DEBUG: Bersiva têketinê:', response)
-      console.log('🔍 DEBUG: response.success:', response.success)
-      console.log('🔍 DEBUG: response.data:', response.data)
-      console.log('🔍 DEBUG: response.data?.token:', response.data?.token)
-      console.log('🔍 DEBUG: response.data?.user:', response.data?.user)
-      
-      if (response.success && response.data && response.data.token) {
-        // Token heye, berdewam bike
-        console.log('✅ Token hat dîtin:', response.data.token)
-
-        // Agahiyên bikarhêner kontrol bike
-        if (!response.data.user || !response.data.user.id) {
-          setError('Têketin nehatibe serkeftin - agahiyên bikarhêner nehatibe wergirtin')
-          return
-        }
-
-        localStorage.setItem('filmxane_token', response.data.token)
+      if (response.success) {
+        // AuthContext zaten state'i güncelledi, sadece yönlendirme yap
+        console.log('✅ Login successful, redirecting...')
         
-        // Agahiyên bikarhêner di localStorage'ê de tomar bike
-        if (response.data.user.firstName) {
-          localStorage.setItem('filmxane_user_firstName', response.data.user.firstName)
-        }
-        if (response.data.user.lastName) {
-          localStorage.setItem('filmxane_user_lastName', response.data.user.lastName)
-        }
-        if (response.data.user.email) {
-          localStorage.setItem('filmxane_user_email', response.data.user.email)
-        }
-        if (response.data.user.role) {
-          localStorage.setItem('filmxane_user_role', response.data.user.role)
-        }
-        
-        // Dîroka endamtiyê kontrol bike, heke tune be îro wekî saz bike
-        if (!localStorage.getItem('filmxane_user_joinDate')) {
-          localStorage.setItem('filmxane_user_joinDate', new Date().toISOString())
-        }
-        
-        // Kontrola role
-        if (response.data.user?.role === 'admin') {
+        // Kullanıcı rolüne göre yönlendir
+        const userRole = localStorage.getItem('filmxane_user_role')
+        if (userRole === 'admin') {
           router.push('/admin')
         } else {
           router.push('/')
         }
       } else {
-        // Rewşa çewtiyê - ji response.error mesajê bigire
-        console.log('❌ Têketin nehatibe serkeftin:', response.error)
         setError(response.error || 'Giriş başarısız - ji kerema xwe dîsa biceribîne')
       }
     } catch (error: any) {

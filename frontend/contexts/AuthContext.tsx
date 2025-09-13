@@ -94,6 +94,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           localStorage.setItem('filmxane_user_lastName', userData.lastName || userData.name?.split(' ')[1] || '')
           localStorage.setItem('filmxane_user_email', userData.email)
           localStorage.setItem('filmxane_user_joinDate', userData.createdAt || new Date().toISOString())
+          if (userData.role) {
+            localStorage.setItem('filmxane_user_role', userData.role)
+          }
           console.log('✅ Kullanıcı verileri localStorage\'a kaydedildi')
         }
         
