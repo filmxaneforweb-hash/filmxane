@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 // import { motion, AnimatePresence } from 'framer-motion' // SSR sorunu nedeniyle kaldırıldı
-import { Play, Pause, Volume2, VolumeX, Maximize, Heart, Share2, Download, Clock, Star, Eye, X, Info, Calendar, Users, Award, Globe, Film, Tv, ExternalLink, Subtitles } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, Maximize, Heart, Share2, Clock, Star, Eye, X, Info, Calendar, Users, Award, Globe, Film, Tv, ExternalLink, Subtitles } from 'lucide-react'
 import ReactPlayer from 'react-player'
 import { apiClient } from '@/lib/api'
 import { Movie, Series, Subtitle } from '@/lib/api'
@@ -725,10 +725,6 @@ export default function VideoPlayerPage() {
                         }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-gray-400 mt-1">
-                      <span>{formatDuration(watchProgress.watchDuration * 60)}</span>
-                      <span>{formatDuration(duration)}</span>
-                    </div>
                   </div>
                 )}
               </div>
@@ -762,10 +758,6 @@ export default function VideoPlayerPage() {
                 <div className="absolute bottom-4 left-0 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                   Ji bo çûna wê cihê bikirtîne
                 </div>
-              </div>
-              <div className="flex justify-between text-white text-sm">
-                <span>{formatDuration(currentTime)}</span>
-                <span>{formatDuration(duration)}</span>
               </div>
             </div>
             
