@@ -163,12 +163,9 @@ export default function MoviesPage() {
         <div className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
             <span className="bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
-              Fîlmên
+              Fîlmeni Lêbigere
             </span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Fîlmên herî baş û nû yên cîhanê bibînin û bixwînin
-          </p>
         </div>
 
         {/* Search and Filters */}
@@ -275,7 +272,6 @@ export default function MoviesPage() {
                   thumbnailUrl={movie.thumbnailUrl}
                   posterUrl={movie.posterUrl}
                   duration={movie.duration}
-                  rating={movie.rating}
                 />
               </div>
             ))}
