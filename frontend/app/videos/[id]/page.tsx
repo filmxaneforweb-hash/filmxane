@@ -581,7 +581,7 @@ export default function VideoPlayerPage() {
     <div className="min-h-screen bg-black">
       {/* Video Player Section - Netflix Style */}
       <section className="relative h-[80vh] bg-black overflow-hidden">
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full" onContextMenu={(e) => e.preventDefault()}>
           {/* React Player */}
           <ReactPlayer
             ref={playerRef}
@@ -597,8 +597,14 @@ export default function VideoPlayerPage() {
             onProgress={handleProgress}
             onDuration={handleDuration}
             onEnded={handleEnded}
+            onReady={handleReady}
+            onSeek={handleSeek}
+            onBuffer={handleBuffer}
+            onBufferEnd={handleBufferEnd}
+            onError={handleError}
             controls={false}
             contextMenu={false}
+            onContextMenu={(e) => e.preventDefault()}
             style={{ objectFit: 'cover' }}
             config={{
               file: {
@@ -1310,6 +1316,7 @@ export default function VideoPlayerPage() {
                       playing={true}
                       muted={false}
                       contextMenu={false}
+                      onContextMenu={(e) => e.preventDefault()}
                       style={{ objectFit: 'cover' }}
                       fallback={
                         <div className="w-full h-full bg-gradient-to-br from-slate-900 to-black flex items-center justify-center">
