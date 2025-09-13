@@ -47,7 +47,6 @@ export default function MoviesPage() {
         
         if (moviesData && moviesData.length > 0) {
           setMovies(moviesData)
-          setTotalResults(moviesData.length)
           setTotalPages(1)
           
           // Extract genres and years for filters
@@ -80,8 +79,36 @@ export default function MoviesPage() {
   const genres = ['all', ...allGenres]
   const years = ['all', ...allYears]
 
-  // Movies are already filtered by backend
-  const filteredMovies = movies
+  // Filter movies based on search query and filters
+  const filteredMovies = movies.filter(movie => {
+    // Search filter
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase()
+      const titleMatch = movie.title?.toLowerCase().includes(searchLower)
+      const descriptionMatch = movie.description?.toLowerCase().includes(searchLower)
+      if (!titleMatch && !descriptionMatch) return false
+    }
+
+    // Genre filter
+    if (selectedGenre !== 'all') {
+      const movieGenres = typeof movie.genre === 'string' ? JSON.parse(movie.genre) : movie.genre || []
+      if (!movieGenres.includes(selectedGenre)) return false
+    }
+
+    // Year filter
+    if (selectedYear !== 'all') {
+      if (movie.year !== parseInt(selectedYear)) return false
+    }
+
+    // Rating filter (since we removed rating system, skip this)
+    // if (selectedRating !== 'all') {
+    //   const rating = movie.rating || 0
+    //   const [min, max] = selectedRating.split('-').map(Number)
+    //   if (rating < min || rating >= max) return false
+    // }
+
+    return true
+  })
 
   // Debounce input changes
   useEffect(() => {
@@ -251,11 +278,10 @@ export default function MoviesPage() {
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-gray-400">
-            {totalResults} fîlm hat dîtin
+            {filteredMovies.length} fîlm hat dîtin
             {searchQuery && ` ji bo "${searchQuery}"`}
             {selectedGenre !== 'all' && ` di cureya "${selectedGenre}" de`}
             {selectedYear !== 'all' && ` di sala "${selectedYear}" de`}
-                         {selectedRating !== 'all' && ` rating ${selectedRating}`}
           </p>
         </div>
 

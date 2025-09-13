@@ -21,7 +21,6 @@ export default function SeriesPage() {
   const [allYears, setAllYears] = useState<number[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [totalResults, setTotalResults] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
 
   // Fetch series from API with filters
@@ -42,7 +41,6 @@ export default function SeriesPage() {
         
         if (seriesData && seriesData.length > 0) {
           setSeries(seriesData)
-          setTotalResults(seriesData.length)
           setTotalPages(1)
           
           // Extract genres and years for filters
@@ -76,7 +74,29 @@ export default function SeriesPage() {
   const years = ['all', ...allYears]
 
   // Series are already filtered by backend
-  const filteredSeries = series
+  // Filter series based on search query and filters
+  const filteredSeries = series.filter(show => {
+    // Search filter
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase()
+      const titleMatch = show.title?.toLowerCase().includes(searchLower)
+      const descriptionMatch = show.description?.toLowerCase().includes(searchLower)
+      if (!titleMatch && !descriptionMatch) return false
+    }
+
+    // Genre filter
+    if (selectedGenre !== 'all') {
+      const showGenres = typeof show.genre === 'string' ? JSON.parse(show.genre) : show.genre || []
+      if (!showGenres.includes(selectedGenre)) return false
+    }
+
+    // Year filter
+    if (selectedYear !== 'all') {
+      if (show.year !== parseInt(selectedYear)) return false
+    }
+
+    return true
+  })
 
   // Debounce input changes
   useEffect(() => {
@@ -249,7 +269,7 @@ export default function SeriesPage() {
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-gray-400">
-            {totalResults} rêzefîlm hat dîtin
+            {filteredSeries.length} rêzefîlm hat dîtin
             {searchQuery && ` ji bo "${searchQuery}"`}
             {selectedGenre !== 'all' && ` di cureya "${selectedGenre}" de`}
             {selectedYear !== 'all' && ` di sala "${selectedYear}" de`}
