@@ -660,7 +660,7 @@ export default function VideoPlayerPage() {
     <div className="min-h-screen bg-black">
       {/* Video Player Section - Netflix Style */}
       <section className="relative h-[80vh] bg-black overflow-hidden">
-        <div className="relative w-full h-full" onContextMenu={(e) => e.preventDefault()}>
+        <div className="relative w-full h-full video-player-container" onContextMenu={(e) => e.preventDefault()}>
           {/* React Player */}
           <ReactPlayer
             ref={playerRef}
@@ -681,7 +681,7 @@ export default function VideoPlayerPage() {
             onBuffer={handleBuffer}
             onBufferEnd={handleBufferEnd}
             onError={handleError}
-            controls={false}
+            controls={true}
             contextMenu={false}
             onContextMenu={(e) => e.preventDefault()}
             style={{ objectFit: 'cover' }}
@@ -689,7 +689,9 @@ export default function VideoPlayerPage() {
               file: {
                 ...(subtitleTracks.length > 0 && { tracks: subtitleTracks }),
                 attributes: {
-                  crossOrigin: 'anonymous'
+                  crossOrigin: 'anonymous',
+                  controlsList: 'nodownload',
+                  preload: 'metadata'
                 }
               }
             }}
@@ -1386,7 +1388,7 @@ export default function VideoPlayerPage() {
                 
                 {/* Fragman Video Player */}
                 {video.trailerUrl ? (
-                  <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden">
+                  <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden video-player-container">
                     <ReactPlayer
                       url={video.trailerUrl.startsWith('http') ? video.trailerUrl : `https://filmxane-backend.onrender.com${video.trailerUrl}`}
                       width="100%"
@@ -1397,6 +1399,13 @@ export default function VideoPlayerPage() {
                       contextMenu={false}
                       onContextMenu={(e) => e.preventDefault()}
                       style={{ objectFit: 'cover' }}
+                      config={{
+                        file: {
+                          attributes: {
+                            controlsList: 'nodownload'
+                          }
+                        }
+                      }}
                       fallback={
                         <div className="w-full h-full bg-gradient-to-br from-slate-900 to-black flex items-center justify-center">
                           <div className="text-center">
