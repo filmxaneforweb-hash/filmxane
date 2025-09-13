@@ -460,41 +460,85 @@ export default function VideoPlayerPage() {
 
   // Favori ekleme/çıkarma işlevi
   const toggleFavorite = async () => {
-    if (!video) return
+    if (!video) {
+      console.log('❌ Video bulunamadı')
+      return
+    }
+    
+    if (!isAuthenticated) {
+      console.log('❌ Kullanıcı giriş yapmamış')
+      alert('Favori eklemek için giriş yapmalısınız')
+      return
+    }
+    
+    const token = localStorage.getItem('filmxane_token')
+    if (!token) {
+      console.log('❌ Token bulunamadı')
+      alert('Oturum süreniz dolmuş, lütfen tekrar giriş yapın')
+      return
+    }
+    
+    console.log('🔍 Favori toggle başlatılıyor:', {
+      videoId: video.id,
+      isFavorite,
+      isMovie,
+      type: isMovie ? 'movie' : 'series',
+      token: token.substring(0, 20) + '...'
+    })
     
     try {
       setIsLoadingFavorite(true)
+      
+      const requestBody = {
+        videoId: video.id,
+        type: isMovie ? 'movie' : 'series'
+      }
+      
+      console.log('📤 API isteği gönderiliyor:', {
+        url: 'https://filmxane-backend.onrender.com/api/favorites',
+        method: isFavorite ? 'DELETE' : 'POST',
+        body: requestBody
+      })
+      
       const response = await fetch(`https://filmxane-backend.onrender.com/api/favorites`, {
         method: isFavorite ? 'DELETE' : 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('filmxane_token')}`
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          videoId: video.id,
-          type: isMovie ? 'movie' : 'series'
-        })
+        body: JSON.stringify(requestBody)
+      })
+      
+      console.log('📥 API yanıtı:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
       })
       
       if (response.ok) {
+        const responseData = await response.json()
+        console.log('✅ API yanıt verisi:', responseData)
+        
         setIsFavorite(!isFavorite)
         console.log(`✅ ${isFavorite ? 'Ji dilxwaziyan hatibe derxistin' : 'Bixe dilxwaziyan'}`)
         
         // Kullanıcıya görsel geri bildirim ver
         if (isFavorite) {
-          // Favorilerden çıkarıldı
           console.log('❤️ Favorilerden çıkarıldı')
         } else {
-          // Favorilere eklendi
           console.log('❤️ Favorilere eklendi')
         }
       } else {
         const errorData = await response.json().catch(() => ({}))
-        console.error('❌ Çalakiya dilxwaziyê nehatibe serkeftin:', response.status, errorData)
-        alert('Favori işlemi başarısız oldu. Lütfen tekrar deneyin.')
+        console.error('❌ API hatası:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        })
+        alert(`Favori işlemi başarısız oldu: ${response.status} - ${errorData.error || response.statusText}`)
       }
     } catch (error) {
-      console.error('❌ Çewtiya çalakiya dilxwaziyê:', error)
+      console.error('❌ Network hatası:', error)
       alert('Favori işlemi sırasında hata oluştu. Lütfen tekrar deneyin.')
     } finally {
       setIsLoadingFavorite(false)
