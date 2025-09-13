@@ -736,7 +736,7 @@ export default function VideoPlayerPage() {
             onBuffer={handleBuffer}
             onBufferEnd={handleBufferEnd}
             onError={handleError}
-            controls={true}
+            controls={false}
             contextMenu={false}
             onContextMenu={(e) => e.preventDefault()}
             style={{ objectFit: 'cover' }}
@@ -916,12 +916,35 @@ export default function VideoPlayerPage() {
                   {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
                 </button>
                 
-                <button
-                  onClick={toggleMute}
-                  className="text-white hover:text-red-500 transition-colors p-2"
-                >
-                  {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={toggleMute}
+                    className="text-white hover:text-red-500 transition-colors p-2 hover:bg-white/10 rounded-lg"
+                    title={isMuted ? "Sesi Aç" : "Sesi Kapat"}
+                  >
+                    {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                  </button>
+                  
+                  {/* Volume Slider */}
+                  <div className="w-20">
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={isMuted ? 0 : volume}
+                      onChange={(e) => {
+                        const newVolume = parseFloat(e.target.value)
+                        setVolume(newVolume)
+                        setIsMuted(newVolume === 0)
+                      }}
+                      className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #ef4444 0%, #ef4444 ${(isMuted ? 0 : volume) * 100}%, #4b5563 ${(isMuted ? 0 : volume) * 100}%, #4b5563 100%)`
+                      }}
+                    />
+                  </div>
+                </div>
                 
               </div>
               
