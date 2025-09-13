@@ -230,7 +230,7 @@ export default function SeriesPage() {
               className="px-6 py-3 bg-gray-700 text-white rounded-xl hover:bg-gray-600 transition-colors flex items-center gap-2"
             >
               <Filter className="w-4 h-4" />
-              Filtreleri Sıfırla
+              Filtreyan Paqij Bike
             </button>
           </div>
         </div>
