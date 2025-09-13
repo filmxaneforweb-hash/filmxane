@@ -25,6 +25,7 @@ export default function VideoPlayerPage() {
   const [error, setError] = useState('')
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
+  const [volume, setVolume] = useState(1.0)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [relatedVideos, setRelatedVideos] = useState<(Movie | Series)[]>([])
@@ -209,6 +210,15 @@ export default function VideoPlayerPage() {
     }
   }, [video, isPlaying, watchProgress]);
 
+  // Video yüklendiğinde ses ayarlarını başlat
+  useEffect(() => {
+    if (video) {
+      // Video yüklendiğinde sesin açık olduğundan emin ol
+      setIsMuted(false);
+      setVolume(1.0);
+    }
+  }, [video]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -389,6 +399,11 @@ export default function VideoPlayerPage() {
   const handlePlay = () => {
     setIsPlaying(true)
     setShowStartOptions(false) // Start options'ı gizle
+    // Video başladığında sesin açık olduğundan emin ol
+    if (isMuted) {
+      setIsMuted(false)
+      setVolume(1.0)
+    }
   }
 
   // Video duraklatıldığında
@@ -445,7 +460,17 @@ export default function VideoPlayerPage() {
   const handleError = (error: any) => {
     console.error('Video player error:', error)
   }
-  const toggleMute = () => setIsMuted(!isMuted)
+  const toggleMute = () => {
+    if (isMuted) {
+      // Ses açılıyorsa volume'u 1.0 yap
+      setVolume(1.0)
+      setIsMuted(false)
+    } else {
+      // Ses kapatılıyorsa volume'u 0 yap
+      setVolume(0)
+      setIsMuted(true)
+    }
+  }
   const toggleFullscreen = () => {
     if (playerRef.current) {
       const playerElement = playerRef.current.getInternalPlayer()
@@ -675,6 +700,7 @@ export default function VideoPlayerPage() {
               undefined) : undefined}
             playing={isPlaying}
             muted={isMuted}
+            volume={volume}
             width="100%"
             height="100%"
             onPlay={handlePlay}
@@ -868,12 +894,19 @@ export default function VideoPlayerPage() {
                   {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
                 </button>
                 
-                <button
-                  onClick={toggleMute}
-                  className="text-white hover:text-red-500 transition-colors p-2"
-                >
-                  {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={toggleMute}
+                    className="text-white hover:text-red-500 transition-colors p-2"
+                  >
+                    {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                  </button>
+                  {!isMuted && (
+                    <div className="text-white text-sm font-medium">
+                      {Math.round(volume * 100)}%
+                    </div>
+                  )}
+                </div>
                 
               </div>
               
