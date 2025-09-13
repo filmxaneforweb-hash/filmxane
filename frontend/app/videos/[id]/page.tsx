@@ -445,6 +445,13 @@ export default function VideoPlayerPage() {
     console.log('Seek completed to:', seconds)
   }
 
+  const handleVolumeChange = (volume: number) => {
+    // ReactPlayer'ın built-in volume kontrolü değiştiğinde
+    setVolume(volume)
+    setIsMuted(volume === 0)
+    console.log('Volume changed to:', volume, 'Muted:', volume === 0)
+  }
+
   const handleReady = () => {
     console.log('Video player ready')
   }
@@ -465,10 +472,20 @@ export default function VideoPlayerPage() {
       // Ses açılıyorsa volume'u 1.0 yap
       setVolume(1.0)
       setIsMuted(false)
+      // ReactPlayer'ın volume'unu da güncelle
+      if (playerRef.current) {
+        playerRef.current.getInternalPlayer().volume = 1.0
+        playerRef.current.getInternalPlayer().muted = false
+      }
     } else {
       // Ses kapatılıyorsa volume'u 0 yap
       setVolume(0)
       setIsMuted(true)
+      // ReactPlayer'ın volume'unu da güncelle
+      if (playerRef.current) {
+        playerRef.current.getInternalPlayer().volume = 0
+        playerRef.current.getInternalPlayer().muted = true
+      }
     }
   }
   const toggleFullscreen = () => {
@@ -711,6 +728,7 @@ export default function VideoPlayerPage() {
             onReady={handleReady}
             onSeek={handleSeek}
             onSeeked={handleSeeked}
+            onVolumeChange={handleVolumeChange}
             onBuffer={handleBuffer}
             onBufferEnd={handleBufferEnd}
             onError={handleError}
@@ -894,19 +912,12 @@ export default function VideoPlayerPage() {
                   {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
                 </button>
                 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={toggleMute}
-                    className="text-white hover:text-red-500 transition-colors p-2"
-                  >
-                    {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
-                  </button>
-                  {!isMuted && (
-                    <div className="text-white text-sm font-medium">
-                      {Math.round(volume * 100)}%
-                    </div>
-                  )}
-                </div>
+                <button
+                  onClick={toggleMute}
+                  className="text-white hover:text-red-500 transition-colors p-2"
+                >
+                  {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                </button>
                 
               </div>
               
