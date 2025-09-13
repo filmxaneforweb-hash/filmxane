@@ -315,15 +315,13 @@ export default function VideoPlayerPage() {
     
     if (playerRef.current) {
       playerRef.current.seekTo(newTime);
-      setCurrentTime(newTime);
-      // Film durmasın, mevcut playing state'ini koru
-      // setIsPlaying(false); // Bu satırı kaldırdık
     }
     
-    // Seeking state'ini kısa süre sonra sıfırla
+    // Seeking state'ini biraz daha uzun süre sonra sıfırla
+    // Bu, progress bar'ın smooth bir şekilde güncellenmesini sağlar
     setTimeout(() => {
       setIsSeeking(false);
-    }, 100);
+    }, 300);
   }
 
   // View count'ı backend'e gönder - sadece bir kez
@@ -403,15 +401,18 @@ export default function VideoPlayerPage() {
   }
 
   const handleProgress = (state: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) => {
+    // Seek işlemi sırasında progress tracking'i durdur
+    if (isSeeking) return;
+    
     // Süreyi yuvarla ve negatif değerleri engelle
     const safeTime = Math.max(0, Math.round(state.playedSeconds * 100) / 100)
     setCurrentTime(safeTime)
     
-          // Her 30 saniyede bir dîroka temaşekirinê tomarke (zêde zêde tomarkirinê nehêle)
-      if (Math.round(safeTime) % 30 === 0 && safeTime > 0) {
-        console.log('📺 Dîroka temaşekirinê tê tomarkirin:', safeTime, 'saniye')
-        saveWatchHistory(safeTime, false)
-      }
+    // Her 30 saniyede bir dîroka temaşekirinê tomarke (zêde zêde tomarkirinê nehêle)
+    if (Math.round(safeTime) % 30 === 0 && safeTime > 0) {
+      console.log('📺 Dîroka temaşekirinê tê tomarkirin:', safeTime, 'saniye')
+      saveWatchHistory(safeTime, false)
+    }
   }
   const handleDuration = (duration: number) => {
     // Toplam süreyi yuvarla ve negatif değerleri engelle
