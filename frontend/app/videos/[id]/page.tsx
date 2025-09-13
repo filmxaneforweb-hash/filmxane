@@ -789,9 +789,6 @@ export default function VideoPlayerPage() {
                   {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
                 </button>
                 
-                <div className="text-white text-lg font-medium">
-                  {formatDuration(currentTime)} / {formatDuration(duration)}
-                </div>
               </div>
               
               <div className="flex items-center gap-4">
