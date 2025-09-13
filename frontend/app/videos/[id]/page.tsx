@@ -465,13 +465,13 @@ export default function VideoPlayerPage() {
     try {
       setIsLoadingFavorite(true)
       const response = await fetch(`https://filmxane-backend.onrender.com/api/favorites`, {
-        method: isMovie ? 'DELETE' : 'POST',
+        method: isFavorite ? 'DELETE' : 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('filmxane_token')}`
         },
         body: JSON.stringify({
           videoId: video.id,
-          userId: user?.id || 'anonymous',
           type: isMovie ? 'movie' : 'series'
         })
       })
@@ -479,11 +479,23 @@ export default function VideoPlayerPage() {
       if (response.ok) {
         setIsFavorite(!isFavorite)
         console.log(`✅ ${isFavorite ? 'Ji dilxwaziyan hatibe derxistin' : 'Bixe dilxwaziyan'}`)
+        
+        // Kullanıcıya görsel geri bildirim ver
+        if (isFavorite) {
+          // Favorilerden çıkarıldı
+          console.log('❤️ Favorilerden çıkarıldı')
+        } else {
+          // Favorilere eklendi
+          console.log('❤️ Favorilere eklendi')
+        }
       } else {
-        console.error('❌ Çalakiya dilxwaziyê nehatibe serkeftin')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('❌ Çalakiya dilxwaziyê nehatibe serkeftin:', response.status, errorData)
+        alert('Favori işlemi başarısız oldu. Lütfen tekrar deneyin.')
       }
     } catch (error) {
       console.error('❌ Çewtiya çalakiya dilxwaziyê:', error)
+      alert('Favori işlemi sırasında hata oluştu. Lütfen tekrar deneyin.')
     } finally {
       setIsLoadingFavorite(false)
     }
@@ -532,32 +544,39 @@ export default function VideoPlayerPage() {
 
   // Video yüklendiğinde favori durumunu kontrol et
   useEffect(() => {
-    if (video) {
+    if (video && isAuthenticated) {
       checkFavoriteStatus()
+    } else if (!isAuthenticated) {
+      setIsFavorite(false)
     }
-  }, [video])
+  }, [video, isAuthenticated])
 
   const checkFavoriteStatus = async () => {
-    if (!video) return
+    if (!video || !isAuthenticated) return
     
     try {
       const response = await fetch(`https://filmxane-backend.onrender.com/api/favorites/check`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('filmxane_token')}`
         },
         body: JSON.stringify({
-          videoId: video.id,
-          userId: user?.id || 'anonymous'
+          videoId: video.id
         })
       })
       
       if (response.ok) {
         const { isFavorite: favoriteStatus } = await response.json()
         setIsFavorite(favoriteStatus)
+        console.log('✅ Favori durumu kontrol edildi:', favoriteStatus)
+      } else {
+        console.log('ℹ️ Favori durumu kontrol edilemedi, varsayılan olarak false')
+        setIsFavorite(false)
       }
     } catch (error) {
       console.error('❌ Favori durumu kontrol edilemedi:', error)
+      setIsFavorite(false)
     }
   }
 
