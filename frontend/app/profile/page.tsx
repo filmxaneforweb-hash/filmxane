@@ -28,37 +28,70 @@ export default function ProfilePage() {
       const token = localStorage.getItem('filmxane_token')
       if (!token) {
         console.log('❌ Token bulunamadı')
+        alert('Oturum süreniz dolmuş, lütfen tekrar giriş yapın')
         return
       }
 
       console.log('🔍 Profil istatistikleri çekiliyor...')
+      console.log('🔑 Token:', token.substring(0, 20) + '...')
 
       // Favorites sayısını çek
       try {
+        console.log('📤 Favoriler API çağrısı yapılıyor...')
         const favoritesResponse = await fetch('https://filmxane-backend.onrender.com/api/favorites/my-favorites', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          method: 'GET',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        
+        console.log('📥 Favoriler API yanıtı:', {
+          status: favoritesResponse.status,
+          statusText: favoritesResponse.statusText,
+          ok: favoritesResponse.ok
         })
         
         if (favoritesResponse.ok) {
           const favoritesData = await favoritesResponse.json()
+          console.log('📊 Favoriler verisi:', favoritesData)
+          
           const favoritesCount = Array.isArray(favoritesData.data) ? favoritesData.data.length : 0
           setStats(prev => ({ ...prev, favoritesCount }))
           console.log('✅ Favoriler yüklendi:', favoritesCount)
         } else {
-          console.log('⚠️ Favoriler yüklenemedi:', favoritesResponse.status)
+          const errorData = await favoritesResponse.json().catch(() => ({}))
+          console.error('❌ Favoriler API hatası:', {
+            status: favoritesResponse.status,
+            statusText: favoritesResponse.statusText,
+            error: errorData
+          })
         }
       } catch (error) {
-        console.error('❌ Favoriler hatası:', error)
+        console.error('❌ Favoriler network hatası:', error)
       }
 
       // Watch time verilerini çek
       try {
+        console.log('📤 Watch time API çağrısı yapılıyor...')
         const watchTimeResponse = await fetch('https://filmxane-backend.onrender.com/api/videos/watch-time', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          method: 'GET',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        
+        console.log('📥 Watch time API yanıtı:', {
+          status: watchTimeResponse.status,
+          statusText: watchTimeResponse.statusText,
+          ok: watchTimeResponse.ok
         })
         
         if (watchTimeResponse.ok) {
           const watchTimeData = await watchTimeResponse.json()
+          console.log('📊 Watch time verisi:', watchTimeData)
+          
           setStats(prev => ({
             ...prev,
             totalWatchTime: watchTimeData.totalMinutes || 0,
@@ -67,10 +100,15 @@ export default function ProfilePage() {
           }))
           console.log('✅ Watch time verileri yüklendi:', watchTimeData)
         } else {
-          console.log('⚠️ Watch time verileri yüklenemedi:', watchTimeResponse.status)
+          const errorData = await watchTimeResponse.json().catch(() => ({}))
+          console.error('❌ Watch time API hatası:', {
+            status: watchTimeResponse.status,
+            statusText: watchTimeResponse.statusText,
+            error: errorData
+          })
         }
       } catch (error) {
-        console.error('❌ Watch time hatası:', error)
+        console.error('❌ Watch time network hatası:', error)
       }
       
       setStatsLoaded(true)
