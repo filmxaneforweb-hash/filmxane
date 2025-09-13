@@ -269,14 +269,6 @@ export default function VideoPlayerPage() {
     // Float değerleri yuvarla ve negatif değerleri kontrol et
     const safeSeconds = Math.max(0, Math.round(seconds))
     
-    console.log('🔍 formatDuration debug:', {
-      input: seconds,
-      safeSeconds,
-      hours: Math.floor(safeSeconds / 3600),
-      minutes: Math.floor((safeSeconds % 3600) / 60),
-      secs: safeSeconds % 60
-    })
-    
     const hours = Math.floor(safeSeconds / 3600)
     const minutes = Math.floor((safeSeconds % 3600) / 60)
     const secs = safeSeconds % 60
@@ -448,9 +440,14 @@ export default function VideoPlayerPage() {
   const handleVolumeChange = (volume: number) => {
     // ReactPlayer'ın built-in volume kontrolü değiştiğinde
     try {
-      setVolume(volume)
-      setIsMuted(volume === 0)
-      console.log('Volume changed to:', volume, 'Muted:', volume === 0)
+      // Volume değerini kontrol et - geçerli bir sayı olmalı
+      if (typeof volume === 'number' && !isNaN(volume) && isFinite(volume)) {
+        setVolume(volume)
+        setIsMuted(volume === 0)
+        console.log('Volume changed to:', volume, 'Muted:', volume === 0)
+      } else {
+        console.log('Invalid volume value received:', volume)
+      }
     } catch (error) {
       console.log('Volume change error:', error)
     }
@@ -723,7 +720,7 @@ export default function VideoPlayerPage() {
               undefined) : undefined}
             playing={isPlaying}
             muted={isMuted}
-            volume={volume}
+            volume={typeof volume === 'number' && !isNaN(volume) && isFinite(volume) ? volume : 1.0}
             width="100%"
             height="100%"
             onPlay={handlePlay}
