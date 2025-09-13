@@ -447,9 +447,23 @@ export default function VideoPlayerPage() {
 
   const handleVolumeChange = (volume: number) => {
     // ReactPlayer'ın built-in volume kontrolü değiştiğinde
-    setVolume(volume)
-    setIsMuted(volume === 0)
-    console.log('Volume changed to:', volume, 'Muted:', volume === 0)
+    try {
+      setVolume(volume)
+      setIsMuted(volume === 0)
+      console.log('Volume changed to:', volume, 'Muted:', volume === 0)
+    } catch (error) {
+      console.log('Volume change error:', error)
+    }
+  }
+
+  const handleMuted = (muted: boolean) => {
+    // ReactPlayer'ın built-in mute kontrolü değiştiğinde
+    try {
+      setIsMuted(muted)
+      console.log('Muted changed to:', muted)
+    } catch (error) {
+      console.log('Muted change error:', error)
+    }
   }
 
   const handleReady = () => {
@@ -472,20 +486,12 @@ export default function VideoPlayerPage() {
       // Ses açılıyorsa volume'u 1.0 yap
       setVolume(1.0)
       setIsMuted(false)
-      // ReactPlayer'ın volume'unu da güncelle
-      if (playerRef.current) {
-        playerRef.current.getInternalPlayer().volume = 1.0
-        playerRef.current.getInternalPlayer().muted = false
-      }
+      console.log('Custom mute button: Unmuted')
     } else {
       // Ses kapatılıyorsa volume'u 0 yap
       setVolume(0)
       setIsMuted(true)
-      // ReactPlayer'ın volume'unu da güncelle
-      if (playerRef.current) {
-        playerRef.current.getInternalPlayer().volume = 0
-        playerRef.current.getInternalPlayer().muted = true
-      }
+      console.log('Custom mute button: Muted')
     }
   }
   const toggleFullscreen = () => {
@@ -729,6 +735,7 @@ export default function VideoPlayerPage() {
             onSeek={handleSeek}
             onSeeked={handleSeeked}
             onVolumeChange={handleVolumeChange}
+            onMuted={handleMuted}
             onBuffer={handleBuffer}
             onBufferEnd={handleBufferEnd}
             onError={handleError}
