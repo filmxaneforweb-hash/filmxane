@@ -598,6 +598,7 @@ export default function VideoPlayerPage() {
             onDuration={handleDuration}
             onEnded={handleEnded}
             controls={false}
+            contextMenu={false}
             style={{ objectFit: 'cover' }}
             config={{
               file: {
@@ -1319,6 +1320,7 @@ export default function VideoPlayerPage() {
                       controls={true}
                       playing={true}
                       muted={false}
+                      contextMenu={false}
                       style={{ objectFit: 'cover' }}
                       fallback={
                         <div className="w-full h-full bg-gradient-to-br from-slate-900 to-black flex items-center justify-center">
