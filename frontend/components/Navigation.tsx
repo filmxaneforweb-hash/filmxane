@@ -176,7 +176,13 @@ export function Navigation() {
     try {
       setIsUserMenuOpen(false)
       await logout()
-      // AuthContext'teki logout fonksiyonu zaten sayfayı yeniliyor
+      
+      // Sayfayı yenile - AuthContext'teki reload çalışmıyorsa burada yap
+      if (typeof window !== 'undefined') {
+        setTimeout(() => {
+          window.location.reload()
+        }, 100)
+      }
     } catch (error) {
       console.error('Logout error:', error)
     }
