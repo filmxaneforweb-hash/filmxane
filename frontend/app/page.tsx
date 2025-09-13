@@ -132,7 +132,6 @@ export default function HomePage() {
         {movies && movies.filter(m => m.isFeatured)?.length > 0 && (
           <ContentGrid
             title="Fîlmên Taybet"
-            subtitle="Çîroka herî baş"
             items={movies.filter(m => m.isFeatured)}
             showViewAll
             viewAllLink="/movies"
@@ -143,7 +142,6 @@ export default function HomePage() {
         {series && series.filter(s => s.isFeatured)?.length > 0 && (
           <ContentGrid
             title="Rêzefîlmên Taybet"
-            subtitle="Çîroka herî baş"
             items={series.filter(s => s.isFeatured)}
             showViewAll
             viewAllLink="/series"
