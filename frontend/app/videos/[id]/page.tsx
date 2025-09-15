@@ -282,6 +282,20 @@ export default function VideoPlayerPage() {
     }
   }
 
+  // Video duration için ayrı format fonksiyonu (dakika cinsinden)
+  const formatVideoDuration = (minutes: number) => {
+    const safeMinutes = Math.max(0, Math.round(minutes))
+    
+    const hours = Math.floor(safeMinutes / 60)
+    const mins = safeMinutes % 60
+    
+    if (hours > 0) {
+      return `${hours} saet ${mins} deqîqe`
+    } else {
+      return `${mins} deqîqe`
+    }
+  }
+
   const formatViewCount = (count: number) => {
     if (count >= 1000000) {
       return `${(count / 1000000).toFixed(1)}M`
@@ -786,7 +800,7 @@ export default function VideoPlayerPage() {
                       <span className="text-lg">{video.year} sal</span>
                     )}
                     {(video as any).duration && (
-                      <span className="text-lg">{formatDuration((video as any).duration)}</span>
+                      <span className="text-lg">{formatVideoDuration((video as any).duration)}</span>
                     )}
                     <span className="bg-red-600 px-3 py-1 rounded text-sm font-semibold">HD</span>
                   </div>
@@ -1057,7 +1071,7 @@ export default function VideoPlayerPage() {
                     <div className="flex items-center gap-3">
                       <Clock className="w-7 h-7 text-green-400" />
                       <span className="text-xl font-semibold">
-                        {formatDuration((video as any).duration)}
+                        {formatVideoDuration((video as any).duration)}
                       </span>
                     </div>
                   )}
@@ -1294,7 +1308,7 @@ export default function VideoPlayerPage() {
                         {(video as any).duration && (
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Dirêjahî:</span>
-                            <span className="text-white font-medium">{formatDuration((video as any).duration)}</span>
+                            <span className="text-white font-medium">{formatVideoDuration((video as any).duration)}</span>
                           </div>
                         )}
 
