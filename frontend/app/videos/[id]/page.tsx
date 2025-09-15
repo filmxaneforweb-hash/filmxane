@@ -1136,13 +1136,13 @@ export default function VideoPlayerPage() {
                 )}
 
                 {/* Movie/Series Specific Info */}
-                {isMovie && video.director && (
+                {isMovie && (
                   <div className="mb-6">
                     <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
                       <span className="w-1 h-6 bg-purple-500 rounded-full"></span>
                       Derhêner
                     </h3>
-                    <p className="text-gray-300 text-lg">{video.director}</p>
+                    <p className="text-gray-300 text-lg">{video.director || 'Nenas'}</p>
                   </div>
                 )}
 
@@ -1372,13 +1372,13 @@ export default function VideoPlayerPage() {
                   {/* Right Column - Additional Info */}
                   <div className="space-y-6">
                     {/* Cast & Crew */}
-                    {isMovie && video.director && (
+                    {isMovie && (
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
                         <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
                           <Users className="w-6 h-6 text-purple-400" />
                           Derhêner
                         </h3>
-                        <p className="text-gray-300">{video.director}</p>
+                        <p className="text-gray-300">{video.director || 'Nenas'}</p>
                       </div>
                     )}
 

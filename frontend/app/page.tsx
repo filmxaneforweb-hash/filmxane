@@ -362,15 +362,13 @@ export default function HomePage() {
                     )}
 
                     {/* Cast & Crew */}
-                    {featuredMovie.director && (
-                      <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
-                                                 <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
-                                                       👥
-                           Derhêner
-                         </h3>
-                        <p className="text-gray-300 text-lg">{featuredMovie.director}</p>
-                      </div>
-                    )}
+                    <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
+                      <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
+                        👥
+                        Derhêner
+                      </h3>
+                      <p className="text-gray-300 text-lg">{featuredMovie.director || 'Nenas'}</p>
+                    </div>
 
                     {featuredMovie.cast && featuredMovie.cast.length > 0 && (
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/30">
