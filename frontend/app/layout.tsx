@@ -68,16 +68,29 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <link rel="shortcut icon" href="/favicon.ico" />
+        {/* Favicon - Arama motorları için */}
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-96x96.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-96x96.png" />
         <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        
+        {/* Apple Touch Icons */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/web-app-manifest-192x192.png" />
         <link rel="apple-touch-icon" sizes="192x192" href="/web-app-manifest-192x192.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/web-app-manifest-512x512.png" />
+        
+        {/* Web App Manifest */}
         <link rel="manifest" href="/site.webmanifest" />
+        
+        {/* Meta tags for better SEO and favicon support */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
         <meta name="apple-mobile-web-app-title" content="Filmxane" />
         <meta name="theme-color" content="#000000" />
+        <meta name="msapplication-TileColor" content="#000000" />
+        <meta name="msapplication-TileImage" content="/web-app-manifest-192x192.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </head>
       <body className={`${inter.className} bg-black text-white antialiased`}>
