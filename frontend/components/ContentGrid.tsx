@@ -154,14 +154,34 @@ export function ContentGrid({
 
                         {/* Genres */}
                         <div className="mt-3 flex flex-wrap gap-1">
-                          {(typeof item.genre === 'string' ? JSON.parse(item.genre) : item.genre).slice(0, 2).map((genre: string) => (
-                            <span
-                              key={genre}
-                              className="px-2 py-1 bg-slate-700 text-slate-300 text-xs rounded"
-                            >
-                              {genre}
-                            </span>
-                          ))}
+                          {(typeof item.genre === 'string' ? JSON.parse(item.genre) : item.genre).slice(0, 2).map((genre: string) => {
+                            // Genre çevirisi
+                            const genreMap: { [key: string]: string } = {
+                              'Action': 'Aksiyon',
+                              'Drama': 'Drama',
+                              'Thriller': 'Tirsnak',
+                              'Comedy': 'Komedî',
+                              'Romance': 'Evînî',
+                              'Horror': 'Tirs',
+                              'Sci-Fi': 'Zanistî-Fantastîk',
+                              'Fantasy': 'Fantastîk',
+                              'Crime': 'Tawan',
+                              'Mystery': 'Mister',
+                              'Adventure': 'Serpêhatî',
+                              'Animation': 'Anîmasyon',
+                              'Documentary': 'Belgefilm',
+                              'Biography': 'Jiyanname',
+                              'History': 'Dîrok'
+                            }
+                            return (
+                              <span
+                                key={genre}
+                                className="px-2 py-1 bg-slate-700 text-slate-300 text-xs rounded"
+                              >
+                                {genreMap[genre] || genre}
+                              </span>
+                            )
+                          })}
                         </div>
                       </div>
 

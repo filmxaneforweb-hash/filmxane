@@ -75,9 +75,9 @@ export function AdminPanel() {
     subtitleLanguageNames: [] as string[]
   })
   const [availableGenres, setAvailableGenres] = useState<string[]>([
-    'Aksiyon', 'Drama', 'Thriller', 'Komedî', 'Romantîk', 
-    'Horror', 'Sci-Fi', 'Fantastîk', 'Crime', 'Mystery',
-    'Adventure', 'Animation', 'Documentary', 'Biography', 'History'
+    'Aksiyon', 'Drama', 'Tirsnak', 'Komedî', 'Evînî', 
+    'Tirs', 'Zanistî-Fantastîk', 'Fantastîk', 'Tawan', 'Mister',
+    'Serpêhatî', 'Anîmasyon', 'Belgefilm', 'Jiyanname', 'Dîrok'
   ])
   const [availableLanguages] = useState([
     { code: 'tr', name: 'Türkçe' },
