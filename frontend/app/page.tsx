@@ -68,7 +68,7 @@ export default function HomePage() {
               {/* Movie Meta Info */}
               <div className="flex items-center space-x-6 text-gray-300 mb-6 text-lg">
                 {movies[0]?.year && (
-                  <span>{movies[0]?.year} sal</span>
+                  <span>{movies[0]?.year}</span>
                 )}
                 {movies[0]?.duration && (
                   <span>
@@ -288,7 +288,7 @@ export default function HomePage() {
                       {featuredMovie.year && (
                         <div className="flex items-center gap-2">
                           📅
-                          <span>{featuredMovie.year} sal</span>
+                          <span>{featuredMovie.year}</span>
                         </div>
                       )}
                       {featuredMovie.duration && (
@@ -408,7 +408,7 @@ export default function HomePage() {
                          {featuredMovie.year && (
                            <div className="flex items-center justify-between">
                              <span className="text-gray-400">Sal:</span>
-                             <span className="text-white font-medium">{featuredMovie.year} sal</span>
+                             <span className="text-white font-medium">{featuredMovie.year}</span>
                            </div>
                          )}
                          {featuredMovie.duration && (

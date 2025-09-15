@@ -272,7 +272,7 @@ export default function SeriesPage() {
             {filteredSeries.length} rêzefîlm hat dîtin
             {searchQuery && ` ji bo "${searchQuery}"`}
             {selectedGenre !== 'all' && ` di cureya "${selectedGenre}" de`}
-            {selectedYear !== 'all' && ` di sala "${selectedYear}" de`}
+            {selectedYear !== 'all' && ` di "${selectedYear}" de`}
                          {selectedRating !== 'all' && ` rating ${selectedRating}`}
           </p>
         </div>

@@ -281,7 +281,7 @@ export default function MoviesPage() {
             {filteredMovies.length} fîlm hat dîtin
             {searchQuery && ` ji bo "${searchQuery}"`}
             {selectedGenre !== 'all' && ` di cureya "${selectedGenre}" de`}
-            {selectedYear !== 'all' && ` di sala "${selectedYear}" de`}
+            {selectedYear !== 'all' && ` di "${selectedYear}" de`}
           </p>
         </div>
 

@@ -797,7 +797,7 @@ export default function VideoPlayerPage() {
                   
                   <div className="flex items-center gap-6 text-gray-300 mb-6">
                     {video.year && video.year > 1900 && video.year < 2030 && (
-                      <span className="text-lg">{video.year} sal</span>
+                      <span className="text-lg">{video.year}</span>
                     )}
                     {(video as any).duration && (
                       <span className="text-lg">{formatVideoDuration((video as any).duration)}</span>
@@ -1078,7 +1078,7 @@ export default function VideoPlayerPage() {
                   {video.year && (
                     <div className="flex items-center gap-3">
                       <Calendar className="w-7 h-7 text-purple-400" />
-                      <span className="text-xl font-semibold">{video.year} sal</span>
+                      <span className="text-xl font-semibold">{video.year}</span>
                     </div>
                   )}
                 </div>
@@ -1302,7 +1302,7 @@ export default function VideoPlayerPage() {
                         {video.year && (
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Sal:</span>
-                            <span className="text-white font-medium">{video.year} sal</span>
+                            <span className="text-white font-medium">{video.year}</span>
                           </div>
                         )}
                         {(video as any).duration && (

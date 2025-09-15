@@ -274,7 +274,7 @@ export default function SearchPage() {
             {totalResults} encam hat dîtin
             {searchQuery && ` ji bo "${searchQuery}"`}
             {selectedGenre !== 'all' && ` di cureya "${selectedGenre}" de`}
-            {selectedYear !== 'all' && ` di sala "${selectedYear}" de`}
+            {selectedYear !== 'all' && ` di "${selectedYear}" de`}
             {selectedRating !== 'all' && ` rating ${selectedRating}`}
           </p>
         </div>
