@@ -68,11 +68,11 @@ export default function HomePage() {
               {/* Movie Meta Info */}
               <div className="flex items-center space-x-6 text-gray-300 mb-6 text-lg">
                 {movies[0]?.year && (
-                  <span>{movies[0]?.year}</span>
+                  <span>{movies[0]?.year} sal</span>
                 )}
                 {movies[0]?.duration && (
                   <span>
-                    {movies[0]?.duration}m
+                    {movies[0]?.duration} deqîqe
                   </span>
                 )}
                 <span className="bg-gray-800 px-2 py-1 rounded text-sm">HD</span>
@@ -288,13 +288,13 @@ export default function HomePage() {
                       {featuredMovie.year && (
                         <div className="flex items-center gap-2">
                           📅
-                          <span>{featuredMovie.year}</span>
+                          <span>{featuredMovie.year} sal</span>
                         </div>
                       )}
                       {featuredMovie.duration && (
                         <div className="flex items-center gap-2">
                           🕐
-                          <span>{featuredMovie.duration}m</span>
+                          <span>{featuredMovie.duration} deqîqe</span>
                         </div>
                       )}
                       <span className="bg-red-600 px-3 py-1 rounded text-sm font-semibold">HD</span>
@@ -388,13 +388,13 @@ export default function HomePage() {
                          {featuredMovie.year && (
                            <div className="flex items-center justify-between">
                              <span className="text-gray-400">Sal:</span>
-                             <span className="text-white font-medium">{featuredMovie.year}</span>
+                             <span className="text-white font-medium">{featuredMovie.year} sal</span>
                            </div>
                          )}
                          {featuredMovie.duration && (
                            <div className="flex items-center justify-between">
                              <span className="text-gray-400">Dirêjahî:</span>
-                             <span className="text-white font-medium">{featuredMovie.duration}m</span>
+                             <span className="text-white font-medium">{featuredMovie.duration} deqîqe</span>
                            </div>
                          )}
 

@@ -105,7 +105,7 @@ export function VideoCard({
     const mins = safeMinutes % 60
     
     if (hours > 0) {
-      return `${hours}:${mins.toString().padStart(2, '0')}`
+      return `${hours} saet ${mins} deqîqe`
     } else {
       return `${mins} deqîqe`
     }

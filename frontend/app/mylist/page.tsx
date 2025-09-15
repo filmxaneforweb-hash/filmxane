@@ -342,7 +342,7 @@ export default function MyListPage() {
 
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">
-                      {content.year || 'Nenas'}
+                      {content.year ? `${content.year} sal` : 'Nenas'}
                     </span>
                     <span className="text-xs bg-red-600 text-white px-2 py-1 rounded">
                       {content.type === 'movie' ? 'Fîlm' : 'Rêzefîlm'}

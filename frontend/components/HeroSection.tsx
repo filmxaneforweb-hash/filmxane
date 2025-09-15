@@ -76,7 +76,7 @@ export function HeroSection() {
 
             {/* Meta Information */}
             <div className="flex items-center gap-4 mb-6 text-sm text-slate-300">
-              <span>{currentContent.year}</span>
+              <span>{currentContent.year} sal</span>
               <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
                 {isMovie ? `${currentContent.duration} deqîqe` : `${currentContent.seasons.length} sezon`}

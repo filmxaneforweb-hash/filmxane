@@ -326,7 +326,7 @@ export function Navigation() {
                               <div className="flex-1 min-w-0">
                                 <p className="text-white text-sm font-medium truncate">{item.title}</p>
                                 <p className="text-slate-400 text-xs">
-                                  {item.type === 'movie' ? 'Fîlm' : 'Rêzefîlm'} • {item.year || 'Nenas'}
+                                  {item.type === 'movie' ? 'Fîlm' : 'Rêzefîlm'} • {item.year ? `${item.year} sal` : 'Nenas'}
                                 </p>
                               </div>
                             </Link>
