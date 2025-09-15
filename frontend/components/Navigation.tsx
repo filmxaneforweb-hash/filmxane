@@ -174,17 +174,35 @@ export function Navigation() {
   // Derketinê birêve bibe
   const handleLogout = async () => {
     try {
+      console.log('🔍 Logout başlatılıyor...')
       setIsUserMenuOpen(false)
+      
+      // Önce localStorage'ı temizle
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('filmxane_token')
+        localStorage.removeItem('filmxane_refresh_token')
+        localStorage.removeItem('filmxane_user_firstName')
+        localStorage.removeItem('filmxane_user_lastName')
+        localStorage.removeItem('filmxane_user_email')
+        localStorage.removeItem('filmxane_user_joinDate')
+        localStorage.removeItem('filmxane_user_role')
+        console.log('✅ LocalStorage temizlendi')
+      }
+      
+      // AuthContext'teki logout'u çağır
       await logout()
       
-      // Sayfayı yenile - AuthContext'teki reload çalışmıyorsa burada yap
+      // Sayfayı yenile
       if (typeof window !== 'undefined') {
-        setTimeout(() => {
-          window.location.reload()
-        }, 100)
+        console.log('🔄 Sayfa yenileniyor...')
+        window.location.href = '/'
       }
     } catch (error) {
-      console.error('Logout error:', error)
+      console.error('❌ Logout error:', error)
+      // Hata olsa bile sayfayı yenile
+      if (typeof window !== 'undefined') {
+        window.location.href = '/'
+      }
     }
   }
 
