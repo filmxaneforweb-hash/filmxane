@@ -1339,10 +1339,10 @@ export function AdminPanel() {
                       <label className="block text-sm font-medium text-slate-300 mb-2">Max Upload Size (MB)</label>
                       <input
                         type="number"
-                        value={settingsForm?.maxUploadSize || 1000}
+                        value={settingsForm?.maxUploadSize || 3000}
                         onChange={(e) => handleSettingsChange('maxUploadSize', parseInt(e.target.value))}
                         className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-white"
-                        placeholder="1000"
+                        placeholder="3000"
                       />
                     </div>
                     <div>
@@ -1423,10 +1423,10 @@ export function AdminPanel() {
                       <label className="block text-sm font-medium text-slate-300 mb-2">Session Timeout (minutes)</label>
                       <input
                         type="number"
-                        value={settingsForm?.sessionTimeout || 30}
+                        value={settingsForm?.sessionTimeout || 90}
                         onChange={(e) => handleSettingsChange('sessionTimeout', parseInt(e.target.value))}
                         className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-white"
-                        placeholder="30"
+                        placeholder="90"
                       />
                     </div>
                     <div>
