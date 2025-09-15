@@ -6,8 +6,8 @@ import { VideoCard } from '@/components/VideoCard'
 export default function TestFavoritesPage() {
   const [testVideo] = useState({
     id: '1',
-    title: 'Test Film',
-    description: 'Bu bir test filmidir',
+    title: 'Fîlma Testê',
+    description: 'Ev fîlmeke testê ye',
     thumbnailUrl: 'https://via.placeholder.com/300x200/ff0000/ffffff?text=Test+Film',
     duration: 120,
     rating: 8.5,

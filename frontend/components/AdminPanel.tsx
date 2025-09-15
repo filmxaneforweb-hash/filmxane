@@ -533,12 +533,12 @@ export function AdminPanel() {
         <div className="mb-4 sm:mb-8 border-b border-slate-800 overflow-x-auto">
           <div className="flex gap-2 sm:gap-4 min-w-max">
             {[
-              { id: 'dashboard', label: 'Dashboard', shortLabel: 'Dash', icon: BarChart3 },
-              { id: 'upload', label: 'Upload Content', shortLabel: 'Upload', icon: Upload },
-              { id: 'movies', label: 'Movies', shortLabel: 'Movies', icon: Film },
-              { id: 'series', label: 'Series', shortLabel: 'Series', icon: Tv },
-              { id: 'users', label: 'Users', shortLabel: 'Users', icon: Users },
-              { id: 'settings', label: 'Settings', shortLabel: 'Settings', icon: Settings }
+              { id: 'dashboard', label: 'Dashboard', shortLabel: 'Dashboard', icon: BarChart3 },
+              { id: 'upload', label: 'Barkirina Naverokê', shortLabel: 'Barkirin', icon: Upload },
+              { id: 'movies', label: 'Fîlm', shortLabel: 'Fîlm', icon: Film },
+              { id: 'series', label: 'Rêzefîlm', shortLabel: 'Rêzefîlm', icon: Tv },
+              { id: 'users', label: 'Bikarhêner', shortLabel: 'Bikarhêner', icon: Users },
+              { id: 'settings', label: 'Mîheng', shortLabel: 'Mîheng', icon: Settings }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -570,7 +570,7 @@ export function AdminPanel() {
                       <div className="flex items-center gap-3">
                         <Film className="w-8 h-8 text-blue-500" />
                         <div>
-                          <p className="text-slate-400 text-sm">Total Movies</p>
+                          <p className="text-slate-400 text-sm">Tevahiya Fîlman</p>
                           <p className="text-2xl font-bold">{stats.totalMovies}</p>
                         </div>
                       </div>
