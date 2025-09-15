@@ -14,7 +14,6 @@ export default function SeriesPage() {
   const [inputValue, setInputValue] = useState('') // Separate state for input
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [selectedYear, setSelectedYear] = useState('all')
-  const [selectedRating, setSelectedRating] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [series, setSeries] = useState<any[]>([])
   const [allGenres, setAllGenres] = useState<string[]>([])
@@ -65,7 +64,7 @@ export default function SeriesPage() {
     }
 
     fetchSeries()
-  }, [searchQuery, selectedGenre, selectedYear, selectedRating, currentPage])
+  }, [searchQuery, selectedGenre, selectedYear, currentPage])
 
   // Filters are now loaded with the main data fetch
 
@@ -120,10 +119,6 @@ export default function SeriesPage() {
     setCurrentPage(1) // Reset to first page
   }
 
-  const handleRatingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedRating(e.target.value)
-    setCurrentPage(1)
-  }
 
 
 
@@ -136,7 +131,6 @@ export default function SeriesPage() {
     setInputValue('')
     setSelectedGenre('all')
     setSelectedYear('all')
-    setSelectedRating('all')
     setCurrentPage(1)
   }
 
@@ -234,22 +228,6 @@ export default function SeriesPage() {
               </select>
             </div>
 
-            {/* Rating Filter */}
-            <div className="relative">
-              <Star className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <select
-                value={selectedRating}
-                onChange={handleRatingChange}
-                className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
-              >
-                <option value="all" className="bg-gray-800 text-white">Hemû Rating</option>
-                <option value="9-10" className="bg-gray-800 text-white">9+ (Mükemmel)</option>
-                <option value="8-9" className="bg-gray-800 text-white">8+ (Çok İyi)</option>
-                <option value="7-8" className="bg-gray-800 text-white">7+ (İyi)</option>
-                <option value="6-7" className="bg-gray-800 text-white">6+ (Orta)</option>
-                <option value="5-6" className="bg-gray-800 text-white">5+ (Kabul Edilebilir)</option>
-              </select>
-            </div>
           </div>
 
 
@@ -273,7 +251,6 @@ export default function SeriesPage() {
             {searchQuery && ` ji bo "${searchQuery}"`}
             {selectedGenre !== 'all' && ` di cureya "${selectedGenre}" de`}
             {selectedYear !== 'all' && ` di "${selectedYear}" de`}
-                         {selectedRating !== 'all' && ` rating ${selectedRating}`}
           </p>
         </div>
 

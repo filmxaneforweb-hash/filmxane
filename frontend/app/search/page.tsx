@@ -17,7 +17,6 @@ export default function SearchPage() {
   const [inputValue, setInputValue] = useState(query) // Separate state for input
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [selectedYear, setSelectedYear] = useState('all')
-  const [selectedRating, setSelectedRating] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [allGenres, setAllGenres] = useState<string[]>([])
@@ -45,7 +44,6 @@ export default function SearchPage() {
           query: searchQuery,
           genre: selectedGenre !== 'all' ? selectedGenre : undefined,
           year: selectedYear !== 'all' ? selectedYear : undefined,
-          rating: selectedRating !== 'all' ? selectedRating : undefined,
           page: currentPage,
           limit: 20
         })
@@ -74,7 +72,7 @@ export default function SearchPage() {
     }, 1000)
 
     return () => clearTimeout(timeoutId)
-  }, [searchQuery, selectedGenre, selectedYear, selectedRating, currentPage])
+  }, [searchQuery, selectedGenre, selectedYear, currentPage])
 
   // Fetch all genres and years on component mount
   useEffect(() => {
@@ -127,10 +125,6 @@ export default function SearchPage() {
     setCurrentPage(1)
   }
 
-  const handleRatingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedRating(e.target.value)
-    setCurrentPage(1)
-  }
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -140,7 +134,6 @@ export default function SearchPage() {
     setSearchQuery('')
     setSelectedGenre('all')
     setSelectedYear('all')
-    setSelectedRating('all')
     setCurrentPage(1)
   }
 
@@ -238,22 +231,6 @@ export default function SearchPage() {
               </select>
             </div>
 
-            {/* Rating Filter */}
-            <div className="relative">
-              <Star className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <select
-                value={selectedRating}
-                onChange={handleRatingChange}
-                className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
-              >
-                <option value="all" className="bg-gray-800 text-white">Hemû Rating</option>
-                <option value="9-10" className="bg-gray-800 text-white">9+ (Mükemmel)</option>
-                <option value="8-9" className="bg-gray-800 text-white">8+ (Çok İyi)</option>
-                <option value="7-8" className="bg-gray-800 text-white">7+ (İyi)</option>
-                <option value="6-7" className="bg-gray-800 text-white">6+ (Orta)</option>
-                <option value="5-6" className="bg-gray-800 text-white">5+ (Kabul Edilebilir)</option>
-              </select>
-            </div>
           </div>
 
           {/* Reset Filters Button */}
@@ -275,7 +252,6 @@ export default function SearchPage() {
             {searchQuery && ` ji bo "${searchQuery}"`}
             {selectedGenre !== 'all' && ` di cureya "${selectedGenre}" de`}
             {selectedYear !== 'all' && ` di "${selectedYear}" de`}
-            {selectedRating !== 'all' && ` rating ${selectedRating}`}
           </p>
         </div>
 
