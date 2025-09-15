@@ -1323,14 +1323,34 @@ export default function VideoPlayerPage() {
                           Cureyên Fîlmê
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                          {(typeof video.genre === 'string' ? JSON.parse(video.genre) : video.genre).map((genre: any, index: any) => (
-                            <span
-                              key={index}
-                              className="px-3 py-2 bg-blue-600/20 text-blue-400 rounded-lg text-sm font-medium border border-blue-500/30"
-                            >
-                              {genre}
-                            </span>
-                          ))}
+                          {(typeof video.genre === 'string' ? JSON.parse(video.genre) : video.genre).map((genre: any, index: any) => {
+                            // Genre çevirisi
+                            const genreMap: { [key: string]: string } = {
+                              'Action': 'Aksiyon',
+                              'Drama': 'Drama',
+                              'Thriller': 'Tirsnak',
+                              'Comedy': 'Komedî',
+                              'Romance': 'Evînî',
+                              'Horror': 'Tirs',
+                              'Sci-Fi': 'Zanistî-Fantastîk',
+                              'Fantasy': 'Fantastîk',
+                              'Crime': 'Tawan',
+                              'Mystery': 'Mister',
+                              'Adventure': 'Serpêhatî',
+                              'Animation': 'Anîmasyon',
+                              'Documentary': 'Belgefilm',
+                              'Biography': 'Jiyanname',
+                              'History': 'Dîrok'
+                            }
+                            return (
+                              <span
+                                key={index}
+                                className="px-3 py-2 bg-blue-600/20 text-blue-400 rounded-lg text-sm font-medium border border-blue-500/30"
+                              >
+                                {genreMap[genre] || genre}
+                              </span>
+                            )
+                          })}
                         </div>
                       </div>
                     )}

@@ -168,9 +168,9 @@ export function AdminPanel() {
       } else {
         // Fallback genres if response is not successful
         setAvailableGenres([
-          'Aksiyon', 'Drama', 'Thriller', 'Komedî', 'Romantîk', 
-          'Horror', 'Sci-Fi', 'Fantastîk', 'Crime', 'Mystery',
-          'Adventure', 'Animation', 'Documentary', 'Biography', 'History'
+          'Aksiyon', 'Drama', 'Tirsnak', 'Komedî', 'Evînî', 
+          'Tirs', 'Zanistî-Fantastîk', 'Fantastîk', 'Tawan', 'Mister',
+          'Serpêhatî', 'Anîmasyon', 'Belgefilm', 'Jiyanname', 'Dîrok'
         ])
       }
     } catch (error) {

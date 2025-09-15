@@ -351,11 +351,31 @@ export default function MyListPage() {
 
                                      {Array.isArray(content.genre) && content.genre.length > 0 && (
                      <div className="mt-3 flex flex-wrap gap-1">
-                       {content.genre.slice(0, 2).map((genre, index) => (
-                         <span key={index} className="text-xs bg-slate-700 text-gray-300 px-2 py-1 rounded">
-                           {genre}
-                         </span>
-                       ))}
+                       {content.genre.slice(0, 2).map((genre, index) => {
+                         // Genre çevirisi
+                         const genreMap: { [key: string]: string } = {
+                           'Action': 'Aksiyon',
+                           'Drama': 'Drama',
+                           'Thriller': 'Tirsnak',
+                           'Comedy': 'Komedî',
+                           'Romance': 'Evînî',
+                           'Horror': 'Tirs',
+                           'Sci-Fi': 'Zanistî-Fantastîk',
+                           'Fantasy': 'Fantastîk',
+                           'Crime': 'Tawan',
+                           'Mystery': 'Mister',
+                           'Adventure': 'Serpêhatî',
+                           'Animation': 'Anîmasyon',
+                           'Documentary': 'Belgefilm',
+                           'Biography': 'Jiyanname',
+                           'History': 'Dîrok'
+                         }
+                         return (
+                           <span key={index} className="text-xs bg-slate-700 text-gray-300 px-2 py-1 rounded">
+                             {genreMap[genre] || genre}
+                           </span>
+                         )
+                       })}
                      </div>
                    )}
                 </div>
