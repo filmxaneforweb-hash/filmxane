@@ -169,16 +169,6 @@ export default function SeriesPage() {
     <div className="min-h-screen bg-black pt-20">
       {/* Header */}
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
-            <span className="bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent">
-              Rêzefîlmên
-            </span>
-          </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Rêzefîlmên herî baş û nû yên cîhanê bibînin û bixwînin
-          </p>
-        </div>
 
         {/* Search and Filters */}
         <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 mb-8">

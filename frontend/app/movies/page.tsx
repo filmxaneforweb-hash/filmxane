@@ -181,13 +181,6 @@ export default function MoviesPage() {
     <div className="min-h-screen bg-black pt-20">
       {/* Header */}
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
-            <span className="bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
-              Fîlmeni Lêbigere
-            </span>
-          </h1>
-        </div>
 
         {/* Search and Filters */}
         <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 mb-8">
