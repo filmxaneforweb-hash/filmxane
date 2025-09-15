@@ -198,7 +198,7 @@ export default function SearchPage() {
           </div>
 
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
             {/* Genre Filter */}
             <div className="relative">
               <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
