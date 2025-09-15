@@ -79,7 +79,7 @@ export function HeroSection() {
               <span>{currentContent.year}</span>
               <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                {isMovie ? `${currentContent.duration} min` : `${currentContent.seasons.length} seasons`}
+                {isMovie ? `${currentContent.duration} deqîqe` : `${currentContent.seasons.length} sezon`}
               </span>
               <span className="px-2 py-1 bg-red-500/20 border border-red-500/30 rounded text-red-400 text-xs">
                 {currentContent.quality}

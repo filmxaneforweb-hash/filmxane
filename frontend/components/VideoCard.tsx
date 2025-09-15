@@ -107,7 +107,7 @@ export function VideoCard({
     if (hours > 0) {
       return `${hours}:${mins.toString().padStart(2, '0')}`
     } else {
-      return `${mins}m`
+      return `${mins} deqîqe`
     }
   }
 

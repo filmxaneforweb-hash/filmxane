@@ -147,7 +147,7 @@ export function ContentGrid({
                           <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4" />
                             <span>
-                              {isMovie ? `${item.duration || 0} min` : `${(item as any).totalSeasons || 0} seasons`}
+                              {isMovie ? `${item.duration || 0} deqîqe` : `${(item as any).totalSeasons || 0} sezon`}
                             </span>
                           </div>
                         </div>

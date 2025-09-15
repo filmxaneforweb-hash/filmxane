@@ -274,11 +274,11 @@ export default function VideoPlayerPage() {
     const secs = safeSeconds % 60
     
     if (hours > 0) {
-      return `${hours}h ${minutes}m`
+      return `${hours} saet ${minutes} deqîqe`
     } else if (minutes > 0) {
-      return `${minutes}m`
+      return `${minutes} deqîqe`
     } else {
-      return `${secs}s`
+      return `${secs} çirke`
     }
   }
 
