@@ -171,38 +171,31 @@ export function Navigation() {
     }
   }
 
-  // Derketinê birêve bibe
-  const handleLogout = async () => {
+  // Derketinê birêve bibe - Profil sayfasındaki mantık
+  const handleLogout = () => {
     try {
       console.log('🔍 Logout başlatılıyor...')
       setIsUserMenuOpen(false)
       
-      // Önce localStorage'ı temizle
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('filmxane_token')
-        localStorage.removeItem('filmxane_refresh_token')
-        localStorage.removeItem('filmxane_user_firstName')
-        localStorage.removeItem('filmxane_user_lastName')
-        localStorage.removeItem('filmxane_user_email')
-        localStorage.removeItem('filmxane_user_joinDate')
-        localStorage.removeItem('filmxane_user_role')
-        console.log('✅ LocalStorage temizlendi')
-      }
+      // LocalStorage'ı temizle (profil sayfasındaki gibi)
+      localStorage.removeItem('filmxane_token')
+      localStorage.removeItem('filmxane_refresh_token')
+      localStorage.removeItem('filmxane_user_firstName')
+      localStorage.removeItem('filmxane_user_lastName')
+      localStorage.removeItem('filmxane_user_email')
+      localStorage.removeItem('filmxane_user_joinDate')
+      localStorage.removeItem('filmxane_user_role')
       
-      // AuthContext'teki logout'u çağır
-      await logout()
+      console.log('✅ LocalStorage temizlendi')
       
-      // Sayfayı yenile
-      if (typeof window !== 'undefined') {
-        console.log('🔄 Sayfa yenileniyor...')
-        window.location.href = '/'
-      }
+      // Direkt ana sayfaya yönlendir (profil sayfasındaki gibi)
+      window.location.href = '/'
+      
+      console.log('🔄 Ana sayfaya yönlendiriliyor...')
     } catch (error) {
       console.error('❌ Logout error:', error)
-      // Hata olsa bile sayfayı yenile
-      if (typeof window !== 'undefined') {
-        window.location.href = '/'
-      }
+      // Hata olsa bile ana sayfaya yönlendir
+      window.location.href = '/'
     }
   }
 
