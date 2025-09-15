@@ -600,11 +600,11 @@ export default function VideoPlayerPage() {
           statusText: response.statusText,
           errorData
         })
-        alert(`Favori işlemi başarısız oldu: ${response.status} - ${errorData.error || response.statusText}`)
+        alert(`Karkirina favoriyê nehat serkeftin: ${response.status} - ${errorData.error || response.statusText}`)
       }
     } catch (error) {
       console.error('❌ Network hatası:', error)
-      alert('Favori işlemi sırasında hata oluştu. Lütfen tekrar deneyin.')
+      alert('Di karkirina favoriyê de çewtiya çêbûye. Ji kerema xwe dîsa biceribîne.')
     } finally {
       setIsLoadingFavorite(false)
     }
@@ -712,8 +712,8 @@ export default function VideoPlayerPage() {
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 text-6xl mb-4">❌</div>
-          <h1 className="text-white text-2xl mb-2">Video Bulunamadı</h1>
-          <p className="text-gray-400">{error || 'Video mevcut değil'}</p>
+          <h1 className="text-white text-2xl mb-2">Vîdyo nehat dîtin</h1>
+          <p className="text-gray-400">{error || 'Vîdyo mewcûd nîne'}</p>
         </div>
       </div>
     )

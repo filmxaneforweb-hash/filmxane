@@ -307,7 +307,7 @@ export function AdminPanel() {
       console.log('📡 Upload response:', response)
       
       if (response.success) {
-        alert('Content uploaded successfully!')
+        alert('Naverok bi serkeftinî hat barkirin!')
         setUploadForm({
           title: '',
           titleKurdish: '',
@@ -337,10 +337,10 @@ export function AdminPanel() {
         // Refresh content
         await Promise.all([fetchMovies(), fetchSeries()])
       } else {
-        alert('Upload failed: ' + response.error)
+        alert('Barkirin nehat serkeftin: ' + response.error)
       }
     } catch (error) {
-      alert('Upload failed: ' + error)
+      alert('Barkirin nehat serkeftin: ' + error)
     } finally {
       setIsLoading(false)
       setIsUploading(false)
@@ -350,19 +350,19 @@ export function AdminPanel() {
 
   // Handle content deletion
   const handleDelete = async (id: string, contentType: 'movie' | 'series') => {
-    if (!confirm('Are you sure you want to delete this content?')) return
+    if (!confirm('Ma hûn rast dixwazin vê naverokê jêbikin?')) return
 
     try {
       const response = await apiClient.deleteContent(id)
       if (response.success) {
-        alert('Content deleted successfully!')
+        alert('Naverok bi serkeftinî hat jêbirin!')
         // Refresh content
         await Promise.all([fetchMovies(), fetchSeries()])
       } else {
-        alert('Deletion failed: ' + response.error)
+        alert('Jêbirin nehat serkeftin: ' + response.error)
       }
     } catch (error) {
-      alert('Deletion failed: ' + error)
+      alert('Jêbirin nehat serkeftin: ' + error)
     }
   }
 
@@ -402,15 +402,15 @@ export function AdminPanel() {
       })
 
       if (response.success) {
-        alert('Content updated successfully!')
+        alert('Naverok bi serkeftinî hat nûkirin!')
         setShowEditContentModal(false)
         // Refresh content
         await Promise.all([fetchMovies(), fetchSeries()])
       } else {
-        alert('Update failed: ' + response.error)
+        alert('Nûkirin nehat serkeftin: ' + response.error)
       }
     } catch (error) {
-      alert('Update failed: ' + error)
+      alert('Nûkirin nehat serkeftin: ' + error)
     } finally {
       setIsLoading(false)
     }
@@ -430,13 +430,13 @@ export function AdminPanel() {
       setIsLoading(true)
       const response = await apiClient.updateSystemSettings(settingsForm)
       if (response.success) {
-        alert('Settings saved successfully!')
+        alert('Mîhengên bi serkeftinî hatin tomarkirin!')
         await fetchSettings() // Refresh settings
       } else {
-        alert('Failed to save settings: ' + response.error)
+        alert('Mîhengên nehatin tomarkirin: ' + response.error)
       }
     } catch (error) {
-      alert('Failed to save settings: ' + error)
+      alert('Mîhengên nehatin tomarkirin: ' + error)
     } finally {
       setIsLoading(false)
     }
@@ -456,23 +456,23 @@ export function AdminPanel() {
   const handleDeleteUser = async (user: User) => {
     // Check if user is admin
     if (user.role === 'admin') {
-      alert('Cannot delete admin users!')
+      alert('Bikarhênerên rêvebir nayên jêbirin!')
       return
     }
 
-    if (!confirm(`Are you sure you want to delete user "${user.firstName} ${user.lastName}"?`)) return
+    if (!confirm(`Ma hûn rast dixwazin bikarhêner "${user.firstName} ${user.lastName}" jêbikin?`)) return
 
     try {
       setIsLoading(true)
       const response = await apiClient.deleteUser(user.id)
       if (response.success) {
-        alert('User deleted successfully!')
+        alert('Bikarhêner bi serkeftinî hat jêbirin!')
         await fetchUsers() // Refresh users list
       } else {
-        alert('Failed to delete user: ' + (response.error || 'Unknown error'))
+        alert('Bikarhêner nehat jêbirin: ' + (response.error || 'Çewtiya nenas'))
       }
     } catch (error) {
-      alert('Failed to delete user: ' + error)
+      alert('Bikarhêner nehat jêbirin: ' + error)
     } finally {
       setIsLoading(false)
     }
@@ -485,15 +485,15 @@ export function AdminPanel() {
       setIsLoading(true)
       const response = await apiClient.updateUser(editingUser.id, userData)
       if (response.success) {
-        alert('User updated successfully!')
+        alert('Bikarhêner bi serkeftinî hat nûkirin!')
         setShowEditModal(false)
         setEditingUser(null)
         await fetchUsers() // Refresh users list
       } else {
-        alert('Failed to update user: ' + response.error)
+        alert('Bikarhêner nehat nûkirin: ' + response.error)
       }
     } catch (error) {
-      alert('Failed to update user: ' + error)
+      alert('Bikarhêner nehat nûkirin: ' + error)
     } finally {
       setIsLoading(false)
     }
