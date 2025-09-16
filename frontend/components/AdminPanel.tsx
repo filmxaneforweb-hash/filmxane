@@ -1423,10 +1423,10 @@ export function AdminPanel() {
                       <label className="block text-sm font-medium text-slate-300 mb-2">Session Timeout (minutes)</label>
                       <input
                         type="number"
-                        value={settingsForm?.sessionTimeout || 90}
+                        value={settingsForm?.sessionTimeout || 180}
                         onChange={(e) => handleSettingsChange('sessionTimeout', parseInt(e.target.value))}
                         className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-white"
-                        placeholder="90"
+                        placeholder="180"
                       />
                     </div>
                     <div>
