@@ -213,7 +213,7 @@ export function Navigation() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-red-100 bg-clip-text text-transparent">
                   Filmxane
                 </h1>
-                <p className="text-sm text-slate-400 font-medium">SÎNEMA YA KURDÎ</p>
+                <p className="text-sm text-slate-400 font-medium">SÎNEMAYA KURDÎ</p>
               </div>
             </Link>
 
